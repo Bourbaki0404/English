@@ -388,7 +388,6 @@ export default function EditorLayoutSimple() {
     setSelectedText("");
     setRevealedRegions(new Set());
     setManuallyRevealedRegions(new Set());
-    setCurrentSelection(null);
   };
 
   const handleContentChange = (newContent: string) => {
