@@ -311,12 +311,13 @@ export default function EditorLayoutSimple() {
     const selection = window.getSelection();
     if (selection?.toString()) return; // Don't handle clicks during text selection
 
-    // Simple approach: clear selection and revealed regions on any click
-    // The actual region-specific clicking can be handled by adding click handlers to the rendered spans
+    // Clear selection and revealed regions when clicking in unformatted areas
     setSelectedText('');
     setCurrentSelection(null);
 
-    // Don't clear revealed regions immediately - let them persist until new selection
+    // Clear revealed regions to return text to formatted state
+    // Note: region-specific clicks are handled by handleRegionClick which stops propagation
+    setRevealedRegions(new Set());
   };
 
   // Function to handle clicks on specific formatted regions
