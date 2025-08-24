@@ -21,8 +21,6 @@ export default function HybridEditor({
 }: HybridEditorProps) {
   const [htmlContent, setHtmlContent] = useState("");
   const [isEditing, setIsEditing] = useState(false);
-  const [showColorPicker, setShowColorPicker] = useState(false);
-  const [showHighlightPicker, setShowHighlightPicker] = useState(false);
   const [selectedText, setSelectedText] = useState("");
   const [selection, setSelection] = useState<Range | null>(null);
   const [toolbarPosition, setToolbarPosition] = useState({ x: 0, y: 0 });
