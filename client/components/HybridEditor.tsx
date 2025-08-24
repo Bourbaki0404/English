@@ -169,6 +169,35 @@ export default function HybridEditor({
     return intersecting;
   }, []);
 
+  // Get current cursor position and selection in text
+  const updateCursorAndSelection = useCallback(() => {
+    if (!editorRef.current) return;
+
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0) return;
+
+    const range = selection.getRangeAt(0);
+
+    // Calculate text position from DOM position
+    const getCursorPosition = () => {
+      const preCaretRange = range.cloneRange();
+      preCaretRange.selectNodeContents(editorRef.current!);
+      preCaretRange.setEnd(range.startContainer, range.startOffset);
+      return preCaretRange.toString().length;
+    };
+
+    const cursorPos = getCursorPosition();
+    setCursorPosition(cursorPos);
+
+    if (range.collapsed) {
+      setSelectionRange(null);
+    } else {
+      const selectionStart = cursorPos;
+      const selectionEnd = cursorPos + range.toString().length;
+      setSelectionRange({ start: selectionStart, end: selectionEnd });
+    }
+  }, []);
+
   // Helper function to escape HTML
   const escapeHtml = (text: string) => {
     const div = document.createElement('div');
