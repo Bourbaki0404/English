@@ -41,9 +41,21 @@ export default function HybridEditor({
     end: 0,
   });
   const [selectedText, setSelectedText] = useState("");
+  const [cursorBlinkVisible, setCursorBlinkVisible] = useState(true);
 
   const displayRef = useRef<HTMLDivElement>(null);
   const hiddenEditableRef = useRef<HTMLDivElement>(null);
+
+  // Cursor blinking effect
+  useEffect(() => {
+    if (!isEditing) return;
+    
+    const interval = setInterval(() => {
+      setCursorBlinkVisible(prev => !prev);
+    }, 530);
+
+    return () => clearInterval(interval);
+  }, [isEditing]);
 
   // Parse markdown blocks
   const parseMarkdownBlocks = useCallback((text: string): MarkdownBlock[] => {
@@ -156,59 +168,82 @@ export default function HybridEditor({
     [],
   );
 
-  // Get cursor position from hidden contenteditable
-  const getCursorPositionFromEditable = useCallback(() => {
-    if (!hiddenEditableRef.current) return 0;
+  // Get text position from a DOM point
+  const getTextPositionFromPoint = useCallback((x: number, y: number): number => {
+    if (!displayRef.current) return 0;
 
-    const selection = window.getSelection();
-    if (!selection || selection.rangeCount === 0) return 0;
-
-    const range = selection.getRangeAt(0);
-    const preCaretRange = range.cloneRange();
-    preCaretRange.selectNodeContents(hiddenEditableRef.current);
-    preCaretRange.setEnd(range.startContainer, range.startOffset);
-
-    return preCaretRange.toString().length;
-  }, []);
-
-  // Set cursor position in hidden contenteditable
-  const setCursorPositionInEditable = useCallback((position: number) => {
-    if (!hiddenEditableRef.current) return;
-
+    let position = 0;
     const walker = document.createTreeWalker(
-      hiddenEditableRef.current,
+      displayRef.current,
       NodeFilter.SHOW_TEXT,
       null,
     );
 
-    let currentPos = 0;
     let node = walker.nextNode();
-
     while (node) {
-      const nodeLength = node.textContent?.length || 0;
-      if (currentPos + nodeLength >= position) {
+      if (node.nodeType === Node.TEXT_NODE && node.parentElement) {
         const range = document.createRange();
-        const selection = window.getSelection();
-        const offset = position - currentPos;
-
-        range.setStart(node, Math.min(offset, nodeLength));
-        range.collapse(true);
-
-        selection?.removeAllRanges();
-        selection?.addRange(range);
-        break;
+        range.selectNodeContents(node);
+        const rects = range.getClientRects();
+        
+        for (let i = 0; i < rects.length; i++) {
+          const rect = rects[i];
+          if (y >= rect.top && y <= rect.bottom) {
+            if (x <= rect.left) {
+              return position;
+            } else if (x >= rect.right) {
+              position += node.textContent?.length || 0;
+              break;
+            } else {
+              // Binary search for character position within this text node
+              const text = node.textContent || "";
+              let left = 0;
+              let right = text.length;
+              
+              while (left < right) {
+                const mid = Math.floor((left + right) / 2);
+                range.setStart(node, 0);
+                range.setEnd(node, mid);
+                const midRect = range.getBoundingClientRect();
+                
+                if (x <= midRect.right) {
+                  right = mid;
+                } else {
+                  left = mid + 1;
+                }
+              }
+              
+              return position + left;
+            }
+          }
+        }
       }
-      currentPos += nodeLength;
+      
+      if (node.textContent) {
+        position += node.textContent.length;
+      }
       node = walker.nextNode();
     }
-  }, []);
+
+    return Math.min(position, content.length);
+  }, [content]);
 
   // Handle keyboard input
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
-      if (!isEditing) return;
+      if (!isEditing) {
+        if (e.key === 'Enter' || e.key === ' ' || e.key.length === 1) {
+          setIsEditing(true);
+          setCursorPosition({ start: 0, end: 0 });
+          e.preventDefault();
+          return;
+        }
+        return;
+      }
 
       e.preventDefault();
+      e.stopPropagation();
+      
       let newContent = content;
       let newCursor = { ...cursorPosition };
 
@@ -279,6 +314,40 @@ export default function HybridEditor({
               : cursorPosition.end;
           newCursor = { start: pos, end: pos };
         }
+      } else if (e.key === "ArrowUp") {
+        // Move to start of current line or previous line
+        const currentLineStart = content.lastIndexOf('\n', cursorPosition.start - 1) + 1;
+        if (currentLineStart > 0) {
+          const prevLineStart = content.lastIndexOf('\n', currentLineStart - 2) + 1;
+          const currentOffset = cursorPosition.start - currentLineStart;
+          const prevLineEnd = currentLineStart - 1;
+          const newPos = Math.min(prevLineStart + currentOffset, prevLineEnd);
+          newCursor = { start: newPos, end: newPos };
+        } else {
+          newCursor = { start: 0, end: 0 };
+        }
+      } else if (e.key === "ArrowDown") {
+        // Move to next line
+        const currentLineStart = content.lastIndexOf('\n', cursorPosition.start - 1) + 1;
+        const currentLineEnd = content.indexOf('\n', cursorPosition.start);
+        const nextLineStart = currentLineEnd + 1;
+        
+        if (currentLineEnd !== -1 && nextLineStart < content.length) {
+          const currentOffset = cursorPosition.start - currentLineStart;
+          const nextLineEnd = content.indexOf('\n', nextLineStart);
+          const nextLineLength = nextLineEnd === -1 ? content.length - nextLineStart : nextLineEnd - nextLineStart;
+          const newPos = nextLineStart + Math.min(currentOffset, nextLineLength);
+          newCursor = { start: newPos, end: newPos };
+        } else {
+          newCursor = { start: content.length, end: content.length };
+        }
+      } else if (e.key === "Home") {
+        const lineStart = content.lastIndexOf('\n', cursorPosition.start - 1) + 1;
+        newCursor = { start: lineStart, end: lineStart };
+      } else if (e.key === "End") {
+        const lineEnd = content.indexOf('\n', cursorPosition.start);
+        const pos = lineEnd === -1 ? content.length : lineEnd;
+        newCursor = { start: pos, end: pos };
       } else if (e.key === "Enter") {
         newContent =
           content.slice(0, cursorPosition.start) +
@@ -316,6 +385,7 @@ export default function HybridEditor({
         newCursor.end !== cursorPosition.end
       ) {
         setCursorPosition(newCursor);
+        setCursorBlinkVisible(true); // Reset blink when cursor moves
       }
     },
     [isEditing, content, cursorPosition, onChange],
@@ -324,68 +394,24 @@ export default function HybridEditor({
   // Handle clicks on display area
   const handleClick = useCallback(
     (e: React.MouseEvent) => {
-      if (!displayRef.current || !hiddenEditableRef.current) return;
+      e.preventDefault();
+      e.stopPropagation();
 
-      // Get the click position relative to the display area
-      const displayRect = displayRef.current.getBoundingClientRect();
-      const clickX = e.clientX - displayRect.left;
-      const clickY = e.clientY - displayRect.top;
+      const position = getTextPositionFromPoint(e.clientX, e.clientY);
+      setCursorPosition({ start: position, end: position });
+      setIsEditing(true);
+      setCursorBlinkVisible(true);
 
-      // Use caretRangeFromPoint or caretPositionFromPoint to get position
-      let range: Range | null = null;
-
-      if (document.caretRangeFromPoint) {
-        range = document.caretRangeFromPoint(e.clientX, e.clientY);
-      } else if ((document as any).caretPositionFromPoint) {
-        const caretPos = (document as any).caretPositionFromPoint(
-          e.clientX,
-          e.clientY,
-        );
-        if (caretPos) {
-          range = document.createRange();
-          range.setStart(caretPos.offsetNode, caretPos.offset);
-          range.collapse(true);
-        }
-      }
-
-      if (range) {
-        // Calculate text position by traversing text nodes
-        let position = 0;
-        const walker = document.createTreeWalker(
-          displayRef.current,
-          NodeFilter.SHOW_TEXT,
-          null,
-        );
-
-        let node = walker.nextNode();
-        while (node && node !== range.startContainer) {
-          if (node.textContent) {
-            position += node.textContent.length;
-          }
-          node = walker.nextNode();
-        }
-
-        if (node === range.startContainer) {
-          position += range.startOffset;
-        }
-
-        // Update cursor position and enter editing mode
-        setCursorPosition({ start: position, end: position });
-        setIsEditing(true);
-
-        // Update hidden editable and focus it
-        if (hiddenEditableRef.current) {
-          hiddenEditableRef.current.textContent = content;
-          hiddenEditableRef.current.focus();
-          setCursorPositionInEditable(position);
-        }
+      // Focus the hidden editable to capture keyboard events
+      if (hiddenEditableRef.current) {
+        hiddenEditableRef.current.focus();
       }
     },
-    [content, setCursorPositionInEditable],
+    [getTextPositionFromPoint],
   );
 
   // Handle text selection
-  const handleMouseUp = useCallback(() => {
+  const handleMouseUp = useCallback((e: React.MouseEvent) => {
     if (!isEditing) {
       const selection = window.getSelection();
       if (selection && selection.toString()) {
@@ -398,19 +424,12 @@ export default function HybridEditor({
 
   // Update hidden editable when content changes
   useEffect(() => {
-    if (hiddenEditableRef.current && isEditing) {
+    if (hiddenEditableRef.current) {
       hiddenEditableRef.current.textContent = content;
     }
-  }, [content, isEditing]);
+  }, [content]);
 
-  // Sync cursor position with hidden editable
-  useEffect(() => {
-    if (isEditing && hiddenEditableRef.current) {
-      setCursorPositionInEditable(cursorPosition.start);
-    }
-  }, [cursorPosition, isEditing, setCursorPositionInEditable]);
-
-  // Render content with mixed formatting
+  // Render content with mixed formatting and cursor
   const renderContent = useCallback(() => {
     const blocks = parseMarkdownBlocks(content);
     const lines = content.split("\n");
@@ -455,21 +474,19 @@ export default function HybridEditor({
 
         return (
           <HeaderTag key={lineIndex} className={className}>
-            {showRaw ? line : headerText}
-            {isEditing &&
-              cursorPosition.start >= lineStart &&
-              cursorPosition.start <= lineEnd && (
-                <span className="animate-pulse">|</span>
-              )}
+            {renderLineWithCursor(showRaw ? line : headerText, lineStart, lineEnd)}
           </HeaderTag>
         );
       }
 
       if (line.trim() === "") {
         return (
-          <div key={lineIndex} className="mb-2 min-h-[1em]">
-            {isEditing && cursorPosition.start === lineStart && (
-              <span className="animate-pulse">|</span>
+          <div key={lineIndex} className="mb-2 min-h-[1.5em] relative">
+            {isEditing && cursorPosition.start >= lineStart && cursorPosition.start <= lineEnd && (
+              <span 
+                className={`absolute left-0 top-0 w-0.5 h-full bg-blue-600 ${cursorBlinkVisible ? 'opacity-100' : 'opacity-0'}`}
+                style={{ transition: 'none' }}
+              />
             )}
           </div>
         );
@@ -486,149 +503,125 @@ export default function HybridEditor({
         .sort((a, b) => a.start - b.start);
 
       if (lineBlocks.length === 0) {
-        // Plain text line with cursor handling
-        if (
-          isEditing &&
-          cursorPosition.start >= lineStart &&
-          cursorPosition.start <= lineEnd
-        ) {
-          const cursorPos = cursorPosition.start - lineStart;
-          const textBefore = line.substring(0, cursorPos);
-          const textAfter = line.substring(cursorPos);
-
-          return (
-            <p key={lineIndex} className="mb-3 leading-relaxed">
-              {textBefore && <span>{textBefore}</span>}
-              <span className="animate-pulse">|</span>
-              {textAfter && <span>{textAfter}</span>}
-            </p>
-          );
-        } else {
-          return (
-            <p key={lineIndex} className="mb-3 leading-relaxed">
-              {line}
-            </p>
-          );
-        }
+        // Plain text line
+        return (
+          <p key={lineIndex} className="mb-3 leading-relaxed">
+            {renderLineWithCursor(line, lineStart, lineEnd)}
+          </p>
+        );
       }
 
       // Build line with mixed content and cursor
       const elements: React.ReactNode[] = [];
       let currentPos = 0;
-      let hasAddedCursor = false;
 
-      for (let charPos = 0; charPos <= line.length; charPos++) {
-        // Add cursor if it belongs at this position
-        if (
-          isEditing &&
-          cursorPosition.start === lineStart + charPos &&
-          !hasAddedCursor
-        ) {
+      for (const block of lineBlocks) {
+        const blockStartInLine = Math.max(0, block.start - lineStart);
+        const blockEndInLine = Math.min(line.length, block.end - lineStart);
+
+        // Add text before block
+        if (currentPos < blockStartInLine) {
+          const textBefore = line.substring(currentPos, blockStartInLine);
           elements.push(
-            <span key="cursor" className="animate-pulse">
-              |
-            </span>,
+            <span key={`text-before-${block.id}`}>
+              {renderTextWithCursor(textBefore, lineStart + currentPos)}
+            </span>
           );
-          hasAddedCursor = true;
         }
 
-        if (charPos < line.length) {
-          // Find if current position is start of a block
-          const blockAtPos = lineBlocks.find(
-            (block) => block.start === lineStart + charPos,
+        // Add the block
+        const showRaw = blocksToShowRaw.has(block.id);
+        const blockText = showRaw 
+          ? block.rawText 
+          : line.substring(blockStartInLine, blockEndInLine);
+
+        let formattedElement: React.ReactNode;
+
+        if (showRaw) {
+          formattedElement = (
+            <span key={block.id}>
+              {renderTextWithCursor(blockText, block.start)}
+            </span>
           );
-
-          if (blockAtPos) {
-            const showRaw = blocksToShowRaw.has(blockAtPos.id);
-
-            if (showRaw) {
-              // Show raw text
-              elements.push(
-                <span key={blockAtPos.id}>{blockAtPos.rawText}</span>,
+        } else {
+          const innerText = block.innerText;
+          switch (block.type) {
+            case "bold":
+              formattedElement = (
+                <strong key={block.id}>
+                  {renderTextWithCursor(innerText, block.start + 2)}
+                </strong>
               );
-            } else {
-              // Show formatted content
-              let formattedElement: React.ReactNode;
-
-              switch (blockAtPos.type) {
-                case "bold":
-                  formattedElement = (
-                    <strong key={blockAtPos.id}>{blockAtPos.innerText}</strong>
-                  );
-                  break;
-                case "italic":
-                  formattedElement = (
-                    <em key={blockAtPos.id}>{blockAtPos.innerText}</em>
-                  );
-                  break;
-                case "link":
-                  formattedElement = (
-                    <a
-                      key={blockAtPos.id}
-                      href="#"
-                      className="text-blue-600 underline"
-                    >
-                      {blockAtPos.innerText}
-                    </a>
-                  );
-                  break;
-                case "code":
-                  formattedElement = (
-                    <code
-                      key={blockAtPos.id}
-                      className="bg-gray-100 px-1 py-0.5 rounded font-mono text-sm"
-                    >
-                      {blockAtPos.innerText}
-                    </code>
-                  );
-                  break;
-                case "highlight":
-                  formattedElement = (
-                    <span
-                      key={blockAtPos.id}
-                      className="bg-yellow-200 px-1 py-0.5 rounded"
-                    >
-                      {blockAtPos.innerText}
-                    </span>
-                  );
-                  break;
-                case "bracket":
-                  formattedElement = (
-                    <span
-                      key={blockAtPos.id}
-                      className="text-purple-600 bg-gray-100 px-1 py-0.5 rounded text-sm"
-                    >
-                      [{blockAtPos.innerText}]
-                    </span>
-                  );
-                  break;
-                default:
-                  formattedElement = (
-                    <span key={blockAtPos.id}>{blockAtPos.innerText}</span>
-                  );
-              }
-
-              elements.push(formattedElement);
-            }
-
-            // Skip past the block
-            charPos += blockAtPos.end - blockAtPos.start - 1;
-          } else {
-            // Find next block or end of line
-            const nextBlock = lineBlocks.find(
-              (block) => block.start > lineStart + charPos,
-            );
-            const endPos = nextBlock
-              ? nextBlock.start - lineStart
-              : line.length;
-
-            if (endPos > charPos) {
-              const textSegment = line.substring(charPos, endPos);
-              elements.push(<span key={`text-${charPos}`}>{textSegment}</span>);
-              charPos = endPos - 1;
-            }
+              break;
+            case "italic":
+              formattedElement = (
+                <em key={block.id}>
+                  {renderTextWithCursor(innerText, block.start + 1)}
+                </em>
+              );
+              break;
+            case "link":
+              formattedElement = (
+                <a
+                  key={block.id}
+                  href="#"
+                  className="text-blue-600 underline"
+                >
+                  {renderTextWithCursor(innerText, block.start + 1)}
+                </a>
+              );
+              break;
+            case "code":
+              formattedElement = (
+                <code
+                  key={block.id}
+                  className="bg-gray-100 px-1 py-0.5 rounded font-mono text-sm"
+                >
+                  {renderTextWithCursor(innerText, block.start + 1)}
+                </code>
+              );
+              break;
+            case "highlight":
+              formattedElement = (
+                <span
+                  key={block.id}
+                  className="bg-yellow-200 px-1 py-0.5 rounded"
+                >
+                  {renderTextWithCursor(innerText, block.start + 2)}
+                </span>
+              );
+              break;
+            case "bracket":
+              formattedElement = (
+                <span
+                  key={block.id}
+                  className="text-purple-600 bg-gray-100 px-1 py-0.5 rounded text-sm"
+                >
+                  [{renderTextWithCursor(innerText, block.start + 1)}]
+                </span>
+              );
+              break;
+            default:
+              formattedElement = (
+                <span key={block.id}>
+                  {renderTextWithCursor(innerText, block.start)}
+                </span>
+              );
           }
         }
+
+        elements.push(formattedElement);
+        currentPos = blockEndInLine;
+      }
+
+      // Add remaining text after last block
+      if (currentPos < line.length) {
+        const textAfter = line.substring(currentPos);
+        elements.push(
+          <span key="text-after">
+            {renderTextWithCursor(textAfter, lineStart + currentPos)}
+          </span>
+        );
       }
 
       return (
@@ -637,20 +630,41 @@ export default function HybridEditor({
         </p>
       );
     });
-  }, [
-    content,
-    cursorPosition,
-    isEditing,
-    parseMarkdownBlocks,
-    isCursorInBlock,
-  ]);
+  }, [content, cursorPosition, isEditing, parseMarkdownBlocks, isCursorInBlock, cursorBlinkVisible]);
+
+  // Helper function to render text with cursor
+  const renderTextWithCursor = useCallback((text: string, textStartPos: number) => {
+    if (!isEditing || cursorPosition.start < textStartPos || cursorPosition.start > textStartPos + text.length) {
+      return text;
+    }
+
+    const cursorPosInText = cursorPosition.start - textStartPos;
+    const textBefore = text.substring(0, cursorPosInText);
+    const textAfter = text.substring(cursorPosInText);
+
+    return (
+      <>
+        {textBefore}
+        <span 
+          className={`inline-block w-0.5 h-[1.2em] bg-blue-600 relative -top-0.5 ${cursorBlinkVisible ? 'opacity-100' : 'opacity-0'}`}
+          style={{ transition: 'none' }}
+        />
+        {textAfter}
+      </>
+    );
+  }, [isEditing, cursorPosition, cursorBlinkVisible]);
+
+  // Helper function to render line with cursor
+  const renderLineWithCursor = useCallback((text: string, lineStart: number, lineEnd: number) => {
+    return renderTextWithCursor(text, lineStart);
+  }, [renderTextWithCursor]);
 
   return (
     <div className={`relative ${className}`}>
       {/* Display area */}
       <div
         ref={displayRef}
-        className="prose prose-lg max-w-none cursor-text hover:bg-gray-50 rounded p-2 transition-colors"
+        className="prose prose-lg max-w-none cursor-text hover:bg-gray-50 rounded p-4 transition-colors min-h-[200px] focus:outline-none focus:bg-gray-50"
         style={{
           fontFamily: "system-ui, -apple-system, sans-serif",
           lineHeight: "1.6",
@@ -661,15 +675,34 @@ export default function HybridEditor({
         onKeyDown={handleKeyDown}
         tabIndex={0}
       >
-        {renderContent()}
-        {!isEditing && (
+        {content.trim() === '' ? (
+          <div className="text-gray-400">
+            Start typing or click to begin editing...
+            {isEditing && cursorPosition.start === 0 && (
+              <span 
+                className={`inline-block w-0.5 h-[1.2em] bg-blue-600 ml-1 relative -top-0.5 ${cursorBlinkVisible ? 'opacity-100' : 'opacity-0'}`}
+                style={{ transition: 'none' }}
+              />
+            )}
+          </div>
+        ) : (
+          renderContent()
+        )}
+        
+        {!isEditing && content.trim() !== '' && (
           <div className="absolute bottom-4 right-4 text-xs text-gray-400 opacity-50 pointer-events-none">
             Click to edit
           </div>
         )}
+        
+        {isEditing && (
+          <div className="absolute bottom-4 right-4 text-xs text-blue-600 opacity-75 pointer-events-none">
+            Press ESC to stop editing
+          </div>
+        )}
       </div>
 
-      {/* Hidden contenteditable for accurate cursor positioning */}
+      {/* Hidden contenteditable for capturing keyboard events */}
       <div
         ref={hiddenEditableRef}
         contentEditable
@@ -687,13 +720,8 @@ export default function HybridEditor({
           fontSize: "16px",
           lineHeight: "1.6",
         }}
-        onInput={(e) => {
-          const newContent = e.currentTarget.textContent || "";
-          onChange(newContent);
-        }}
-        onSelectionChange={() => {
-          const pos = getCursorPositionFromEditable();
-          setCursorPosition({ start: pos, end: pos });
+        onBlur={() => {
+          // Don't exit edit mode on blur - let user explicitly exit with ESC
         }}
       />
     </div>
