@@ -410,7 +410,7 @@ export default function EditorLayoutSimple() {
         <div className="h-14 border-b border-gray-200 flex items-center justify-between px-6">
           <div className="flex items-center space-x-2">
             <span className="text-sm text-gray-500">
-              {selectedDocument ? getDocumentDisplayName(selectedDocument) : 'No document selected'}
+              {selectedDocument ? selectedDocument.name : 'No document selected'}
             </span>
           </div>
           <div className="flex items-center space-x-2">
