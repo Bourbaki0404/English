@@ -325,14 +325,14 @@ export default function EditorLayoutSimple() {
   const handleRegionClick = (regionId: string, e: React.MouseEvent) => {
     e.stopPropagation();
 
-    // Toggle reveal for this specific region
-    const newRevealedRegions = new Set(revealedRegions);
-    if (newRevealedRegions.has(regionId)) {
-      newRevealedRegions.delete(regionId);
+    // Toggle manual reveal for this specific region
+    const newManuallyRevealedRegions = new Set(manuallyRevealedRegions);
+    if (newManuallyRevealedRegions.has(regionId)) {
+      newManuallyRevealedRegions.delete(regionId);
     } else {
-      newRevealedRegions.add(regionId);
+      newManuallyRevealedRegions.add(regionId);
     }
-    setRevealedRegions(newRevealedRegions);
+    setManuallyRevealedRegions(newManuallyRevealedRegions);
   };
 
 
