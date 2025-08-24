@@ -167,8 +167,6 @@ export default function HybridEditor({
       setShowToolbar(false);
       setSelectedText("");
       setSelection(null);
-      setShowColorPicker(false);
-      setShowHighlightPicker(false);
     };
 
     if (showToolbar) {
