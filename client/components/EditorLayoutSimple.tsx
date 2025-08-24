@@ -151,6 +151,7 @@ export default function EditorLayoutSimple() {
       setCollisionNotification({ show: false, message: '' });
       // Clear revealed regions and selection when switching documents
       setRevealedRegions(new Set());
+      setManuallyRevealedRegions(new Set());
       setCurrentSelection(null);
       setSelectedText('');
     }
