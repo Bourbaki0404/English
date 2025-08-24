@@ -95,19 +95,41 @@ export default function EditorLayoutSimple() {
     }, 4000);
   };
 
-  // Handle title change with collision detection
+  // Handle title change during typing with real-time collision detection
   const handleTitleChange = (newTitle: string) => {
     if (!selectedDocument) return;
 
+    setTempTitle(newTitle);
+
     const trimmedTitle = newTitle.trim();
     if (!trimmedTitle) {
-      setTempTitle(newTitle);
+      // Hide collision notification if field is empty
+      setCollisionNotification({ show: false, message: '' });
+      return;
+    }
+
+    // Check for collision during typing and show warning immediately
+    if (checkNameCollision(trimmedTitle, selectedDocument.id)) {
+      showCollisionNotification(`A document with the name "${trimmedTitle}" already exists. Please choose a different name.`);
+      return;
+    } else {
+      // Hide collision notification if no collision
+      setCollisionNotification({ show: false, message: '' });
+    }
+  };
+
+  // Handle saving the title on blur
+  const handleTitleSave = () => {
+    if (!selectedDocument) return;
+
+    const trimmedTitle = tempTitle.trim();
+    if (!trimmedTitle) {
+      setTempTitle(selectedDocument.name); // Reset to original name if empty
       return;
     }
 
     if (checkNameCollision(trimmedTitle, selectedDocument.id)) {
-      showCollisionNotification(`A document with the name "${trimmedTitle}" already exists. Please choose a different name.`);
-      setTempTitle(selectedDocument.name); // Reset to original name
+      setTempTitle(selectedDocument.name); // Reset to original name on collision
       return;
     }
 
@@ -119,7 +141,6 @@ export default function EditorLayoutSimple() {
           : doc
       )
     );
-    setTempTitle(trimmedTitle);
   };
 
   // Initialize temp title when document changes
