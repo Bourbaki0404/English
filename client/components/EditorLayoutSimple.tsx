@@ -260,60 +260,32 @@ export default function EditorLayoutSimple() {
   const handleTextSelection = () => {
     const selection = window.getSelection();
     if (selection && selection.toString()) {
-      const range = selection.getRangeAt(0);
+      const selectedText = selection.toString();
       const content = selectedDocument?.content || '';
 
-      // Calculate selection positions in the text content
-      const startOffset = getTextOffset(range.startContainer, range.startOffset);
-      const endOffset = getTextOffset(range.endContainer, range.endOffset);
+      setSelectedText(selectedText);
 
-      setCurrentSelection({ start: startOffset, end: endOffset });
-      setSelectedText(selection.toString());
-
-      // Reveal regions that are within the selection
+      // Find all regions that contain the selected text
       const regions = parseMarkdownRegions(content);
       const newRevealedRegions = new Set<string>();
 
+      // Simple approach: if the selected text overlaps with a region's formatted text or raw text
       regions.forEach(region => {
-        if ((region.start >= startOffset && region.start < endOffset) ||
-            (region.end > startOffset && region.end <= endOffset) ||
-            (region.start < startOffset && region.end > endOffset)) {
+        if (selectedText.includes(region.formattedText) ||
+            selectedText.includes(region.rawText) ||
+            region.formattedText.includes(selectedText) ||
+            region.rawText.includes(selectedText)) {
           newRevealedRegions.add(region.id);
         }
       });
 
       setRevealedRegions(newRevealedRegions);
     } else {
-      setCurrentSelection(null);
       setSelectedText('');
-      if (!window.getSelection()?.toString()) {
-        // Clear revealed regions when no selection
-        setRevealedRegions(new Set());
-      }
+      setCurrentSelection(null);
+      // Clear revealed regions when no selection
+      setRevealedRegions(new Set());
     }
-  };
-
-  // Helper function to get text offset from DOM position
-  const getTextOffset = (node: Node, offset: number): number => {
-    if (!editorRef.current) return 0;
-
-    const walker = document.createTreeWalker(
-      editorRef.current,
-      NodeFilter.SHOW_TEXT,
-      null
-    );
-
-    let textOffset = 0;
-    let currentNode;
-
-    while (currentNode = walker.nextNode()) {
-      if (currentNode === node) {
-        return textOffset + offset;
-      }
-      textOffset += currentNode.textContent?.length || 0;
-    }
-
-    return textOffset;
   };
 
   const handleDoubleClick = () => {
