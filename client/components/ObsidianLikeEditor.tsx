@@ -455,28 +455,72 @@ export default function ObsidianLikeEditor({
         );
       }
 
-      // Add cursor if it's in this line
+      // Add cursor if it's in this line and not inside a block that shows raw text
       if (isEditing && cursorPosition.start >= lineStart && cursorPosition.start <= lineEnd) {
         const cursorInLine = cursorPosition.start - lineStart;
-        let insertIndex = 0;
-        
-        for (let i = 0; i < sortedLineBlocks.length; i++) {
-          const block = sortedLineBlocks[i];
-          if (cursorInLine <= block.startInLine) {
-            insertIndex = i * 2; // Account for before-text elements
-            break;
-          } else if (cursorInLine >= block.endInLine) {
-            insertIndex = (i * 2) + 2; // After this block
-          } else {
-            // Cursor is inside this block, it will be handled by the block rendering
-            break;
+
+        // Check if cursor is inside any block that shows raw text
+        let cursorInRawBlock = false;
+        for (const block of sortedLineBlocks) {
+          if (cursorInLine >= block.startInLine && cursorInLine <= block.endInLine) {
+            if (isCursorInBlock(block, cursorPosition)) {
+              cursorInRawBlock = true;
+              break;
+            }
           }
         }
-        
-        if (insertIndex >= 0 && insertIndex <= elements.length) {
-          elements.splice(insertIndex, 0, (
-            <span key="cursor" className="animate-pulse">|</span>
-          ));
+
+        // Only add cursor if it's not in a raw block (raw blocks handle their own cursor)
+        if (!cursorInRawBlock) {
+          // Find the correct insertion point
+          let insertIndex = 0;
+          let charCount = 0;
+
+          for (let i = 0; i < elements.length; i++) {
+            const element = elements[i];
+            if (React.isValidElement(element)) {
+              const elementKey = element.key as string;
+              if (elementKey?.startsWith('before-') || elementKey === 'after') {
+                const textContent = element.props.children as string;
+                if (charCount + textContent.length >= cursorInLine) {
+                  // Cursor is within this text element
+                  const textBeforeCursor = textContent.substring(0, cursorInLine - charCount);
+                  const textAfterCursor = textContent.substring(cursorInLine - charCount);
+
+                  // Replace this element with split text and cursor
+                  elements.splice(i, 1,
+                    <span key={`text-before-cursor-${i}`} className="cursor-text" onClick={handleClick}>
+                      {textBeforeCursor}
+                    </span>,
+                    <span key="cursor" className="animate-pulse">|</span>,
+                    <span key={`text-after-cursor-${i}`} className="cursor-text" onClick={handleClick}>
+                      {textAfterCursor}
+                    </span>
+                  );
+                  break;
+                }
+                charCount += textContent.length;
+              } else if (elementKey?.startsWith('block-')) {
+                // For block elements, use the original text length
+                const block = sortedLineBlocks.find(b => elementKey.includes(b.id));
+                if (block) {
+                  charCount += block.endInLine - block.startInLine;
+                }
+              }
+            }
+
+            if (charCount >= cursorInLine) {
+              insertIndex = i + 1;
+              break;
+            }
+          }
+
+          // If cursor is at the very end of the line
+          if (cursorInLine >= line.length && insertIndex === 0) {
+            elements.push(
+              <span key="cursor" className="animate-pulse">|</span>
+            );
+          }
         }
       }
 
