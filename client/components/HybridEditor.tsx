@@ -1,4 +1,13 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
+import { 
+  Bold, 
+  Italic, 
+  Underline, 
+  Highlighter, 
+  Palette,
+  Type,
+  X 
+} from "lucide-react";
 
 interface HybridEditorProps {
   content: string;
@@ -6,6 +15,27 @@ interface HybridEditorProps {
   onTextSelection?: (text: string) => void;
   className?: string;
 }
+
+const TEXT_COLORS = [
+  { name: "默认", value: "", class: "" },
+  { name: "红色", value: "red", class: "text-red-600" },
+  { name: "蓝色", value: "blue", class: "text-blue-600" },
+  { name: "绿色", value: "green", class: "text-green-600" },
+  { name: "紫色", value: "purple", class: "text-purple-600" },
+  { name: "橙色", value: "orange", class: "text-orange-600" },
+  { name: "粉色", value: "pink", class: "text-pink-600" },
+  { name: "灰色", value: "gray", class: "text-gray-600" },
+];
+
+const HIGHLIGHT_COLORS = [
+  { name: "无高亮", value: "", class: "" },
+  { name: "黄色", value: "yellow", class: "bg-yellow-200" },
+  { name: "绿色", value: "green", class: "bg-green-200" },
+  { name: "蓝色", value: "blue", class: "bg-blue-200" },
+  { name: "紫色", value: "purple", class: "bg-purple-200" },
+  { name: "粉色", value: "pink", class: "bg-pink-200" },
+  { name: "橙色", value: "orange", class: "bg-orange-200" },
+];
 
 export default function HybridEditor({
   content,
@@ -15,68 +45,36 @@ export default function HybridEditor({
 }: HybridEditorProps) {
   const [htmlContent, setHtmlContent] = useState("");
   const [isEditing, setIsEditing] = useState(false);
+  const [showColorPicker, setShowColorPicker] = useState(false);
+  const [showHighlightPicker, setShowHighlightPicker] = useState(false);
+  const [selectedText, setSelectedText] = useState("");
+  const [selection, setSelection] = useState<Range | null>(null);
+  
   const editorRef = useRef<HTMLDivElement>(null);
 
-  // Convert markdown to HTML for display
+  // Convert markdown to HTML for display (只保留封闭语法)
   const markdownToHtml = useCallback((markdown: string) => {
     let html = markdown;
     
-    // Headers (h1-h6)
-    html = html.replace(/^#{6}\s+(.*)$/gim, '<h6 class="text-sm font-semibold mb-1 mt-2 text-gray-700">$1</h6>');
-    html = html.replace(/^#{5}\s+(.*)$/gim, '<h5 class="text-base font-semibold mb-2 mt-3 text-gray-700">$1</h5>');
-    html = html.replace(/^#{4}\s+(.*)$/gim, '<h4 class="text-lg font-semibold mb-2 mt-4 text-gray-800">$1</h4>');
+    // Headers (h1-h3 only, 简化)
     html = html.replace(/^#{3}\s+(.*)$/gim, '<h3 class="text-xl font-semibold mb-3 mt-5">$1</h3>');
     html = html.replace(/^#{2}\s+(.*)$/gim, '<h2 class="text-2xl font-semibold mb-4 mt-6">$1</h2>');
     html = html.replace(/^#{1}\s+(.*)$/gim, '<h1 class="text-3xl font-bold mb-6 mt-8">$1</h1>');
     
-    // Code blocks (```language...```)
-    html = html.replace(/```(\w+)?\n([\s\S]*?)```/g, (match, lang, code) => {
-      const language = lang || '';
-      return `<pre class="bg-gray-100 p-4 rounded-lg my-4 overflow-x-auto"><code class="text-sm font-mono block language-${language}">${code.trim()}</code></pre>`;
-    });
-    
-    // Blockquotes (> text)
-    html = html.replace(/^>\s+(.*)$/gim, '<blockquote class="border-l-4 border-gray-300 pl-4 py-2 my-4 bg-gray-50 italic text-gray-700">$1</blockquote>');
-    
-    // Horizontal rules (--- or ***)
-    html = html.replace(/^(---|\*\*\*)$/gim, '<hr class="border-gray-300 my-6">');
-    
-    // Task lists (- [ ] item, - [x] item)
-    html = html.replace(/^-\s+\[\s\]\s+(.*)$/gim, '<div class="flex items-center my-1"><input type="checkbox" disabled class="mr-2"><span>$1</span></div>');
-    html = html.replace(/^-\s+\[x\]\s+(.*)$/gim, '<div class="flex items-center my-1"><input type="checkbox" checked disabled class="mr-2"><span class="line-through text-gray-500">$1</span></div>');
-    
-    // Unordered lists (- item, * item)
-    html = html.replace(/^[-*]\s+(.*)$/gim, '<li class="ml-6 list-disc my-1">$1</li>');
-    
-    // Ordered lists (1. item)
-    html = html.replace(/^\d+\.\s+(.*)$/gim, '<li class="ml-6 list-decimal my-1">$1</li>');
-    
-    // Wrap consecutive list items in ul/ol tags
-    html = html.replace(/(<li class="ml-6 list-disc[^>]*>.*?<\/li>(?:\s*<li class="ml-6 list-disc[^>]*>.*?<\/li>)*)/gim, '<ul class="my-3">$1</ul>');
-    html = html.replace(/(<li class="ml-6 list-decimal[^>]*>.*?<\/li>(?:\s*<li class="ml-6 list-decimal[^>]*>.*?<\/li>)*)/gim, '<ol class="my-3">$1</ol>');
-    
-    // Tables (| col1 | col2 |)
-    html = html.replace(/\|(.+)\|/g, (match, content) => {
-      const cells = content.split('|').map(cell => cell.trim()).filter(cell => cell);
-      const cellElements = cells.map(cell => `<td class="border border-gray-300 px-3 py-2">${cell}</td>`).join('');
-      return `<tr>${cellElements}</tr>`;
-    });
-    html = html.replace(/(<tr>.*?<\/tr>(?:\s*<tr>.*?<\/tr>)*)/gim, '<table class="border-collapse border border-gray-300 my-4 w-full">$1</table>');
-    
-    // Images (![alt](url))
-    html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" class="max-w-full h-auto my-4 rounded-lg shadow-sm">');
-    
-    // Links [text](url)
-    html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-blue-600 underline hover:text-blue-800">$1</a>');
+    // Code blocks (```...```)
+    html = html.replace(/```([\s\S]*?)```/g, '<pre class="bg-gray-100 p-4 rounded-lg my-4 overflow-x-auto"><code class="text-sm font-mono block">$1</code></pre>');
     
     // Bold and Italic combinations (***text***)
     html = html.replace(/\*\*\*(.*?)\*\*\*/g, '<strong><em>$1</em></strong>');
     
-    // Bold (**text** or __text__)
-    html = html.replace(/(\*\*|__)(.*?)\1/g, '<strong>$2</strong>');
+    // Bold (**text**)
+    html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
     
-    // Italic (*text* or _text_)
-    html = html.replace(/(\*|_)(.*?)\1/g, '<em>$2</em>');
+    // Italic (*text*)
+    html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+    
+    // Underline (__text__)
+    html = html.replace(/__(.*?)__/g, '<u class="underline">$1</u>');
     
     // Strikethrough (~~text~~)
     html = html.replace(/~~(.*?)~~/g, '<del class="line-through text-gray-500">$1</del>');
@@ -84,11 +82,17 @@ export default function HybridEditor({
     // Inline code (`text`)
     html = html.replace(/`([^`]+)`/g, '<code class="bg-gray-100 px-1 py-0.5 rounded font-mono text-sm text-red-600">$1</code>');
     
-    // Highlight (==text==)
+    // Colored text {color:text}
+    html = html.replace(/\{(\w+):(.*?)\}/g, '<span class="text-$1-600">$2</span>');
+    
+    // Highlight with colors {highlight-color:text}
+    html = html.replace(/\{highlight-(\w+):(.*?)\}/g, '<span class="bg-$1-200 px-1 py-0.5 rounded">$2</span>');
+    
+    // Default highlight ==text==
     html = html.replace(/==(.*?)==/g, '<mark class="bg-yellow-200 px-1 py-0.5 rounded">$1</mark>');
     
-    // Brackets [text] (custom syntax)
-    html = html.replace(/\[([^\]]+)\]/g, '<span class="text-purple-600 bg-purple-100 px-2 py-1 rounded-full text-sm font-medium">$1</span>');
+    // Links [text](url)
+    html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-blue-600 underline hover:text-blue-800">$1</a>');
     
     // Line breaks
     html = html.replace(/\n/g, '<br>');
@@ -104,46 +108,9 @@ export default function HybridEditor({
     markdown = markdown.replace(/<h1[^>]*>(.*?)<\/h1>/gi, '# $1');
     markdown = markdown.replace(/<h2[^>]*>(.*?)<\/h2>/gi, '## $1');
     markdown = markdown.replace(/<h3[^>]*>(.*?)<\/h3>/gi, '### $1');
-    markdown = markdown.replace(/<h4[^>]*>(.*?)<\/h4>/gi, '#### $1');
-    markdown = markdown.replace(/<h5[^>]*>(.*?)<\/h5>/gi, '##### $1');
-    markdown = markdown.replace(/<h6[^>]*>(.*?)<\/h6>/gi, '###### $1');
     
     // Code blocks
-    markdown = markdown.replace(/<pre[^>]*><code[^>]*class="[^"]*language-([^"]*)"[^>]*>(.*?)<\/code><\/pre>/gi, '```$1\n$2\n```');
     markdown = markdown.replace(/<pre[^>]*><code[^>]*>(.*?)<\/code><\/pre>/gi, '```\n$1\n```');
-    
-    // Blockquotes
-    markdown = markdown.replace(/<blockquote[^>]*>(.*?)<\/blockquote>/gi, '> $1');
-    
-    // Horizontal rules
-    markdown = markdown.replace(/<hr[^>]*>/gi, '---');
-    
-    // Task lists
-    markdown = markdown.replace(/<div[^>]*><input type="checkbox" checked[^>]*><span[^>]*>(.*?)<\/span><\/div>/gi, '- [x] $1');
-    markdown = markdown.replace(/<div[^>]*><input type="checkbox"[^>]*><span[^>]*>(.*?)<\/span><\/div>/gi, '- [ ] $1');
-    
-    // Lists
-    markdown = markdown.replace(/<ul[^>]*>(.*?)<\/ul>/gi, (match, content) => {
-      return content.replace(/<li[^>]*>(.*?)<\/li>/gi, '- $1');
-    });
-    markdown = markdown.replace(/<ol[^>]*>(.*?)<\/ol>/gi, (match, content) => {
-      let counter = 1;
-      return content.replace(/<li[^>]*>(.*?)<\/li>/gi, () => `${counter++}. $1`);
-    });
-    
-    // Tables
-    markdown = markdown.replace(/<table[^>]*>(.*?)<\/table>/gi, (match, content) => {
-      return content.replace(/<tr[^>]*>(.*?)<\/tr>/gi, (rowMatch, rowContent) => {
-        const cells = rowContent.replace(/<td[^>]*>(.*?)<\/td>/gi, '| $1 ').trim();
-        return cells + '|';
-      });
-    });
-    
-    // Images
-    markdown = markdown.replace(/<img[^>]*src="([^"]*)"[^>]*alt="([^"]*)"[^>]*>/gi, '![$2]($1)');
-    
-    // Links
-    markdown = markdown.replace(/<a[^>]*href="([^"]*)"[^>]*>(.*?)<\/a>/gi, '[$2]($1)');
     
     // Bold and Italic combinations
     markdown = markdown.replace(/<strong[^>]*><em[^>]*>(.*?)<\/em><\/strong>/gi, '***$1***');
@@ -154,17 +121,26 @@ export default function HybridEditor({
     // Italic
     markdown = markdown.replace(/<em[^>]*>(.*?)<\/em>/gi, '*$1*');
     
+    // Underline
+    markdown = markdown.replace(/<u[^>]*>(.*?)<\/u>/gi, '__$1__');
+    
     // Strikethrough
     markdown = markdown.replace(/<del[^>]*>(.*?)<\/del>/gi, '~~$1~~');
     
     // Inline code
     markdown = markdown.replace(/<code[^>]*>(.*?)<\/code>/gi, '`$1`');
     
-    // Highlight
+    // Colored text
+    markdown = markdown.replace(/<span class="text-(\w+)-600[^>]*>(.*?)<\/span>/gi, '{$1:$2}');
+    
+    // Highlight with colors
+    markdown = markdown.replace(/<span class="bg-(\w+)-200[^>]*>(.*?)<\/span>/gi, '{highlight-$1:$2}');
+    
+    // Default highlight
     markdown = markdown.replace(/<mark[^>]*>(.*?)<\/mark>/gi, '==$1==');
     
-    // Custom brackets
-    markdown = markdown.replace(/<span class="text-purple-600[^>]*>(.*?)<\/span>/gi, '[$1]');
+    // Links
+    markdown = markdown.replace(/<a[^>]*href="([^"]*)"[^>]*>(.*?)<\/a>/gi, '[$2]($1)');
     
     // Clean up
     markdown = markdown.replace(/<br\s*\/?>/gi, '\n');
@@ -201,35 +177,198 @@ export default function HybridEditor({
 
   // Handle blur (stop editing)
   const handleBlur = useCallback(() => {
-    setIsEditing(false);
+    // 延迟失焦，给工具栏操作时间
+    setTimeout(() => {
+      if (!showColorPicker && !showHighlightPicker) {
+        setIsEditing(false);
+        if (editorRef.current) {
+          const newHtml = editorRef.current.innerHTML;
+          const newMarkdown = htmlToMarkdown(newHtml);
+          onChange(newMarkdown);
+          setHtmlContent(markdownToHtml(newMarkdown));
+        }
+      }
+    }, 200);
+  }, [htmlToMarkdown, markdownToHtml, onChange, showColorPicker, showHighlightPicker]);
+
+  // Handle text selection
+  const handleMouseUp = useCallback(() => {
+    const sel = window.getSelection();
+    if (sel && sel.toString()) {
+      setSelectedText(sel.toString());
+      setSelection(sel.rangeCount > 0 ? sel.getRangeAt(0) : null);
+      if (onTextSelection) {
+        onTextSelection(sel.toString());
+      }
+    } else {
+      setSelectedText("");
+      setSelection(null);
+    }
+  }, [onTextSelection]);
+
+  // Apply formatting to selected text
+  const applyFormatting = useCallback((type: string, value?: string) => {
+    if (!selection || !selectedText) return;
+
+    const selectedRange = selection;
+    let newText = selectedText;
+
+    switch (type) {
+      case 'bold':
+        newText = `**${selectedText}**`;
+        break;
+      case 'italic':
+        newText = `*${selectedText}*`;
+        break;
+      case 'underline':
+        newText = `__${selectedText}__`;
+        break;
+      case 'highlight':
+        newText = value ? `{highlight-${value}:${selectedText}}` : `==${selectedText}==`;
+        break;
+      case 'color':
+        newText = value ? `{${value}:${selectedText}}` : selectedText;
+        break;
+    }
+
+    // Replace selected text
+    selectedRange.deleteContents();
+    selectedRange.insertNode(document.createTextNode(newText));
+    
+    // Update content
     if (editorRef.current) {
       const newHtml = editorRef.current.innerHTML;
       const newMarkdown = htmlToMarkdown(newHtml);
       onChange(newMarkdown);
-      // Update display
       setHtmlContent(markdownToHtml(newMarkdown));
     }
-  }, [htmlToMarkdown, markdownToHtml, onChange]);
 
-  // Handle text selection
-  const handleMouseUp = useCallback(() => {
-    if (onTextSelection) {
-      const selection = window.getSelection();
-      if (selection && selection.toString()) {
-        onTextSelection(selection.toString());
-      }
-    }
-  }, [onTextSelection]);
+    // Clear selection
+    setSelectedText("");
+    setSelection(null);
+    setShowColorPicker(false);
+    setShowHighlightPicker(false);
+  }, [selection, selectedText, htmlToMarkdown, markdownToHtml, onChange]);
 
   // Handle keyboard shortcuts
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'Escape') {
       editorRef.current?.blur();
+      setShowColorPicker(false);
+      setShowHighlightPicker(false);
     }
   }, []);
 
   return (
     <div className={`relative ${className}`}>
+      {/* Formatting Toolbar */}
+      {isEditing && selectedText && (
+        <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-white border border-gray-300 rounded-lg shadow-lg p-2 flex items-center space-x-2 z-50">
+          {/* Bold */}
+          <button
+            onClick={() => applyFormatting('bold')}
+            className="p-2 hover:bg-gray-100 rounded transition-colors"
+            title="粗体"
+          >
+            <Bold size={18} />
+          </button>
+
+          {/* Italic */}
+          <button
+            onClick={() => applyFormatting('italic')}
+            className="p-2 hover:bg-gray-100 rounded transition-colors"
+            title="斜体"
+          >
+            <Italic size={18} />
+          </button>
+
+          {/* Underline */}
+          <button
+            onClick={() => applyFormatting('underline')}
+            className="p-2 hover:bg-gray-100 rounded transition-colors"
+            title="下划线"
+          >
+            <Underline size={18} />
+          </button>
+
+          <div className="w-px h-6 bg-gray-300" />
+
+          {/* Text Color */}
+          <div className="relative">
+            <button
+              onClick={() => {
+                setShowColorPicker(!showColorPicker);
+                setShowHighlightPicker(false);
+              }}
+              className="p-2 hover:bg-gray-100 rounded transition-colors"
+              title="文字颜色"
+            >
+              <Type size={18} />
+            </button>
+
+            {showColorPicker && (
+              <div className="absolute bottom-full mb-2 left-0 bg-white border border-gray-300 rounded-lg shadow-lg p-2 grid grid-cols-4 gap-1 min-w-[200px]">
+                {TEXT_COLORS.map((color) => (
+                  <button
+                    key={color.value}
+                    onClick={() => applyFormatting('color', color.value)}
+                    className={`p-2 text-sm rounded hover:bg-gray-100 transition-colors ${color.class}`}
+                    title={color.name}
+                  >
+                    文字
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Highlight */}
+          <div className="relative">
+            <button
+              onClick={() => {
+                setShowHighlightPicker(!showHighlightPicker);
+                setShowColorPicker(false);
+              }}
+              className="p-2 hover:bg-gray-100 rounded transition-colors"
+              title="高亮"
+            >
+              <Highlighter size={18} />
+            </button>
+
+            {showHighlightPicker && (
+              <div className="absolute bottom-full mb-2 left-0 bg-white border border-gray-300 rounded-lg shadow-lg p-2 grid grid-cols-3 gap-1 min-w-[180px]">
+                {HIGHLIGHT_COLORS.map((color) => (
+                  <button
+                    key={color.value}
+                    onClick={() => applyFormatting('highlight', color.value)}
+                    className={`p-2 text-sm rounded hover:bg-gray-100 transition-colors ${color.class}`}
+                    title={color.name}
+                  >
+                    高亮
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="w-px h-6 bg-gray-300" />
+
+          {/* Close */}
+          <button
+            onClick={() => {
+              setSelectedText("");
+              setSelection(null);
+              setShowColorPicker(false);
+              setShowHighlightPicker(false);
+            }}
+            className="p-2 hover:bg-gray-100 rounded transition-colors text-gray-500"
+            title="关闭"
+          >
+            <X size={16} />
+          </button>
+        </div>
+      )}
+
       <div
         ref={editorRef}
         className="prose prose-lg max-w-none min-h-[600px] p-6 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 rounded-lg transition-all border border-gray-200"
@@ -247,26 +386,26 @@ export default function HybridEditor({
         onBlur={handleBlur}
         onMouseUp={handleMouseUp}
         onKeyDown={handleKeyDown}
-        data-placeholder={content.trim() === '' ? "点击开始编写 Markdown..." : ""}
+        data-placeholder={content.trim() === '' ? "点击开始编写..." : ""}
       />
       
       {content.trim() === '' && (
         <div className="absolute top-6 left-6 text-gray-400 pointer-events-none">
           <div className="space-y-2 text-sm">
-            <div>点击开始编写 Markdown...</div>
+            <div>点击开始编写...</div>
             <div className="text-xs text-gray-300">
-              支持: 标题 # ## ###, **粗体**, *斜体*, ~~删除线~~, `代码`, ==高亮==, 
+              支持: 标题 # ## ###, **粗体**, *斜体*, __下划线__, ~~删除线~~, 
               <br />
-              列表 - 项目, 任务 - [ ] 待办, 引用 &gt; 文字, 表格, 图片等
+              `代码`, ==高亮==, 彩色文字, 链接等
             </div>
           </div>
         </div>
       )}
       
-      {isEditing && (
+      {isEditing && !selectedText && (
         <div className="absolute bottom-4 right-4 text-xs text-blue-600 bg-white px-3 py-2 rounded-lg shadow border">
           <div className="font-medium">编辑模式</div>
-          <div className="text-gray-500 mt-1">ESC 或点击外部完成编辑</div>
+          <div className="text-gray-500 mt-1">选择文字显示格式工具栏</div>
         </div>
       )}
 
