@@ -77,6 +77,8 @@ export default function EditorLayoutSimple() {
   const [previewContent, setPreviewContent] = useState('');
   const [originalContent, setOriginalContent] = useState('');
   const [isEditingContent, setIsEditingContent] = useState(false);
+  const [collisionNotification, setCollisionNotification] = useState<CollisionNotification>({ show: false, message: '' });
+  const [tempTitle, setTempTitle] = useState('');
   const editorRef = useRef<HTMLDivElement>(null);
 
   const selectedDocument = documents.find(doc => doc.id === selectedDocumentId);
