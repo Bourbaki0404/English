@@ -656,7 +656,7 @@ export default function EditorLayoutSimple() {
         </div>
 
         <div className="flex-1 overflow-y-auto">
-          <div className="max-w-4xl mx-auto relative">
+          <div className="w-[800px] mx-auto relative">
             {selectedDocument ? (
               <div>
                 {/* Title Section */}
