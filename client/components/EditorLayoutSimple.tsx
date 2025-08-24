@@ -13,6 +13,11 @@ interface Document {
   createdAt: Date;
 }
 
+interface CollisionNotification {
+  show: boolean;
+  message: string;
+}
+
 const initialDocuments: Document[] = [
   {
     id: '1',
