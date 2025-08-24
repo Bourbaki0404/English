@@ -178,7 +178,6 @@ export default function EditorLayoutSimple() {
       // Clear revealed regions and selection when switching documents
       setRevealedRegions(new Set());
       setManuallyRevealedRegions(new Set());
-      setCurrentSelection(null);
       setSelectedText("");
     }
   }, [selectedDocument?.id]);
