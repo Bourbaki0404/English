@@ -198,6 +198,74 @@ export default function HybridEditor({
     }
   }, []);
 
+  // Restore cursor position after content update
+  const restoreCursorPosition = useCallback((textPosition: number, selectionRange?: {start: number, end: number} | null) => {
+    if (!editorRef.current) return;
+
+    // Use setTimeout to ensure DOM has been updated
+    setTimeout(() => {
+      try {
+        const selection = window.getSelection();
+        if (!selection) return;
+
+        // Function to find DOM position from text position
+        const findDOMPosition = (targetPosition: number) => {
+          let currentPosition = 0;
+          const walker = document.createTreeWalker(
+            editorRef.current!,
+            NodeFilter.SHOW_TEXT,
+            null
+          );
+
+          let node;
+          while (node = walker.nextNode()) {
+            const nodeLength = node.textContent?.length || 0;
+            if (currentPosition + nodeLength >= targetPosition) {
+              return {
+                node,
+                offset: targetPosition - currentPosition
+              };
+            }
+            currentPosition += nodeLength;
+          }
+
+          // If position is beyond content, place at end
+          const lastNode = walker.currentNode || editorRef.current!;
+          return {
+            node: lastNode,
+            offset: lastNode.textContent?.length || 0
+          };
+        };
+
+        const range = document.createRange();
+
+        if (selectionRange) {
+          // Restore selection range
+          const startPos = findDOMPosition(selectionRange.start);
+          const endPos = findDOMPosition(selectionRange.end);
+
+          range.setStart(startPos.node, startPos.offset);
+          range.setEnd(endPos.node, endPos.offset);
+        } else {
+          // Restore cursor position
+          const pos = findDOMPosition(textPosition);
+          range.setStart(pos.node, pos.offset);
+          range.collapse(true);
+        }
+
+        selection.removeAllRanges();
+        selection.addRange(range);
+
+        // Focus the editor
+        if (editorRef.current) {
+          editorRef.current.focus();
+        }
+      } catch (error) {
+        console.error('Error restoring cursor position:', error);
+      }
+    }, 0);
+  }, []);
+
   // Helper function to escape HTML
   const escapeHtml = (text: string) => {
     const div = document.createElement('div');
