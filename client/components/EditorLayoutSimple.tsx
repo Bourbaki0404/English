@@ -87,12 +87,9 @@ export default function EditorLayoutSimple() {
     return documents.some(doc => doc.id !== currentDocId && doc.name.toLowerCase() === newName.toLowerCase());
   };
 
-  // Show collision notification
+  // Show collision notification (persistent during editing)
   const showCollisionNotification = (message: string) => {
     setCollisionNotification({ show: true, message });
-    setTimeout(() => {
-      setCollisionNotification({ show: false, message: '' });
-    }, 4000);
   };
 
   // Handle title change during typing with real-time collision detection
