@@ -435,15 +435,9 @@ export default function ObsidianLikeEditor({
 
         const showRaw = isCursorInBlock(block, cursorPosition) && isEditing;
         const blockElement = showRaw ? (
-          <span
-            key={`block-${block.id}`}
-            className="bg-gray-100 px-1 py-0.5 rounded font-mono text-sm border cursor-text"
-            onClick={handleClick}
-          >
+          // Just show raw text without special styling
+          <span key={`block-${block.id}`} className="cursor-text" onClick={handleClick}>
             {block.rawText}
-            {isEditing && isCursorInBlock(block, cursorPosition) && (
-              <span className="animate-pulse">|</span>
-            )}
           </span>
         ) : (
           <span key={`block-${block.id}`} className="cursor-text" onClick={handleClick}>
