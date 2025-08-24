@@ -397,6 +397,8 @@ export default function EditorLayoutSimple() {
   const handleDocumentSelect = (docId: string) => {
     setSelectedDocumentId(docId);
     setSelectedText('');
+    setRevealedRegions(new Set());
+    setCurrentSelection(null);
   };
 
   const handleContentChange = (newContent: string) => {
