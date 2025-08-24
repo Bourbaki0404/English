@@ -369,6 +369,7 @@ export default function EditorLayoutSimple() {
     setSelectedDocumentId(docId);
     setSelectedText('');
     setRevealedRegions(new Set());
+    setManuallyRevealedRegions(new Set());
     setCurrentSelection(null);
   };
 
