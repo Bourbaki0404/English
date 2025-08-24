@@ -78,6 +78,7 @@ export default function EditorLayoutSimple() {
   const [collisionNotification, setCollisionNotification] = useState<CollisionNotification>({ show: false, message: '' });
   const [tempTitle, setTempTitle] = useState('');
   const [revealedRegions, setRevealedRegions] = useState<Set<string>>(new Set());
+  const [manuallyRevealedRegions, setManuallyRevealedRegions] = useState<Set<string>>(new Set());
   const [currentSelection, setCurrentSelection] = useState<{start: number, end: number} | null>(null);
   const editorRef = useRef<HTMLDivElement>(null);
 
