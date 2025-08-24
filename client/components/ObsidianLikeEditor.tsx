@@ -396,11 +396,39 @@ export default function ObsidianLikeEditor({
         // Add text before block
         if (block.startInLine > lastPos) {
           const beforeText = line.substring(lastPos, block.startInLine);
-          elements.push(
-            <span key={`before-${blockIndex}`} className="cursor-text" onClick={handleClick}>
-              {beforeText}
-            </span>
-          );
+          const beforeTextStart = lineStart + lastPos;
+          const beforeTextEnd = lineStart + block.startInLine;
+
+          // Check if cursor is in this text segment
+          if (isEditing && cursorPosition.start >= beforeTextStart && cursorPosition.start <= beforeTextEnd) {
+            const cursorPos = cursorPosition.start - beforeTextStart;
+            const textBefore = beforeText.substring(0, cursorPos);
+            const textAfter = beforeText.substring(cursorPos);
+
+            if (textBefore) {
+              elements.push(
+                <span key={`before-${blockIndex}-1`} className="cursor-text" onClick={handleClick}>
+                  {textBefore}
+                </span>
+              );
+            }
+            elements.push(
+              <span key="cursor" className="animate-pulse">|</span>
+            );
+            if (textAfter) {
+              elements.push(
+                <span key={`before-${blockIndex}-2`} className="cursor-text" onClick={handleClick}>
+                  {textAfter}
+                </span>
+              );
+            }
+          } else {
+            elements.push(
+              <span key={`before-${blockIndex}`} className="cursor-text" onClick={handleClick}>
+                {beforeText}
+              </span>
+            );
+          }
         }
 
         if (block.startInLine < lastPos) return;
@@ -413,6 +441,9 @@ export default function ObsidianLikeEditor({
             onClick={handleClick}
           >
             {block.rawText}
+            {isEditing && isCursorInBlock(block, cursorPosition) && (
+              <span className="animate-pulse">|</span>
+            )}
           </span>
         ) : (
           <span key={`block-${block.id}`} className="cursor-text" onClick={handleClick}>
@@ -448,11 +479,39 @@ export default function ObsidianLikeEditor({
       // Add remaining text after last block
       if (lastPos < line.length) {
         const afterText = line.substring(lastPos);
-        elements.push(
-          <span key="after" className="cursor-text" onClick={handleClick}>
-            {afterText}
-          </span>
-        );
+        const afterTextStart = lineStart + lastPos;
+        const afterTextEnd = lineStart + line.length;
+
+        // Check if cursor is in this text segment
+        if (isEditing && cursorPosition.start >= afterTextStart && cursorPosition.start <= afterTextEnd) {
+          const cursorPos = cursorPosition.start - afterTextStart;
+          const textBefore = afterText.substring(0, cursorPos);
+          const textAfter = afterText.substring(cursorPos);
+
+          if (textBefore) {
+            elements.push(
+              <span key="after-1" className="cursor-text" onClick={handleClick}>
+                {textBefore}
+              </span>
+            );
+          }
+          elements.push(
+            <span key="cursor" className="animate-pulse">|</span>
+          );
+          if (textAfter) {
+            elements.push(
+              <span key="after-2" className="cursor-text" onClick={handleClick}>
+                {textAfter}
+              </span>
+            );
+          }
+        } else {
+          elements.push(
+            <span key="after" className="cursor-text" onClick={handleClick}>
+              {afterText}
+            </span>
+          );
+        }
       }
 
 
