@@ -41,6 +41,204 @@ export default function HybridEditor({
   const editorRef = useRef<HTMLDivElement>(null);
   const toolbarRef = useRef<HTMLDivElement>(null);
 
+  // Parse markdown to identify formatted regions
+  const parseFormattedRegions = useCallback((markdown: string): FormattedRegion[] => {
+    const regions: FormattedRegion[] = [];
+    let regionId = 0;
+
+    // Headers
+    const headerMatches = markdown.matchAll(/^(#{1,6})\s+(.*)$/gim);
+    for (const match of headerMatches) {
+      const level = match[1].length;
+      regions.push({
+        id: `header-${regionId++}`,
+        type: 'header',
+        level,
+        start: match.index!,
+        end: match.index! + match[0].length,
+        rawText: match[0],
+        innerText: match[2]
+      });
+    }
+
+    // Code blocks
+    const codeBlockMatches = markdown.matchAll(/```([\s\S]*?)```/g);
+    for (const match of codeBlockMatches) {
+      regions.push({
+        id: `codeBlock-${regionId++}`,
+        type: 'codeBlock',
+        start: match.index!,
+        end: match.index! + match[0].length,
+        rawText: match[0],
+        innerText: match[1]
+      });
+    }
+
+    // Bold and Italic combinations
+    const boldItalicMatches = markdown.matchAll(/\*\*\*(.*?)\*\*\*/g);
+    for (const match of boldItalicMatches) {
+      regions.push({
+        id: `bolditalic-${regionId++}`,
+        type: 'bold',
+        start: match.index!,
+        end: match.index! + match[0].length,
+        rawText: match[0],
+        innerText: match[1]
+      });
+    }
+
+    // Bold
+    const boldMatches = markdown.matchAll(/\*\*(.*?)\*\*/g);
+    for (const match of boldMatches) {
+      // Skip if already covered by bold+italic
+      if (!regions.some(r => r.start <= match.index! && r.end >= match.index! + match[0].length)) {
+        regions.push({
+          id: `bold-${regionId++}`,
+          type: 'bold',
+          start: match.index!,
+          end: match.index! + match[0].length,
+          rawText: match[0],
+          innerText: match[1]
+        });
+      }
+    }
+
+    // Italic
+    const italicMatches = markdown.matchAll(/\*(.*?)\*/g);
+    for (const match of italicMatches) {
+      // Skip if already covered by bold or bold+italic
+      if (!regions.some(r => r.start <= match.index! && r.end >= match.index! + match[0].length)) {
+        regions.push({
+          id: `italic-${regionId++}`,
+          type: 'italic',
+          start: match.index!,
+          end: match.index! + match[0].length,
+          rawText: match[0],
+          innerText: match[1]
+        });
+      }
+    }
+
+    // Strikethrough
+    const strikeMatches = markdown.matchAll(/~~(.*?)~~/g);
+    for (const match of strikeMatches) {
+      regions.push({
+        id: `strike-${regionId++}`,
+        type: 'strikethrough',
+        start: match.index!,
+        end: match.index! + match[0].length,
+        rawText: match[0],
+        innerText: match[1]
+      });
+    }
+
+    // Inline code
+    const codeMatches = markdown.matchAll(/`([^`]+)`/g);
+    for (const match of codeMatches) {
+      regions.push({
+        id: `code-${regionId++}`,
+        type: 'code',
+        start: match.index!,
+        end: match.index! + match[0].length,
+        rawText: match[0],
+        innerText: match[1]
+      });
+    }
+
+    return regions.sort((a, b) => a.start - b.start);
+  }, []);
+
+  // Check if cursor/selection intersects with any formatted region
+  const getIntersectingRegions = useCallback((regions: FormattedRegion[], cursorPos: number, selectionStart?: number, selectionEnd?: number) => {
+    const intersecting = new Set<string>();
+
+    for (const region of regions) {
+      if (selectionStart !== undefined && selectionEnd !== undefined) {
+        // Check selection intersection
+        if (!(region.end <= selectionStart || region.start >= selectionEnd)) {
+          intersecting.add(region.id);
+        }
+      } else {
+        // Check cursor intersection
+        if (cursorPos >= region.start && cursorPos <= region.end) {
+          intersecting.add(region.id);
+        }
+      }
+    }
+
+    return intersecting;
+  }, []);
+
+  // Helper function to escape HTML
+  const escapeHtml = (text: string) => {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  };
+
+  // Standard markdown to HTML conversion
+  const markdownToHtmlFormatted = useCallback((markdown: string) => {
+    let html = markdown;
+
+    // Headers (h1-h6)
+    html = html.replace(
+      /^#{6}\s+(.*)$/gim,
+      '<h6 class="text-sm font-semibold mb-2 mt-3">$1</h6>',
+    );
+    html = html.replace(
+      /^#{5}\s+(.*)$/gim,
+      '<h5 class="text-base font-semibold mb-2 mt-3">$1</h5>',
+    );
+    html = html.replace(
+      /^#{4}\s+(.*)$/gim,
+      '<h4 class="text-lg font-semibold mb-3 mt-4">$1</h4>',
+    );
+    html = html.replace(
+      /^#{3}\s+(.*)$/gim,
+      '<h3 class="text-xl font-semibold mb-3 mt-5">$1</h3>',
+    );
+    html = html.replace(
+      /^#{2}\s+(.*)$/gim,
+      '<h2 class="text-2xl font-semibold mb-4 mt-6">$1</h2>',
+    );
+    html = html.replace(
+      /^#{1}\s+(.*)$/gim,
+      '<h1 class="text-3xl font-bold mb-6 mt-8">$1</h1>',
+    );
+
+    // Code blocks (```...```)
+    html = html.replace(
+      /```([\s\S]*?)```/g,
+      '<pre class="bg-gray-100 p-4 rounded-lg my-4 overflow-x-auto"><code class="text-sm font-mono block">$1</code></pre>',
+    );
+
+    // Bold and Italic combinations (***text***)
+    html = html.replace(/\*\*\*(.*?)\*\*\*/g, "<strong><em>$1</em></strong>");
+
+    // Bold (**text**)
+    html = html.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+
+    // Italic (*text*)
+    html = html.replace(/\*(.*?)\*/, "<em>$1</em>");
+
+    // Strikethrough (~~text~~)
+    html = html.replace(
+      /~~(.*?)~~/g,
+      '<del class="line-through text-gray-500">$1</del>',
+    );
+
+    // Inline code (`text`)
+    html = html.replace(
+      /`([^`]+)`/g,
+      '<code class="bg-gray-100 px-1 py-0.5 rounded font-mono text-sm text-red-600">$1</code>',
+    );
+
+    // Line breaks
+    html = html.replace(/\n/g, "<br>");
+
+    return html;
+  }, []);
+
   // Convert markdown to HTML for display (only closed syntax)
   const markdownToHtml = useCallback((markdown: string) => {
     let html = markdown;
