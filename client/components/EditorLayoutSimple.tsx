@@ -311,33 +311,26 @@ export default function EditorLayoutSimple() {
     const selection = window.getSelection();
     if (selection?.toString()) return; // Don't handle clicks during text selection
 
-    // Get click position in text content
-    const range = document.caretRangeFromPoint(e.clientX, e.clientY);
-    if (!range) return;
+    // Simple approach: clear selection and revealed regions on any click
+    // The actual region-specific clicking can be handled by adding click handlers to the rendered spans
+    setSelectedText('');
+    setCurrentSelection(null);
 
-    const clickOffset = getTextOffset(range.startContainer, range.startOffset);
-    const regions = parseMarkdownRegions(selectedDocument.content);
+    // Don't clear revealed regions immediately - let them persist until new selection
+  };
 
-    // Check if click is within a formatted region
-    const clickedRegion = regions.find(region =>
-      clickOffset >= region.start && clickOffset < region.end
-    );
+  // Function to handle clicks on specific formatted regions
+  const handleRegionClick = (regionId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
 
-    if (clickedRegion) {
-      // Toggle reveal for this specific region
-      const newRevealedRegions = new Set(revealedRegions);
-      if (newRevealedRegions.has(clickedRegion.id)) {
-        newRevealedRegions.delete(clickedRegion.id);
-      } else {
-        newRevealedRegions.add(clickedRegion.id);
-      }
-      setRevealedRegions(newRevealedRegions);
+    // Toggle reveal for this specific region
+    const newRevealedRegions = new Set(revealedRegions);
+    if (newRevealedRegions.has(regionId)) {
+      newRevealedRegions.delete(regionId);
     } else {
-      // Click in unformatted area - clear revealed regions and selection
-      setRevealedRegions(new Set());
-      setSelectedText('');
-      setCurrentSelection(null);
+      newRevealedRegions.add(regionId);
     }
+    setRevealedRegions(newRevealedRegions);
   };
 
 
