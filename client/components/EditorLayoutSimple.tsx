@@ -452,11 +452,7 @@ export default function EditorLayoutSimple() {
 
         // Add region content (raw or formatted)
         const regionText = line.substring(region.startInLine, region.endInLine);
-        const isRevealed = revealedRegions.has(region.id) ||
-                          (currentSelection &&
-                           ((region.start >= currentSelection.start && region.start < currentSelection.end) ||
-                            (region.end > currentSelection.start && region.end <= currentSelection.end) ||
-                            (region.start < currentSelection.start && region.end > currentSelection.end)));
+        const isRevealed = manuallyRevealedRegions.has(region.id) || revealedRegions.has(region.id);
 
         if (isRevealed) {
           // Show raw markdown
