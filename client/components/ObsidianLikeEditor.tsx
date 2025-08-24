@@ -380,10 +380,16 @@ export default function ObsidianLikeEditor({
         );
       }
 
-      // Build mixed content with raw/formatted blocks
-      const elements: JSX.Element[] = [];
-      let lastPos = 0;
+      // Simplified approach: build visual text first, then insert cursor
+      const visualSegments: Array<{
+        text: string;
+        startPos: number;
+        endPos: number;
+        isFormatted: boolean;
+        element?: JSX.Element;
+      }> = [];
 
+      let lastPos = 0;
       const sortedLineBlocks = lineBlocks
         .map((block) => ({
           ...block,
@@ -392,50 +398,26 @@ export default function ObsidianLikeEditor({
         }))
         .sort((a, b) => a.startInLine - b.startInLine);
 
+      // Build segments
       sortedLineBlocks.forEach((block, blockIndex) => {
         // Add text before block
         if (block.startInLine > lastPos) {
           const beforeText = line.substring(lastPos, block.startInLine);
-          const beforeTextStart = lineStart + lastPos;
-          const beforeTextEnd = lineStart + block.startInLine;
-
-          // Check if cursor is in this text segment
-          if (isEditing && cursorPosition.start >= beforeTextStart && cursorPosition.start <= beforeTextEnd) {
-            const cursorPos = cursorPosition.start - beforeTextStart;
-            const textBefore = beforeText.substring(0, cursorPos);
-            const textAfter = beforeText.substring(cursorPos);
-
-            if (textBefore) {
-              elements.push(
-                <span key={`before-${blockIndex}-1`} className="cursor-text" onClick={handleClick}>
-                  {textBefore}
-                </span>
-              );
-            }
-            elements.push(
-              <span key="cursor" className="animate-pulse">|</span>
-            );
-            if (textAfter) {
-              elements.push(
-                <span key={`before-${blockIndex}-2`} className="cursor-text" onClick={handleClick}>
-                  {textAfter}
-                </span>
-              );
-            }
-          } else {
-            elements.push(
-              <span key={`before-${blockIndex}`} className="cursor-text" onClick={handleClick}>
-                {beforeText}
-              </span>
-            );
-          }
+          visualSegments.push({
+            text: beforeText,
+            startPos: lineStart + lastPos,
+            endPos: lineStart + block.startInLine,
+            isFormatted: false,
+          });
         }
 
         if (block.startInLine < lastPos) return;
 
+        // Add block segment
         const showRaw = isCursorInBlock(block, cursorPosition) && isEditing;
+        const displayText = showRaw ? block.rawText : block.innerText;
+
         const blockElement = showRaw ? (
-          // Just show raw text without special styling
           <span key={`block-${block.id}`} className="cursor-text" onClick={handleClick}>
             {block.rawText}
           </span>
@@ -466,56 +448,84 @@ export default function ObsidianLikeEditor({
           </span>
         );
 
-        elements.push(blockElement);
+        visualSegments.push({
+          text: displayText,
+          startPos: lineStart + block.startInLine,
+          endPos: lineStart + block.endInLine,
+          isFormatted: true,
+          element: blockElement,
+        });
+
         lastPos = block.endInLine;
       });
 
       // Add remaining text after last block
       if (lastPos < line.length) {
         const afterText = line.substring(lastPos);
-        const afterTextStart = lineStart + lastPos;
-        const afterTextEnd = lineStart + line.length;
-
-        // Check if cursor is in this text segment
-        if (isEditing && cursorPosition.start >= afterTextStart && cursorPosition.start <= afterTextEnd) {
-          const cursorPos = cursorPosition.start - afterTextStart;
-          const textBefore = afterText.substring(0, cursorPos);
-          const textAfter = afterText.substring(cursorPos);
-
-          if (textBefore) {
-            elements.push(
-              <span key="after-1" className="cursor-text" onClick={handleClick}>
-                {textBefore}
-              </span>
-            );
-          }
-          elements.push(
-            <span key="cursor" className="animate-pulse">|</span>
-          );
-          if (textAfter) {
-            elements.push(
-              <span key="after-2" className="cursor-text" onClick={handleClick}>
-                {textAfter}
-              </span>
-            );
-          }
-        } else {
-          elements.push(
-            <span key="after" className="cursor-text" onClick={handleClick}>
-              {afterText}
-            </span>
-          );
-        }
+        visualSegments.push({
+          text: afterText,
+          startPos: lineStart + lastPos,
+          endPos: lineStart + line.length,
+          isFormatted: false,
+        });
       }
 
-      // Handle cursor at the very end of the line (after all content)
-      if (isEditing && cursorPosition.start === lineEnd && elements.length > 0) {
-        // Check if cursor wasn't already added
+      // Now build elements with cursor insertion
+      const elements: JSX.Element[] = [];
+      visualSegments.forEach((segment, segmentIndex) => {
+        const cursorInSegment = isEditing &&
+                               cursorPosition.start >= segment.startPos &&
+                               cursorPosition.start <= segment.endPos;
+
+        if (cursorInSegment) {
+          const cursorPos = cursorPosition.start - segment.startPos;
+          const textBefore = segment.text.substring(0, cursorPos);
+          const textAfter = segment.text.substring(cursorPos);
+
+          if (segment.isFormatted) {
+            // For formatted segments, just add the element with cursor
+            elements.push(segment.element!);
+            // Add cursor after the element if cursor is at the end
+            if (cursorPos === segment.text.length) {
+              elements.push(<span key="cursor" className="animate-pulse">|</span>);
+            }
+          } else {
+            // For plain text, split and insert cursor
+            if (textBefore) {
+              elements.push(
+                <span key={`text-${segmentIndex}-before`} className="cursor-text" onClick={handleClick}>
+                  {textBefore}
+                </span>
+              );
+            }
+            elements.push(<span key="cursor" className="animate-pulse">|</span>);
+            if (textAfter) {
+              elements.push(
+                <span key={`text-${segmentIndex}-after`} className="cursor-text" onClick={handleClick}>
+                  {textAfter}
+                </span>
+              );
+            }
+          }
+        } else {
+          // No cursor in this segment
+          if (segment.isFormatted) {
+            elements.push(segment.element!);
+          } else {
+            elements.push(
+              <span key={`text-${segmentIndex}`} className="cursor-text" onClick={handleClick}>
+                {segment.text}
+              </span>
+            );
+          }
+        }
+      });
+
+      // Handle cursor at the very end of the line
+      if (isEditing && cursorPosition.start === lineEnd) {
         const hasCursor = elements.some(el => React.isValidElement(el) && el.key === 'cursor');
         if (!hasCursor) {
-          elements.push(
-            <span key="cursor" className="animate-pulse">|</span>
-          );
+          elements.push(<span key="cursor" className="animate-pulse">|</span>);
         }
       }
 
