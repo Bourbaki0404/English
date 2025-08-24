@@ -159,15 +159,17 @@ export default function EditorLayoutSimple() {
   };
 
   const handleTextSelection = () => {
-    const selection = window.getSelection()?.toString();
-    if (selection) {
-      setSelectedText(selection);
+    const selection = window.getSelection();
+    if (selection && selection.toString()) {
+      setSelectedText(selection.toString());
     }
+    // Note: Don't clear selectedText here, let user see the raw formatting
   };
 
   const handleDoubleClick = () => {
     if (!showPreview) {
       setIsEditingContent(true);
+      setSelectedText(''); // Clear selection when entering edit mode
     }
   };
 
@@ -179,6 +181,13 @@ export default function EditorLayoutSimple() {
 
   const handleEditingBlur = () => {
     setIsEditingContent(false);
+  };
+
+  const handleClick = (e: React.MouseEvent) => {
+    // Clear selection when clicking (but not when selecting text)
+    if (!window.getSelection()?.toString()) {
+      setSelectedText('');
+    }
   };
 
 
@@ -228,6 +237,54 @@ export default function EditorLayoutSimple() {
     }
   };
 
+
+  const renderSelectiveMarkdownContent = (content: string, selectedText: string | null) => {
+    if (!selectedText) {
+      // No selection, render normally
+      return renderMarkdownContent(content);
+    }
+
+    // For simplicity, just highlight the selected text when it appears
+    return content
+      .split('\n')
+      .map((line, index) => {
+        if (line.startsWith('# ')) {
+          return <h1 key={index} className="text-2xl font-bold mb-4 mt-6">{line.substring(2)}</h1>;
+        }
+        if (line.startsWith('## ')) {
+          return <h2 key={index} className="text-xl font-semibold mb-3 mt-5">{line.substring(3)}</h2>;
+        }
+        if (line.trim() === '') {
+          return <div key={index} className="mb-2"></div>;
+        }
+
+        // Check if this line contains the selected text
+        const containsSelection = line.includes(selectedText);
+
+        if (containsSelection) {
+          // Show raw markdown for lines containing selection
+          return (
+            <p key={index} className="mb-3 leading-relaxed bg-blue-50 border border-blue-200 px-2 py-1 rounded font-mono text-sm">
+              {line}
+            </p>
+          );
+        }
+
+        // Handle markdown-style formatting for non-selected lines
+        const processedLine = line
+          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+          .replace(/==(.*?)==/g, '<span class="bg-yellow-200 px-1 py-0.5 rounded">$1</span>')
+          .replace(/\[([^\]]+)\]/g, '<span class="text-purple-600 bg-gray-100 px-1 py-0.5 rounded text-sm">[$1]</span>');
+
+        return (
+          <p
+            key={index}
+            className="mb-3 leading-relaxed"
+            dangerouslySetInnerHTML={{ __html: processedLine }}
+          />
+        );
+      });
+  };
 
   const renderMarkdownContent = (content: string) => {
     return content
@@ -379,6 +436,7 @@ export default function EditorLayoutSimple() {
                   }}
                   onMouseUp={!showPreview ? handleTextSelection : undefined}
                   onDoubleClick={!showPreview ? handleDoubleClick : undefined}
+                  onClick={!showPreview ? handleClick : undefined}
                   onDragOver={(e) => {
                     e.preventDefault();
                     e.dataTransfer.dropEffect = 'copy';
@@ -393,7 +451,10 @@ export default function EditorLayoutSimple() {
                     }
                   }}
                 >
-                  {renderMarkdownContent(showPreview ? previewContent : selectedDocument.content)}
+                  {showPreview ?
+                    renderMarkdownContent(previewContent) :
+                    renderSelectiveMarkdownContent(selectedDocument.content, selectedText || null)
+                  }
                   {!showPreview && !isEditingContent && (
                     <div className="absolute bottom-4 right-4 text-xs text-gray-400 opacity-50 pointer-events-none">
                       Double-click to edit
