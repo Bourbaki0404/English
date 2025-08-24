@@ -333,7 +333,6 @@ export default function EditorLayoutSimple() {
     } else {
       // When selection is cleared, clear everything to return to formatted state
       setSelectedText("");
-      setCurrentSelection(null);
       setRevealedRegions(new Set());
     }
   };
