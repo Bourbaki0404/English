@@ -164,7 +164,7 @@ export default function EditorLayoutSimple() {
         }
         case 'short-writing': {
           const tasks = await llmService.generateWritingTasks(selectedText);
-          createQuiz('short-writing', `Writing Tasks - ${getDocumentDisplayName(selectedDocument!)}`, selectedText, tasks, selectedDocument!.id);
+          createQuiz('short-writing', `Writing Tasks - ${selectedDocument!.name}`, selectedText, tasks, selectedDocument!.id);
           navigate('/quiz/short-writing');
           break;
         }
