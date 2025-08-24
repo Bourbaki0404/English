@@ -253,36 +253,45 @@ export default function ObsidianLikeEditor({
 
   // Handle clicks to position cursor
   const handleClick = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
     if (!isEditing) {
       setIsEditing(true);
-      // Calculate click position and set cursor
-      const selection = window.getSelection();
-      if (selection && selection.rangeCount > 0) {
-        const range = selection.getRangeAt(0);
-        const textNode = range.startContainer;
-        let offset = range.startOffset;
-        
-        // Find position in original content
-        let contentPosition = 0;
-        if (editorRef.current) {
-          const walker = document.createTreeWalker(
-            editorRef.current,
-            NodeFilter.SHOW_TEXT,
-            null
-          );
-          
-          let currentNode = walker.nextNode();
-          while (currentNode && currentNode !== textNode) {
-            if (currentNode.textContent) {
-              contentPosition += currentNode.textContent.length;
-            }
-            currentNode = walker.nextNode();
+    }
+
+    // Calculate click position and set cursor
+    const selection = window.getSelection();
+    if (selection && selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0);
+      const textNode = range.startContainer;
+      let offset = range.startOffset;
+
+      // Find position in original content
+      let contentPosition = 0;
+      if (editorRef.current) {
+        const walker = document.createTreeWalker(
+          editorRef.current,
+          NodeFilter.SHOW_TEXT,
+          null
+        );
+
+        let currentNode = walker.nextNode();
+        while (currentNode && currentNode !== textNode) {
+          if (currentNode.textContent) {
+            contentPosition += currentNode.textContent.length;
           }
-          contentPosition += offset;
+          currentNode = walker.nextNode();
         }
-        
-        setCursorPosition({ start: contentPosition, end: contentPosition });
+        contentPosition += offset;
       }
+
+      setCursorPosition({ start: contentPosition, end: contentPosition });
+    }
+
+    // Focus the editor to capture keyboard events
+    if (editorRef.current) {
+      editorRef.current.focus();
     }
   }, [isEditing]);
 
