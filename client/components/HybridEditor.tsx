@@ -248,7 +248,7 @@ export default function HybridEditor({
     html = html.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
 
     // Italic (*text*)
-    html = html.replace(/\*(.*?)\*/, "<em>$1</em>");
+    html = html.replace(/\*(.*?)\*/g, "<em>$1</em>");
 
     // Strikethrough (~~text~~)
     html = html.replace(
