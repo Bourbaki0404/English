@@ -88,8 +88,6 @@ export default function HybridEditor({
     // Italic (*text*)
     html = html.replace(/\*(.*?)\*/g, "<em>$1</em>");
 
-    // Underline (__text__)
-    html = html.replace(/__(.*?)__/g, '<u class="underline">$1</u>');
 
     // Strikethrough (~~text~~)
     html = html.replace(
