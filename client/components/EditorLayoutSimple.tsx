@@ -281,9 +281,9 @@ export default function EditorLayoutSimple() {
 
       setRevealedRegions(newRevealedRegions);
     } else {
+      // When selection is cleared, clear everything to return to formatted state
       setSelectedText('');
       setCurrentSelection(null);
-      // Clear revealed regions when no selection
       setRevealedRegions(new Set());
     }
   };
