@@ -144,6 +144,8 @@ export default function EditorLayoutSimple() {
   useEffect(() => {
     if (selectedDocument) {
       setTempTitle(selectedDocument.name);
+      // Clear any existing collision notification when switching documents
+      setCollisionNotification({ show: false, message: '' });
     }
   }, [selectedDocument?.id]);
 
