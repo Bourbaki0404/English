@@ -240,69 +240,45 @@ export default function HybridEditor({
   }, []);
 
   // Convert markdown to HTML for display (only closed syntax)
-  const markdownToHtml = useCallback((markdown: string) => {
-    let html = markdown;
+  const markdownToHtml = useCallback((markdown: string, showRawFor?: Set<string>) => {
+    if (!isEditing || !showRawFor || showRawFor.size === 0) {
+      // Normal formatted display
+      return markdownToHtmlFormatted(markdown);
+    }
 
-    // Headers (h1-h6)
-    html = html.replace(
-      /^#{6}\s+(.*)$/gim,
-      '<h6 class="text-sm font-semibold mb-2 mt-3">$1</h6>',
-    );
-    html = html.replace(
-      /^#{5}\s+(.*)$/gim,
-      '<h5 class="text-base font-semibold mb-2 mt-3">$1</h5>',
-    );
-    html = html.replace(
-      /^#{4}\s+(.*)$/gim,
-      '<h4 class="text-lg font-semibold mb-3 mt-4">$1</h4>',
-    );
-    html = html.replace(
-      /^#{3}\s+(.*)$/gim,
-      '<h3 class="text-xl font-semibold mb-3 mt-5">$1</h3>',
-    );
-    html = html.replace(
-      /^#{2}\s+(.*)$/gim,
-      '<h2 class="text-2xl font-semibold mb-4 mt-6">$1</h2>',
-    );
-    html = html.replace(
-      /^#{1}\s+(.*)$/gim,
-      '<h1 class="text-3xl font-bold mb-6 mt-8">$1</h1>',
-    );
+    const regions = parseFormattedRegions(markdown);
+    const intersectingIds = showRawFor;
 
-    // Code blocks (```...```)
-    html = html.replace(
-      /```([\s\S]*?)```/g,
-      '<pre class="bg-gray-100 p-4 rounded-lg my-4 overflow-x-auto"><code class="text-sm font-mono block">$1</code></pre>',
-    );
+    // Build HTML with selective raw display
+    let html = '';
+    let lastEnd = 0;
 
-    // Bold and Italic combinations (***text***)
-    html = html.replace(/\*\*\*(.*?)\*\*\*/g, "<strong><em>$1</em></strong>");
+    for (const region of regions) {
+      // Add text before this region
+      if (region.start > lastEnd) {
+        const beforeText = markdown.substring(lastEnd, region.start);
+        html += markdownToHtmlFormatted(beforeText);
+      }
 
-    // Bold (**text**)
-    html = html.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+      if (intersectingIds.has(region.id)) {
+        // Show raw markdown for intersecting regions
+        html += `<span class="bg-yellow-50 border border-yellow-200 rounded px-1 font-mono text-sm">${escapeHtml(region.rawText)}</span>`;
+      } else {
+        // Show formatted version
+        html += markdownToHtmlFormatted(region.rawText);
+      }
 
-    // Italic (*text*)
-    html = html.replace(/\*(.*?)\*/g, "<em>$1</em>");
+      lastEnd = region.end;
+    }
 
-
-    // Strikethrough (~~text~~)
-    html = html.replace(
-      /~~(.*?)~~/g,
-      '<del class="line-through text-gray-500">$1</del>',
-    );
-
-    // Inline code (`text`)
-    html = html.replace(
-      /`([^`]+)`/g,
-      '<code class="bg-gray-100 px-1 py-0.5 rounded font-mono text-sm text-red-600">$1</code>',
-    );
-
-
-    // Line breaks
-    html = html.replace(/\n/g, "<br>");
+    // Add remaining text
+    if (lastEnd < markdown.length) {
+      const remainingText = markdown.substring(lastEnd);
+      html += markdownToHtmlFormatted(remainingText);
+    }
 
     return html;
-  }, []);
+  }, [isEditing, parseFormattedRegions, markdownToHtmlFormatted]);
 
   // Convert HTML back to markdown
   const htmlToMarkdown = useCallback((html: string) => {
