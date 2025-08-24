@@ -718,35 +718,14 @@ export default function EditorLayoutSimple() {
 
                 {/* Content Section */}
                 <div className="p-6 pt-3">
-                  {isEditingContent && !showPreview ? (
-                    <textarea
-                      value={selectedDocument.content}
-                      onChange={(e) => handleContentChange(e.target.value)}
-                      onKeyDown={handleKeyDown}
-                      onBlur={handleEditingBlur}
-                      className="w-full min-h-[600px] p-4 border-0 resize-none focus:outline-none bg-transparent"
-                      style={{
-                        fontFamily: "system-ui, -apple-system, sans-serif",
-                        lineHeight: "1.6",
-                        fontSize: "16px",
-                      }}
-                      placeholder="Start writing your document content here..."
-                      autoFocus
-                    />
-                  ) : (
+                  {showPreview ? (
                     <div
-                      ref={editorRef}
                       className="prose prose-lg max-w-none cursor-text hover:bg-gray-50 rounded p-2 transition-colors"
                       style={{
                         fontFamily: "system-ui, -apple-system, sans-serif",
                         lineHeight: "1.6",
                         fontSize: "16px",
                       }}
-                      onMouseUp={!showPreview ? handleTextSelection : undefined}
-                      onDoubleClick={
-                        !showPreview ? handleDoubleClick : undefined
-                      }
-                      onClick={!showPreview ? handleClick : undefined}
                       onDragOver={(e) => {
                         e.preventDefault();
                         e.dataTransfer.dropEffect = "copy";
@@ -757,21 +736,21 @@ export default function EditorLayoutSimple() {
                           setOriginalContent(selectedDocument.content);
                           setPreviewContent(draggedQuiz.sourceText);
                           setShowPreview(true);
-                          // Stay in preview mode to show rendered markdown
                         }
                       }}
                     >
-                      {showPreview
-                        ? renderAdvancedMarkdownContent(previewContent)
-                        : renderAdvancedMarkdownContent(
-                            selectedDocument.content,
-                          )}
-                      {!showPreview && !isEditingContent && (
-                        <div className="absolute bottom-4 right-4 text-xs text-gray-400 opacity-50 pointer-events-none">
-                          Double-click to edit
-                        </div>
-                      )}
+                      {renderAdvancedMarkdownContent(previewContent)}
                     </div>
+                  ) : (
+                    <ObsidianLikeEditor
+                      content={selectedDocument.content}
+                      onChange={handleContentChange}
+                      onTextSelection={(text) => {
+                        setSelectedText(text);
+                        handleTextSelection();
+                      }}
+                      className="min-h-[600px]"
+                    />
                   )}
                 </div>
               </div>
