@@ -262,17 +262,6 @@ export default function HybridEditor({
         case "italic":
           newText = `*${selectedText}*`;
           break;
-        case "underline":
-          newText = `__${selectedText}__`;
-          break;
-        case "highlight":
-          newText = value
-            ? `{highlight-${value}:${selectedText}}`
-            : `==${selectedText}==`;
-          break;
-        case "color":
-          newText = value ? `{${value}:${selectedText}}` : selectedText;
-          break;
       }
 
       // Replace selected text
