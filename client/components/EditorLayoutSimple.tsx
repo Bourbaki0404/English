@@ -428,60 +428,82 @@ export default function EditorLayoutSimple() {
           </div>
         </div>
         
-        <div className="flex-1 p-6 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto">
           <div className="max-w-4xl mx-auto relative">
             {selectedDocument ? (
-                isEditingContent && !showPreview ? (
-                <textarea
-                  value={selectedDocument.content}
-                  onChange={(e) => handleContentChange(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  onBlur={handleEditingBlur}
-                  className="w-full min-h-[600px] p-4 border-0 resize-none focus:outline-none bg-transparent"
-                  style={{
-                    fontFamily: 'system-ui, -apple-system, sans-serif',
-                    lineHeight: '1.6',
-                    fontSize: '16px'
-                  }}
-                  placeholder="Start writing your document content here..."
-                  autoFocus
-                />
-              ) : (
-                <div
-                  className="prose prose-lg max-w-none cursor-text hover:bg-gray-50 rounded p-2 transition-colors"
-                  style={{
-                    fontFamily: 'system-ui, -apple-system, sans-serif',
-                    lineHeight: '1.6',
-                    fontSize: '16px'
-                  }}
-                  onMouseUp={!showPreview ? handleTextSelection : undefined}
-                  onDoubleClick={!showPreview ? handleDoubleClick : undefined}
-                  onClick={!showPreview ? handleClick : undefined}
-                  onDragOver={(e) => {
-                    e.preventDefault();
-                    e.dataTransfer.dropEffect = 'copy';
-                  }}
-                  onDrop={(e) => {
-                    e.preventDefault();
-                    if (draggedQuiz) {
-                      setOriginalContent(selectedDocument.content);
-                      setPreviewContent(draggedQuiz.sourceText);
-                      setShowPreview(true);
-                      // Stay in preview mode to show rendered markdown
-                    }
-                  }}
-                >
-                  {showPreview ?
-                    renderMarkdownContent(previewContent) :
-                    renderSelectiveMarkdownContent(selectedDocument.content, selectedText || null)
-                  }
-                  {!showPreview && !isEditingContent && (
-                    <div className="absolute bottom-4 right-4 text-xs text-gray-400 opacity-50 pointer-events-none">
-                      Double-click to edit
+              <div>
+                {/* Title Section */}
+                <div className="sticky top-0 bg-white z-10 border-b border-gray-200 p-6 pb-3">
+                  <input
+                    type="text"
+                    value={tempTitle}
+                    onChange={(e) => setTempTitle(e.target.value)}
+                    onBlur={() => handleTitleChange(tempTitle)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.currentTarget.blur();
+                      }
+                    }}
+                    className="text-2xl font-bold w-full border-none outline-none bg-transparent hover:bg-gray-50 focus:bg-white px-2 py-1 rounded transition-colors"
+                    placeholder="Document Title"
+                  />
+                </div>
+
+                {/* Content Section */}
+                <div className="p-6 pt-3">
+                  {isEditingContent && !showPreview ? (
+                    <textarea
+                      value={selectedDocument.content}
+                      onChange={(e) => handleContentChange(e.target.value)}
+                      onKeyDown={handleKeyDown}
+                      onBlur={handleEditingBlur}
+                      className="w-full min-h-[600px] p-4 border-0 resize-none focus:outline-none bg-transparent"
+                      style={{
+                        fontFamily: 'system-ui, -apple-system, sans-serif',
+                        lineHeight: '1.6',
+                        fontSize: '16px'
+                      }}
+                      placeholder="Start writing your document content here..."
+                      autoFocus
+                    />
+                  ) : (
+                    <div
+                      className="prose prose-lg max-w-none cursor-text hover:bg-gray-50 rounded p-2 transition-colors"
+                      style={{
+                        fontFamily: 'system-ui, -apple-system, sans-serif',
+                        lineHeight: '1.6',
+                        fontSize: '16px'
+                      }}
+                      onMouseUp={!showPreview ? handleTextSelection : undefined}
+                      onDoubleClick={!showPreview ? handleDoubleClick : undefined}
+                      onClick={!showPreview ? handleClick : undefined}
+                      onDragOver={(e) => {
+                        e.preventDefault();
+                        e.dataTransfer.dropEffect = 'copy';
+                      }}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        if (draggedQuiz) {
+                          setOriginalContent(selectedDocument.content);
+                          setPreviewContent(draggedQuiz.sourceText);
+                          setShowPreview(true);
+                          // Stay in preview mode to show rendered markdown
+                        }
+                      }}
+                    >
+                      {showPreview ?
+                        renderMarkdownContent(previewContent) :
+                        renderSelectiveMarkdownContent(selectedDocument.content, selectedText || null)
+                      }
+                      {!showPreview && !isEditingContent && (
+                        <div className="absolute bottom-4 right-4 text-xs text-gray-400 opacity-50 pointer-events-none">
+                          Double-click to edit
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
-              )
+              </div>
             ) : (
               <div className="flex items-center justify-center h-full">
                 <div className="text-center">
