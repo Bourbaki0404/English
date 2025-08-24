@@ -461,25 +461,42 @@ export default function EditorLayoutSimple() {
           elements.push(
             <span
               key={`region-${region.id}`}
-              className="bg-gray-100 px-1 py-0.5 rounded font-mono text-sm border"
+              className="bg-gray-100 px-1 py-0.5 rounded font-mono text-sm border cursor-pointer hover:bg-gray-200"
+              onClick={(e) => handleRegionClick(region.id, e)}
             >
               {region.rawText}
             </span>
           );
         } else {
-          // Show formatted content
+          // Show formatted content with click handlers
           const formattedText = region.formattedText;
           if (region.type === 'bold') {
-            elements.push(<strong key={`region-${region.id}`}>{formattedText}</strong>);
+            elements.push(
+              <strong
+                key={`region-${region.id}`}
+                className="cursor-pointer hover:bg-gray-100 px-1 rounded"
+                onClick={(e) => handleRegionClick(region.id, e)}
+              >
+                {formattedText}
+              </strong>
+            );
           } else if (region.type === 'highlight') {
             elements.push(
-              <span key={`region-${region.id}`} className="bg-yellow-200 px-1 py-0.5 rounded">
+              <span
+                key={`region-${region.id}`}
+                className="bg-yellow-200 px-1 py-0.5 rounded cursor-pointer hover:bg-yellow-300"
+                onClick={(e) => handleRegionClick(region.id, e)}
+              >
                 {formattedText}
               </span>
             );
           } else if (region.type === 'bracket') {
             elements.push(
-              <span key={`region-${region.id}`} className="text-purple-600 bg-gray-100 px-1 py-0.5 rounded text-sm">
+              <span
+                key={`region-${region.id}`}
+                className="text-purple-600 bg-gray-100 px-1 py-0.5 rounded text-sm cursor-pointer hover:bg-gray-200"
+                onClick={(e) => handleRegionClick(region.id, e)}
+              >
                 [{formattedText}]
               </span>
             );
