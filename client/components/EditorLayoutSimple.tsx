@@ -373,7 +373,7 @@ export default function EditorLayoutSimple() {
                   <FileText className={`w-4 h-4 mr-2 flex-shrink-0 ${
                     selectedDocumentId === doc.id ? 'text-blue-500' : 'text-gray-500'
                   }`} />
-                  <span className="text-sm truncate">{getDocumentDisplayName(doc)}</span>
+                  <span className="text-sm truncate">{doc.name}</span>
                 </div>
                 {documents.length > 1 && (
                   <Button
