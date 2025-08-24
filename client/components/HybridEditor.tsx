@@ -291,7 +291,7 @@ export default function HybridEditor({
 
       if (intersectingIds.has(region.id)) {
         // Show raw markdown for intersecting regions
-        html += `<span class="bg-yellow-50 border border-yellow-200 rounded px-1 font-mono text-sm">${escapeHtml(region.rawText)}</span>`;
+        html += `<span>${escapeHtml(region.rawText)}</span>`;
       } else {
         // Show formatted version
         html += markdownToHtmlFormatted(region.rawText);
