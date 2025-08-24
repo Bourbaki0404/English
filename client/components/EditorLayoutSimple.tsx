@@ -152,7 +152,7 @@ export default function EditorLayoutSimple() {
       switch (toolId) {
         case 'flashcard': {
           const flashcards = await llmService.generateFlashCards(selectedText);
-          createQuiz('flashcard', `Flashcards - ${getDocumentDisplayName(selectedDocument!)}`, selectedText, flashcards, selectedDocument!.id);
+          createQuiz('flashcard', `Flashcards - ${selectedDocument!.name}`, selectedText, flashcards, selectedDocument!.id);
           navigate('/quiz/flashcard');
           break;
         }
