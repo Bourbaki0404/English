@@ -463,8 +463,12 @@ export default function HybridEditor({
     [htmlToMarkdown, markdownToHtml, onChange, showToolbar],
   );
 
-  // Handle text selection
-  const handleMouseUp = useCallback(() => {
+  // Handle cursor movement and selection changes
+  const handleSelectionChange = useCallback(() => {
+    if (!isEditing) return;
+
+    updateCursorAndSelection();
+
     const sel = window.getSelection();
     if (sel && sel.toString().trim()) {
       const selectedTextValue = sel.toString().trim();
@@ -480,7 +484,22 @@ export default function HybridEditor({
       setSelection(null);
       setShowToolbar(false);
     }
-  }, [onTextSelection, calculateToolbarPosition]);
+  }, [isEditing, updateCursorAndSelection, onTextSelection, calculateToolbarPosition]);
+
+  // Handle text selection
+  const handleMouseUp = useCallback(() => {
+    handleSelectionChange();
+  }, [handleSelectionChange]);
+
+  // Handle keyboard events for cursor movement
+  const handleKeyUp = useCallback((e: React.KeyboardEvent) => {
+    // Update cursor position on arrow keys, etc.
+    if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'].includes(e.key)) {
+      setTimeout(() => {
+        handleSelectionChange();
+      }, 0);
+    }
+  }, [handleSelectionChange]);
 
   // Apply formatting to selected text
   const applyFormatting = useCallback(
