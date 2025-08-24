@@ -344,38 +344,6 @@ export default function EditorLayoutSimple() {
     }
   };
 
-  const handleDoubleClick = () => {
-    if (!showPreview) {
-      setIsEditingContent(true);
-      setSelectedText(""); // Clear selection when entering edit mode
-    }
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Escape") {
-      setIsEditingContent(false);
-    }
-  };
-
-  const handleEditingBlur = () => {
-    setIsEditingContent(false);
-  };
-
-  const handleClick = (e: React.MouseEvent) => {
-    if (!selectedDocument) return;
-
-    const selection = window.getSelection();
-    if (selection?.toString()) return; // Don't handle clicks during text selection
-
-    // Clear selection and revealed regions when clicking in unformatted areas
-    setSelectedText("");
-    setCurrentSelection(null);
-
-    // Clear revealed regions to return text to formatted state
-    // Note: region-specific clicks are handled by handleRegionClick which stops propagation
-    setRevealedRegions(new Set());
-  };
-
   // Function to handle clicks on specific formatted regions
   const handleRegionClick = (regionId: string, e: React.MouseEvent) => {
     e.stopPropagation();
