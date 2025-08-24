@@ -257,7 +257,7 @@ export default function HybridEditor({
             <div className="text-xs text-gray-300">
               支持: 标题 # ## ###, **粗体**, *斜体*, ~~删除线~~, `代码`, ==高亮==, 
               <br />
-              列表 - 项目, 任务 - [ ] 待办, 引用 > 文字, 表格, 图片等
+              列表 - 项目, 任务 - [ ] 待办, 引用 &gt; 文字, 表格, 图片等
             </div>
           </div>
         </div>
