@@ -142,32 +142,6 @@ export default function HybridEditor({
     // Inline code
     markdown = markdown.replace(/<code[^>]*>(.*?)<\/code>/gi, "`$1`");
 
-    // Colored text
-    markdown = markdown.replace(
-      /<span class="text-(\w+)-600[^>]*>(.*?)<\/span>/gi,
-      "{$1:$2}",
-    );
-
-    // Highlight with colors
-    markdown = markdown.replace(
-      /<span class="bg-(\w+)-200[^>]*>(.*?)<\/span>/gi,
-      "{highlight-$1:$2}",
-    );
-
-    // Default highlight
-    markdown = markdown.replace(/<mark[^>]*>(.*?)<\/mark>/gi, "==$1==");
-
-    // Obsidian-style brackets - restore before links
-    markdown = markdown.replace(
-      /<span class="bg-purple-100 text-purple-700[^>]*>(.*?)<\/span>/gi,
-      "[$1]",
-    );
-
-    // Links
-    markdown = markdown.replace(
-      /<a[^>]*href="([^"]*)"[^>]*>(.*?)<\/a>/gi,
-      "[$2]($1)",
-    );
 
     // Clean up
     markdown = markdown.replace(/<br\s*\/?>/gi, "\n");
