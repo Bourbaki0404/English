@@ -273,9 +273,6 @@ export default function HybridEditor({
       }
 
       // Don't clear selection immediately - let user continue formatting
-      // Close color/highlight pickers
-      setShowColorPicker(false);
-      setShowHighlightPicker(false);
 
       // Keep focus on editor
       if (editorRef.current) {
