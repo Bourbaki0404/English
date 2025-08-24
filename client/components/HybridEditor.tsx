@@ -410,8 +410,17 @@ export default function HybridEditor({
   useEffect(() => {
     if (!isEditing) {
       setHtmlContent(markdownToHtml(content));
+    } else {
+      // In editing mode, show raw markdown for intersecting regions
+      const regions = parseFormattedRegions(content);
+      const intersectingIds = selectionRange
+        ? getIntersectingRegions(regions, cursorPosition, selectionRange.start, selectionRange.end)
+        : getIntersectingRegions(regions, cursorPosition);
+
+      const newHtml = markdownToHtml(content, intersectingIds);
+      setHtmlContent(newHtml);
     }
-  }, [content, markdownToHtml, isEditing]);
+  }, [content, markdownToHtml, isEditing, cursorPosition, selectionRange, parseFormattedRegions, getIntersectingRegions]);
 
   // Handle content changes
   const handleInput = useCallback(() => {
