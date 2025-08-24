@@ -373,10 +373,9 @@ export default function HybridEditor({
           <div className="space-y-2 text-sm">
             <div>Click to start writing...</div>
             <div className="text-xs text-gray-300">
-              Supports: Headers # ## ###, **bold**, *italic*, __underline__,
-              ~~strikethrough~~,
+              Supports: Headers #, **bold**, *italic*, ~~strikethrough~~,
               <br />
-              `code`, ==highlight==, [brackets], colored text, links, etc.
+              `code`, and ```code blocks```
             </div>
           </div>
         </div>
