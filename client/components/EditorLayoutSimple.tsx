@@ -652,6 +652,7 @@ export default function EditorLayoutSimple() {
                     />
                   ) : (
                     <div
+                      ref={editorRef}
                       className="prose prose-lg max-w-none cursor-text hover:bg-gray-50 rounded p-2 transition-colors"
                       style={{
                         fontFamily: 'system-ui, -apple-system, sans-serif',
@@ -676,8 +677,8 @@ export default function EditorLayoutSimple() {
                       }}
                     >
                       {showPreview ?
-                        renderMarkdownContent(previewContent) :
-                        renderSelectiveMarkdownContent(selectedDocument.content, selectedText || null)
+                        renderAdvancedMarkdownContent(previewContent) :
+                        renderAdvancedMarkdownContent(selectedDocument.content)
                       }
                       {!showPreview && !isEditingContent && (
                         <div className="absolute bottom-4 right-4 text-xs text-gray-400 opacity-50 pointer-events-none">
