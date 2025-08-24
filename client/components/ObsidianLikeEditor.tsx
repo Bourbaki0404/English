@@ -514,6 +514,16 @@ export default function ObsidianLikeEditor({
         }
       }
 
+      // Handle cursor at the very end of the line (after all content)
+      if (isEditing && cursorPosition.start === lineEnd && elements.length > 0) {
+        // Check if cursor wasn't already added
+        const hasCursor = elements.some(el => React.isValidElement(el) && el.key === 'cursor');
+        if (!hasCursor) {
+          elements.push(
+            <span key="cursor" className="animate-pulse">|</span>
+          );
+        }
+      }
 
       return (
         <p key={lineIndex} className="mb-3 leading-relaxed cursor-text" onClick={handleClick}>
