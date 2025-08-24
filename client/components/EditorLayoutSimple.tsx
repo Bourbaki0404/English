@@ -767,7 +767,6 @@ export default function EditorLayoutSimple() {
                     setShowPreview(false);
                     setPreviewContent("");
                     setOriginalContent("");
-                    setIsEditingContent(false);
                   }}
                 >
                   Return to Document
