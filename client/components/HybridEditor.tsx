@@ -240,8 +240,6 @@ export default function HybridEditor({
       setSelectedText("");
       setSelection(null);
       setShowToolbar(false);
-      setShowColorPicker(false);
-      setShowHighlightPicker(false);
     }
   }, [onTextSelection, calculateToolbarPosition]);
 
