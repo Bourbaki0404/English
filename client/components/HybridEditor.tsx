@@ -17,24 +17,24 @@ interface HybridEditorProps {
 }
 
 const TEXT_COLORS = [
-  { name: "默认", value: "", class: "" },
-  { name: "红色", value: "red", class: "text-red-600" },
-  { name: "蓝色", value: "blue", class: "text-blue-600" },
-  { name: "绿色", value: "green", class: "text-green-600" },
-  { name: "紫色", value: "purple", class: "text-purple-600" },
-  { name: "橙色", value: "orange", class: "text-orange-600" },
-  { name: "粉色", value: "pink", class: "text-pink-600" },
-  { name: "灰色", value: "gray", class: "text-gray-600" },
+  { name: "Default", value: "", class: "" },
+  { name: "Red", value: "red", class: "text-red-600" },
+  { name: "Blue", value: "blue", class: "text-blue-600" },
+  { name: "Green", value: "green", class: "text-green-600" },
+  { name: "Purple", value: "purple", class: "text-purple-600" },
+  { name: "Orange", value: "orange", class: "text-orange-600" },
+  { name: "Pink", value: "pink", class: "text-pink-600" },
+  { name: "Gray", value: "gray", class: "text-gray-600" },
 ];
 
 const HIGHLIGHT_COLORS = [
-  { name: "无高亮", value: "", class: "" },
-  { name: "黄色", value: "yellow", class: "bg-yellow-200" },
-  { name: "绿色", value: "green", class: "bg-green-200" },
-  { name: "蓝色", value: "blue", class: "bg-blue-200" },
-  { name: "紫色", value: "purple", class: "bg-purple-200" },
-  { name: "粉色", value: "pink", class: "bg-pink-200" },
-  { name: "橙色", value: "orange", class: "bg-orange-200" },
+  { name: "No highlight", value: "", class: "" },
+  { name: "Yellow", value: "yellow", class: "bg-yellow-200" },
+  { name: "Green", value: "green", class: "bg-green-200" },
+  { name: "Blue", value: "blue", class: "bg-blue-200" },
+  { name: "Purple", value: "purple", class: "bg-purple-200" },
+  { name: "Pink", value: "pink", class: "bg-pink-200" },
+  { name: "Orange", value: "orange", class: "bg-orange-200" },
 ];
 
 export default function HybridEditor({
@@ -49,14 +49,16 @@ export default function HybridEditor({
   const [showHighlightPicker, setShowHighlightPicker] = useState(false);
   const [selectedText, setSelectedText] = useState("");
   const [selection, setSelection] = useState<Range | null>(null);
+  const [toolbarPosition, setToolbarPosition] = useState({ x: 0, y: 0 });
   
   const editorRef = useRef<HTMLDivElement>(null);
+  const toolbarRef = useRef<HTMLDivElement>(null);
 
-  // Convert markdown to HTML for display (只保留封闭语法)
+  // Convert markdown to HTML for display (only closed syntax)
   const markdownToHtml = useCallback((markdown: string) => {
     let html = markdown;
     
-    // Headers (h1-h3 only, 简化)
+    // Headers (h1-h3 only, simplified)
     html = html.replace(/^#{3}\s+(.*)$/gim, '<h3 class="text-xl font-semibold mb-3 mt-5">$1</h3>');
     html = html.replace(/^#{2}\s+(.*)$/gim, '<h2 class="text-2xl font-semibold mb-4 mt-6">$1</h2>');
     html = html.replace(/^#{1}\s+(.*)$/gim, '<h1 class="text-3xl font-bold mb-6 mt-8">$1</h1>');
@@ -154,6 +156,22 @@ export default function HybridEditor({
     return markdown;
   }, []);
 
+  // Calculate toolbar position based on selection
+  const calculateToolbarPosition = useCallback(() => {
+    const sel = window.getSelection();
+    if (!sel || sel.rangeCount === 0 || !editorRef.current) return;
+
+    const range = sel.getRangeAt(0);
+    const rect = range.getBoundingClientRect();
+    const editorRect = editorRef.current.getBoundingClientRect();
+    
+    // Position toolbar below the selection
+    const x = rect.left + (rect.width / 2) - editorRect.left;
+    const y = rect.bottom - editorRect.top + 8; // 8px gap below selection
+    
+    setToolbarPosition({ x, y });
+  }, []);
+
   // Update HTML when content changes
   useEffect(() => {
     if (!isEditing) {
@@ -175,12 +193,19 @@ export default function HybridEditor({
     setIsEditing(true);
   }, []);
 
-  // Handle blur (stop editing)
-  const handleBlur = useCallback(() => {
-    // 延迟失焦，给工具栏操作时间
+  // Handle blur (stop editing) - but not when interacting with toolbar
+  const handleBlur = useCallback((e: React.FocusEvent) => {
+    // Don't blur if clicking on toolbar
+    if (toolbarRef.current && toolbarRef.current.contains(e.relatedTarget as Node)) {
+      return;
+    }
+    
+    // Small delay to allow toolbar interactions
     setTimeout(() => {
       if (!showColorPicker && !showHighlightPicker) {
         setIsEditing(false);
+        setSelectedText("");
+        setSelection(null);
         if (editorRef.current) {
           const newHtml = editorRef.current.innerHTML;
           const newMarkdown = htmlToMarkdown(newHtml);
@@ -188,29 +213,32 @@ export default function HybridEditor({
           setHtmlContent(markdownToHtml(newMarkdown));
         }
       }
-    }, 200);
+    }, 100);
   }, [htmlToMarkdown, markdownToHtml, onChange, showColorPicker, showHighlightPicker]);
 
   // Handle text selection
   const handleMouseUp = useCallback(() => {
     const sel = window.getSelection();
-    if (sel && sel.toString()) {
-      setSelectedText(sel.toString());
+    if (sel && sel.toString().trim()) {
+      setSelectedText(sel.toString().trim());
       setSelection(sel.rangeCount > 0 ? sel.getRangeAt(0) : null);
+      calculateToolbarPosition();
       if (onTextSelection) {
-        onTextSelection(sel.toString());
+        onTextSelection(sel.toString().trim());
       }
     } else {
       setSelectedText("");
       setSelection(null);
+      setShowColorPicker(false);
+      setShowHighlightPicker(false);
     }
-  }, [onTextSelection]);
+  }, [onTextSelection, calculateToolbarPosition]);
 
   // Apply formatting to selected text
   const applyFormatting = useCallback((type: string, value?: string) => {
     if (!selection || !selectedText) return;
 
-    const selectedRange = selection;
+    const selectedRange = selection.cloneRange();
     let newText = selectedText;
 
     switch (type) {
@@ -243,32 +271,52 @@ export default function HybridEditor({
       setHtmlContent(markdownToHtml(newMarkdown));
     }
 
-    // Clear selection
+    // Clear selection and close pickers
     setSelectedText("");
     setSelection(null);
     setShowColorPicker(false);
     setShowHighlightPicker(false);
+    
+    // Keep focus on editor
+    if (editorRef.current) {
+      editorRef.current.focus();
+    }
   }, [selection, selectedText, htmlToMarkdown, markdownToHtml, onChange]);
 
   // Handle keyboard shortcuts
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'Escape') {
-      editorRef.current?.blur();
+      setSelectedText("");
+      setSelection(null);
       setShowColorPicker(false);
       setShowHighlightPicker(false);
     }
   }, []);
 
+  // Prevent toolbar from losing focus when clicking buttons
+  const handleToolbarMouseDown = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+  }, []);
+
   return (
     <div className={`relative ${className}`}>
-      {/* Formatting Toolbar */}
+      {/* Formatting Toolbar - positioned near selected text */}
       {isEditing && selectedText && (
-        <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-white border border-gray-300 rounded-lg shadow-lg p-2 flex items-center space-x-2 z-50">
+        <div 
+          ref={toolbarRef}
+          className="absolute bg-white border border-gray-300 rounded-lg shadow-lg p-2 flex items-center space-x-2 z-50"
+          style={{
+            left: `${toolbarPosition.x}px`,
+            top: `${toolbarPosition.y}px`,
+            transform: 'translateX(-50%)',
+          }}
+          onMouseDown={handleToolbarMouseDown}
+        >
           {/* Bold */}
           <button
             onClick={() => applyFormatting('bold')}
             className="p-2 hover:bg-gray-100 rounded transition-colors"
-            title="粗体"
+            title="Bold"
           >
             <Bold size={18} />
           </button>
@@ -277,7 +325,7 @@ export default function HybridEditor({
           <button
             onClick={() => applyFormatting('italic')}
             className="p-2 hover:bg-gray-100 rounded transition-colors"
-            title="斜体"
+            title="Italic"
           >
             <Italic size={18} />
           </button>
@@ -286,7 +334,7 @@ export default function HybridEditor({
           <button
             onClick={() => applyFormatting('underline')}
             className="p-2 hover:bg-gray-100 rounded transition-colors"
-            title="下划线"
+            title="Underline"
           >
             <Underline size={18} />
           </button>
@@ -301,7 +349,7 @@ export default function HybridEditor({
                 setShowHighlightPicker(false);
               }}
               className="p-2 hover:bg-gray-100 rounded transition-colors"
-              title="文字颜色"
+              title="Text Color"
             >
               <Type size={18} />
             </button>
@@ -315,7 +363,7 @@ export default function HybridEditor({
                     className={`p-2 text-sm rounded hover:bg-gray-100 transition-colors ${color.class}`}
                     title={color.name}
                   >
-                    文字
+                    Text
                   </button>
                 ))}
               </div>
@@ -330,7 +378,7 @@ export default function HybridEditor({
                 setShowColorPicker(false);
               }}
               className="p-2 hover:bg-gray-100 rounded transition-colors"
-              title="高亮"
+              title="Highlight"
             >
               <Highlighter size={18} />
             </button>
@@ -344,7 +392,7 @@ export default function HybridEditor({
                     className={`p-2 text-sm rounded hover:bg-gray-100 transition-colors ${color.class}`}
                     title={color.name}
                   >
-                    高亮
+                    Highlight
                   </button>
                 ))}
               </div>
@@ -362,7 +410,7 @@ export default function HybridEditor({
               setShowHighlightPicker(false);
             }}
             className="p-2 hover:bg-gray-100 rounded transition-colors text-gray-500"
-            title="关闭"
+            title="Close"
           >
             <X size={16} />
           </button>
@@ -386,17 +434,17 @@ export default function HybridEditor({
         onBlur={handleBlur}
         onMouseUp={handleMouseUp}
         onKeyDown={handleKeyDown}
-        data-placeholder={content.trim() === '' ? "点击开始编写..." : ""}
+        data-placeholder={content.trim() === '' ? "Click to start writing..." : ""}
       />
       
       {content.trim() === '' && (
         <div className="absolute top-6 left-6 text-gray-400 pointer-events-none">
           <div className="space-y-2 text-sm">
-            <div>点击开始编写...</div>
+            <div>Click to start writing...</div>
             <div className="text-xs text-gray-300">
-              支持: 标题 # ## ###, **粗体**, *斜体*, __下划线__, ~~删除线~~, 
+              Supports: Headers # ## ###, **bold**, *italic*, __underline__, ~~strikethrough~~, 
               <br />
-              `代码`, ==高亮==, 彩色文字, 链接等
+              `code`, ==highlight==, colored text, links, etc.
             </div>
           </div>
         </div>
@@ -404,8 +452,8 @@ export default function HybridEditor({
       
       {isEditing && !selectedText && (
         <div className="absolute bottom-4 right-4 text-xs text-blue-600 bg-white px-3 py-2 rounded-lg shadow border">
-          <div className="font-medium">编辑模式</div>
-          <div className="text-gray-500 mt-1">选择文字显示格式工具栏</div>
+          <div className="font-medium">Edit Mode</div>
+          <div className="text-gray-500 mt-1">Select text to show formatting toolbar</div>
         </div>
       )}
 
