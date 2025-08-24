@@ -412,88 +412,112 @@ export default function EditorLayoutSimple() {
   };
 
 
-  const renderSelectiveMarkdownContent = (content: string, selectedText: string | null) => {
-    if (!selectedText) {
-      // No selection, render normally
-      return renderMarkdownContent(content);
-    }
+  // Advanced rendering with mixed raw/formatted content
+  const renderAdvancedMarkdownContent = (content: string) => {
+    const lines = content.split('\n');
 
-    // For simplicity, just highlight the selected text when it appears
-    return content
-      .split('\n')
-      .map((line, index) => {
-        if (line.startsWith('# ')) {
-          return <h1 key={index} className="text-2xl font-bold mb-4 mt-6">{line.substring(2)}</h1>;
-        }
-        if (line.startsWith('## ')) {
-          return <h2 key={index} className="text-xl font-semibold mb-3 mt-5">{line.substring(3)}</h2>;
-        }
-        if (line.startsWith('### ')) {
-          return <h3 key={index} className="text-lg font-semibold mb-2 mt-4">{line.substring(4)}</h3>;
-        }
-        if (line.trim() === '') {
-          return <div key={index} className="mb-2"></div>;
+    return lines.map((line, lineIndex) => {
+      // Handle headers first
+      if (line.startsWith('# ')) {
+        return <h1 key={lineIndex} className="text-2xl font-bold mb-4 mt-6">{line.substring(2)}</h1>;
+      }
+      if (line.startsWith('## ')) {
+        return <h2 key={lineIndex} className="text-xl font-semibold mb-3 mt-5">{line.substring(3)}</h2>;
+      }
+      if (line.startsWith('### ')) {
+        return <h3 key={lineIndex} className="text-lg font-semibold mb-2 mt-4">{line.substring(4)}</h3>;
+      }
+      if (line.trim() === '') {
+        return <div key={lineIndex} className="mb-2"></div>;
+      }
+
+      // Calculate line start position in full content
+      const lineStart = lines.slice(0, lineIndex).join('\n').length + (lineIndex > 0 ? 1 : 0);
+      const lineEnd = lineStart + line.length;
+
+      // Get regions that affect this line
+      const regions = parseMarkdownRegions(content);
+      const lineRegions = regions.filter(region =>
+        (region.start >= lineStart && region.start < lineEnd) ||
+        (region.end > lineStart && region.end <= lineEnd) ||
+        (region.start < lineStart && region.end > lineEnd)
+      );
+
+      if (lineRegions.length === 0) {
+        // No formatting in this line
+        return (
+          <p key={lineIndex} className="mb-3 leading-relaxed">
+            {line}
+          </p>
+        );
+      }
+
+      // Build mixed content with revealed/hidden regions
+      const elements: JSX.Element[] = [];
+      let lastPos = 0;
+
+      lineRegions.forEach((region, regionIndex) => {
+        const regionStartInLine = Math.max(0, region.start - lineStart);
+        const regionEndInLine = Math.min(line.length, region.end - lineStart);
+
+        // Add text before region
+        if (regionStartInLine > lastPos) {
+          const beforeText = line.substring(lastPos, regionStartInLine);
+          elements.push(<span key={`before-${regionIndex}`}>{beforeText}</span>);
         }
 
-        // Check if this line contains the selected text
-        const containsSelection = line.includes(selectedText);
+        // Add region content (raw or formatted)
+        const regionText = line.substring(regionStartInLine, regionEndInLine);
+        const isRevealed = revealedRegions.has(region.id) ||
+                          (currentSelection &&
+                           region.start >= currentSelection.start &&
+                           region.end <= currentSelection.end);
 
-        if (containsSelection) {
-          // Show raw markdown for lines containing selection
-          return (
-            <p key={index} className="mb-3 leading-relaxed bg-blue-50 border border-blue-200 px-2 py-1 rounded font-mono text-sm">
-              {line}
-            </p>
+        if (isRevealed) {
+          // Show raw markdown
+          elements.push(
+            <span
+              key={`region-${regionIndex}`}
+              className="bg-gray-100 px-1 py-0.5 rounded font-mono text-sm border"
+            >
+              {regionText}
+            </span>
           );
+        } else {
+          // Show formatted content
+          const formattedText = region.formattedText;
+          if (region.type === 'bold') {
+            elements.push(<strong key={`region-${regionIndex}`}>{formattedText}</strong>);
+          } else if (region.type === 'highlight') {
+            elements.push(
+              <span key={`region-${regionIndex}`} className="bg-yellow-200 px-1 py-0.5 rounded">
+                {formattedText}
+              </span>
+            );
+          } else if (region.type === 'bracket') {
+            elements.push(
+              <span key={`region-${regionIndex}`} className="text-purple-600 bg-gray-100 px-1 py-0.5 rounded text-sm">
+                [{formattedText}]
+              </span>
+            );
+          }
         }
 
-        // Handle markdown-style formatting for non-selected lines
-        const processedLine = line
-          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-          .replace(/==(.*?)==/g, '<span class="bg-yellow-200 px-1 py-0.5 rounded">$1</span>')
-          .replace(/\[([^\]]+)\]/g, '<span class="text-purple-600 bg-gray-100 px-1 py-0.5 rounded text-sm">[$1]</span>');
-
-        return (
-          <p
-            key={index}
-            className="mb-3 leading-relaxed"
-            dangerouslySetInnerHTML={{ __html: processedLine }}
-          />
-        );
+        lastPos = regionEndInLine;
       });
-  };
 
-  const renderMarkdownContent = (content: string) => {
-    return content
-      .split('\n')
-      .map((line, index) => {
-        if (line.startsWith('# ')) {
-          return <h1 key={index} className="text-2xl font-bold mb-4 mt-6">{line.substring(2)}</h1>;
-        }
-        if (line.startsWith('## ')) {
-          return <h2 key={index} className="text-xl font-semibold mb-3 mt-5">{line.substring(3)}</h2>;
-        }
-        if (line.startsWith('### ')) {
-          return <h3 key={index} className="text-lg font-semibold mb-2 mt-4">{line.substring(4)}</h3>;
-        }
-        if (line.trim() === '') {
-          return <div key={index} className="mb-2"></div>;
-        }
+      // Add remaining text after last region
+      if (lastPos < line.length) {
+        const afterText = line.substring(lastPos);
+        elements.push(<span key="after">{afterText}</span>);
+      }
 
-        // Handle markdown-style formatting
-        const processedLine = line
-          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-          .replace(/==(.*?)==/g, '<span class="bg-yellow-200 px-1 py-0.5 rounded">$1</span>')
-          .replace(/\[([^\]]+)\]/g, '<span class="text-purple-600 bg-gray-100 px-1 py-0.5 rounded text-sm">[$1]</span>');
-
-        return (
-          <p
-            key={index}
-            className="mb-3 leading-relaxed"
-            dangerouslySetInnerHTML={{ __html: processedLine }}
-          />
-        );
-      });
+      return (
+        <p key={lineIndex} className="mb-3 leading-relaxed">
+          {elements}
+        </p>
+      );
+    });
   };
 
 
