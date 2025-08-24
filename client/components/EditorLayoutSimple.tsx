@@ -425,7 +425,7 @@ export default function EditorLayoutSimple() {
             {selectedDocument ? (
               <div>
                 {/* Title Section */}
-                <div className="sticky top-0 bg-white z-10 border-b border-gray-200 p-6 pb-3">
+                <div className="sticky top-0 bg-white z-10 p-6 pb-3">
                   <input
                     type="text"
                     value={tempTitle}
