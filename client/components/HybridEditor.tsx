@@ -50,6 +50,7 @@ export default function HybridEditor({
   const [selectedText, setSelectedText] = useState("");
   const [selection, setSelection] = useState<Range | null>(null);
   const [toolbarPosition, setToolbarPosition] = useState({ x: 0, y: 0 });
+  const [showToolbar, setShowToolbar] = useState(false);
   
   const editorRef = useRef<HTMLDivElement>(null);
   const toolbarRef = useRef<HTMLDivElement>(null);
@@ -93,8 +94,11 @@ export default function HybridEditor({
     // Default highlight ==text==
     html = html.replace(/==(.*?)==/g, '<mark class="bg-yellow-200 px-1 py-0.5 rounded">$1</mark>');
     
-    // Links [text](url)
-    html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-blue-600 underline hover:text-blue-800">$1</a>');
+    // Obsidian-style brackets [text] - Purple highlight like Obsidian
+    html = html.replace(/\[([^\]]+)\]/g, '<span class="bg-purple-100 text-purple-700 px-2 py-1 rounded font-medium border border-purple-200">$1</span>');
+    
+    // Links [text](url) - processed after brackets to avoid conflicts
+    html = html.replace(/<span class="bg-purple-100 text-purple-700 px-2 py-1 rounded font-medium border border-purple-200">([^<]+)<\/span>\(([^)]+)\)/g, '<a href="$2" class="text-blue-600 underline hover:text-blue-800">$1</a>');
     
     // Line breaks
     html = html.replace(/\n/g, '<br>');
@@ -141,6 +145,9 @@ export default function HybridEditor({
     // Default highlight
     markdown = markdown.replace(/<mark[^>]*>(.*?)<\/mark>/gi, '==$1==');
     
+    // Obsidian-style brackets - restore before links
+    markdown = markdown.replace(/<span class="bg-purple-100 text-purple-700[^>]*>(.*?)<\/span>/gi, '[$1]');
+    
     // Links
     markdown = markdown.replace(/<a[^>]*href="([^"]*)"[^>]*>(.*?)<\/a>/gi, '[$2]($1)');
     
@@ -172,6 +179,38 @@ export default function HybridEditor({
     setToolbarPosition({ x, y });
   }, []);
 
+  // Handle clicks outside toolbar to close it
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node;
+      
+      // Don't close if clicking inside toolbar or its dropdowns
+      if (toolbarRef.current && toolbarRef.current.contains(target)) {
+        return;
+      }
+      
+      // Don't close if clicking inside editor and there's still selected text
+      if (editorRef.current && editorRef.current.contains(target)) {
+        const selection = window.getSelection();
+        if (selection && selection.toString().trim()) {
+          return;
+        }
+      }
+      
+      // Close toolbar and clear selection
+      setShowToolbar(false);
+      setSelectedText("");
+      setSelection(null);
+      setShowColorPicker(false);
+      setShowHighlightPicker(false);
+    };
+
+    if (showToolbar) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [showToolbar]);
+
   // Update HTML when content changes
   useEffect(() => {
     if (!isEditing) {
@@ -193,7 +232,7 @@ export default function HybridEditor({
     setIsEditing(true);
   }, []);
 
-  // Handle blur (stop editing) - but not when interacting with toolbar
+  // Handle blur (stop editing)
   const handleBlur = useCallback((e: React.FocusEvent) => {
     // Don't blur if clicking on toolbar
     if (toolbarRef.current && toolbarRef.current.contains(e.relatedTarget as Node)) {
@@ -202,10 +241,8 @@ export default function HybridEditor({
     
     // Small delay to allow toolbar interactions
     setTimeout(() => {
-      if (!showColorPicker && !showHighlightPicker) {
+      if (!showToolbar) {
         setIsEditing(false);
-        setSelectedText("");
-        setSelection(null);
         if (editorRef.current) {
           const newHtml = editorRef.current.innerHTML;
           const newMarkdown = htmlToMarkdown(newHtml);
@@ -214,21 +251,24 @@ export default function HybridEditor({
         }
       }
     }, 100);
-  }, [htmlToMarkdown, markdownToHtml, onChange, showColorPicker, showHighlightPicker]);
+  }, [htmlToMarkdown, markdownToHtml, onChange, showToolbar]);
 
   // Handle text selection
   const handleMouseUp = useCallback(() => {
     const sel = window.getSelection();
     if (sel && sel.toString().trim()) {
-      setSelectedText(sel.toString().trim());
+      const selectedTextValue = sel.toString().trim();
+      setSelectedText(selectedTextValue);
       setSelection(sel.rangeCount > 0 ? sel.getRangeAt(0) : null);
+      setShowToolbar(true);
       calculateToolbarPosition();
       if (onTextSelection) {
-        onTextSelection(sel.toString().trim());
+        onTextSelection(selectedTextValue);
       }
     } else {
       setSelectedText("");
       setSelection(null);
+      setShowToolbar(false);
       setShowColorPicker(false);
       setShowHighlightPicker(false);
     }
@@ -271,9 +311,8 @@ export default function HybridEditor({
       setHtmlContent(markdownToHtml(newMarkdown));
     }
 
-    // Clear selection and close pickers
-    setSelectedText("");
-    setSelection(null);
+    // Don't clear selection immediately - let user continue formatting
+    // Close color/highlight pickers
     setShowColorPicker(false);
     setShowHighlightPicker(false);
     
@@ -286,6 +325,7 @@ export default function HybridEditor({
   // Handle keyboard shortcuts
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'Escape') {
+      setShowToolbar(false);
       setSelectedText("");
       setSelection(null);
       setShowColorPicker(false);
@@ -301,7 +341,7 @@ export default function HybridEditor({
   return (
     <div className={`relative ${className}`}>
       {/* Formatting Toolbar - positioned near selected text */}
-      {isEditing && selectedText && (
+      {isEditing && selectedText && showToolbar && (
         <div 
           ref={toolbarRef}
           className="absolute bg-white border border-gray-300 rounded-lg shadow-lg p-2 flex items-center space-x-2 z-50"
@@ -404,6 +444,7 @@ export default function HybridEditor({
           {/* Close */}
           <button
             onClick={() => {
+              setShowToolbar(false);
               setSelectedText("");
               setSelection(null);
               setShowColorPicker(false);
@@ -444,7 +485,7 @@ export default function HybridEditor({
             <div className="text-xs text-gray-300">
               Supports: Headers # ## ###, **bold**, *italic*, __underline__, ~~strikethrough~~, 
               <br />
-              `code`, ==highlight==, colored text, links, etc.
+              `code`, ==highlight==, [brackets], colored text, links, etc.
             </div>
           </div>
         </div>
