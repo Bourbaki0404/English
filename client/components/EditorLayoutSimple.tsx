@@ -158,7 +158,7 @@ export default function EditorLayoutSimple() {
         }
         case 'multiple-choice': {
           const questions = await llmService.generateMultipleChoice(selectedText);
-          createQuiz('multiple-choice', `Multiple Choice - ${getDocumentDisplayName(selectedDocument!)}`, selectedText, questions, selectedDocument!.id);
+          createQuiz('multiple-choice', `Multiple Choice - ${selectedDocument!.name}`, selectedText, questions, selectedDocument!.id);
           navigate('/quiz/multiple-choice');
           break;
         }
