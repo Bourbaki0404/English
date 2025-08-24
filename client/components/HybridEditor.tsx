@@ -102,6 +102,9 @@ export default function HybridEditor({
     markdown = markdown.replace(/<h1[^>]*>(.*?)<\/h1>/gi, "# $1");
     markdown = markdown.replace(/<h2[^>]*>(.*?)<\/h2>/gi, "## $1");
     markdown = markdown.replace(/<h3[^>]*>(.*?)<\/h3>/gi, "### $1");
+    markdown = markdown.replace(/<h4[^>]*>(.*?)<\/h4>/gi, "#### $1");
+    markdown = markdown.replace(/<h5[^>]*>(.*?)<\/h5>/gi, "##### $1");
+    markdown = markdown.replace(/<h6[^>]*>(.*?)<\/h6>/gi, "###### $1");
 
     // Code blocks
     markdown = markdown.replace(
