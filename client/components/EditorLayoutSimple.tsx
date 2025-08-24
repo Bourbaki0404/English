@@ -86,7 +86,6 @@ export default function EditorLayoutSimple() {
   const [showPreview, setShowPreview] = useState(false);
   const [previewContent, setPreviewContent] = useState("");
   const [originalContent, setOriginalContent] = useState("");
-  const [isEditingContent, setIsEditingContent] = useState(false);
   const [collisionNotification, setCollisionNotification] =
     useState<CollisionNotification>({ show: false, message: "" });
   const [tempTitle, setTempTitle] = useState("");
@@ -96,10 +95,6 @@ export default function EditorLayoutSimple() {
   const [manuallyRevealedRegions, setManuallyRevealedRegions] = useState<
     Set<string>
   >(new Set());
-  const [currentSelection, setCurrentSelection] = useState<{
-    start: number;
-    end: number;
-  } | null>(null);
   const editorRef = useRef<HTMLDivElement>(null);
 
   const selectedDocument = documents.find(
