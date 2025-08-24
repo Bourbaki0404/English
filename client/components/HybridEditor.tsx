@@ -35,6 +35,8 @@ export default function HybridEditor({
   const [selection, setSelection] = useState<Range | null>(null);
   const [toolbarPosition, setToolbarPosition] = useState({ x: 0, y: 0 });
   const [showToolbar, setShowToolbar] = useState(false);
+  const [cursorPosition, setCursorPosition] = useState(0);
+  const [selectionRange, setSelectionRange] = useState<{start: number, end: number} | null>(null);
 
   const editorRef = useRef<HTMLDivElement>(null);
   const toolbarRef = useRef<HTMLDivElement>(null);
