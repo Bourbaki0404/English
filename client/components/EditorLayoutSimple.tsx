@@ -462,8 +462,8 @@ export default function EditorLayoutSimple() {
                   <input
                     type="text"
                     value={tempTitle}
-                    onChange={(e) => setTempTitle(e.target.value)}
-                    onBlur={() => handleTitleChange(tempTitle)}
+                    onChange={(e) => handleTitleChange(e.target.value)}
+                    onBlur={() => handleTitleSave()}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
                         e.currentTarget.blur();
