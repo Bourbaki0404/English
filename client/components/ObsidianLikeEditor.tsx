@@ -493,7 +493,7 @@ export default function ObsidianLikeEditor({
     <div className={`relative ${className}`}>
       <div
         ref={editorRef}
-        className="prose prose-lg max-w-none cursor-text hover:bg-gray-50 rounded p-2 transition-colors"
+        className="prose prose-lg max-w-none cursor-text hover:bg-gray-50 rounded p-2 transition-colors outline-none"
         style={{
           fontFamily: 'system-ui, -apple-system, sans-serif',
           lineHeight: '1.6',
@@ -501,7 +501,9 @@ export default function ObsidianLikeEditor({
         }}
         onMouseUp={handleMouseUp}
         onClick={handleClick}
+        onKeyDown={(e) => handleKeyDown(e.nativeEvent)}
         tabIndex={0}
+        contentEditable={false}
       >
         {renderMixedContent()}
         {!isEditing && (
