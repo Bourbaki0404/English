@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, FileText, Plus, Menu, X, Settings, Loader2, GripVertical } from 'lucide-react';
+import { ChevronLeft, ChevronRight, FileText, Plus, Menu, X, Settings, Loader2, GripVertical, AlertCircle } from 'lucide-react';
 import { Button } from './ui/button';
 import SettingsModal, { AppSettings } from './SettingsModal';
 import { getLLMService } from '../services/llmService';
