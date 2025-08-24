@@ -151,7 +151,7 @@ export default function ObsidianLikeEditor({
   }, []);
 
   // Handle keyboard input
-  const handleKeyDown = useCallback((e: React.KeyboardEvent | KeyboardEvent) => {
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (!isEditing) return;
 
     e.preventDefault();
