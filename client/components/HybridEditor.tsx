@@ -1,12 +1,12 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import { 
-  Bold, 
-  Italic, 
-  Underline, 
-  Highlighter, 
+import {
+  Bold,
+  Italic,
+  Underline,
+  Highlighter,
   Palette,
   Type,
-  X 
+  X,
 } from "lucide-react";
 
 interface HybridEditorProps {
@@ -51,113 +51,164 @@ export default function HybridEditor({
   const [selection, setSelection] = useState<Range | null>(null);
   const [toolbarPosition, setToolbarPosition] = useState({ x: 0, y: 0 });
   const [showToolbar, setShowToolbar] = useState(false);
-  
+
   const editorRef = useRef<HTMLDivElement>(null);
   const toolbarRef = useRef<HTMLDivElement>(null);
 
   // Convert markdown to HTML for display (only closed syntax)
   const markdownToHtml = useCallback((markdown: string) => {
     let html = markdown;
-    
+
     // Headers (h1-h3 only, simplified)
-    html = html.replace(/^#{3}\s+(.*)$/gim, '<h3 class="text-xl font-semibold mb-3 mt-5">$1</h3>');
-    html = html.replace(/^#{2}\s+(.*)$/gim, '<h2 class="text-2xl font-semibold mb-4 mt-6">$1</h2>');
-    html = html.replace(/^#{1}\s+(.*)$/gim, '<h1 class="text-3xl font-bold mb-6 mt-8">$1</h1>');
-    
+    html = html.replace(
+      /^#{3}\s+(.*)$/gim,
+      '<h3 class="text-xl font-semibold mb-3 mt-5">$1</h3>',
+    );
+    html = html.replace(
+      /^#{2}\s+(.*)$/gim,
+      '<h2 class="text-2xl font-semibold mb-4 mt-6">$1</h2>',
+    );
+    html = html.replace(
+      /^#{1}\s+(.*)$/gim,
+      '<h1 class="text-3xl font-bold mb-6 mt-8">$1</h1>',
+    );
+
     // Code blocks (```...```)
-    html = html.replace(/```([\s\S]*?)```/g, '<pre class="bg-gray-100 p-4 rounded-lg my-4 overflow-x-auto"><code class="text-sm font-mono block">$1</code></pre>');
-    
+    html = html.replace(
+      /```([\s\S]*?)```/g,
+      '<pre class="bg-gray-100 p-4 rounded-lg my-4 overflow-x-auto"><code class="text-sm font-mono block">$1</code></pre>',
+    );
+
     // Bold and Italic combinations (***text***)
-    html = html.replace(/\*\*\*(.*?)\*\*\*/g, '<strong><em>$1</em></strong>');
-    
+    html = html.replace(/\*\*\*(.*?)\*\*\*/g, "<strong><em>$1</em></strong>");
+
     // Bold (**text**)
-    html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-    
+    html = html.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+
     // Italic (*text*)
-    html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
-    
+    html = html.replace(/\*(.*?)\*/g, "<em>$1</em>");
+
     // Underline (__text__)
     html = html.replace(/__(.*?)__/g, '<u class="underline">$1</u>');
-    
+
     // Strikethrough (~~text~~)
-    html = html.replace(/~~(.*?)~~/g, '<del class="line-through text-gray-500">$1</del>');
-    
+    html = html.replace(
+      /~~(.*?)~~/g,
+      '<del class="line-through text-gray-500">$1</del>',
+    );
+
     // Inline code (`text`)
-    html = html.replace(/`([^`]+)`/g, '<code class="bg-gray-100 px-1 py-0.5 rounded font-mono text-sm text-red-600">$1</code>');
-    
+    html = html.replace(
+      /`([^`]+)`/g,
+      '<code class="bg-gray-100 px-1 py-0.5 rounded font-mono text-sm text-red-600">$1</code>',
+    );
+
     // Colored text {color:text}
-    html = html.replace(/\{(\w+):(.*?)\}/g, '<span class="text-$1-600">$2</span>');
-    
+    html = html.replace(
+      /\{(\w+):(.*?)\}/g,
+      '<span class="text-$1-600">$2</span>',
+    );
+
     // Highlight with colors {highlight-color:text}
-    html = html.replace(/\{highlight-(\w+):(.*?)\}/g, '<span class="bg-$1-200 px-1 py-0.5 rounded">$2</span>');
-    
+    html = html.replace(
+      /\{highlight-(\w+):(.*?)\}/g,
+      '<span class="bg-$1-200 px-1 py-0.5 rounded">$2</span>',
+    );
+
     // Default highlight ==text==
-    html = html.replace(/==(.*?)==/g, '<mark class="bg-yellow-200 px-1 py-0.5 rounded">$1</mark>');
-    
+    html = html.replace(
+      /==(.*?)==/g,
+      '<mark class="bg-yellow-200 px-1 py-0.5 rounded">$1</mark>',
+    );
+
     // Obsidian-style brackets [text] - Purple highlight like Obsidian
-    html = html.replace(/\[([^\]]+)\]/g, '<span class="bg-purple-100 text-purple-700 px-2 py-1 rounded font-medium border border-purple-200">$1</span>');
-    
+    html = html.replace(
+      /\[([^\]]+)\]/g,
+      '<span class="bg-purple-100 text-purple-700 px-2 py-1 rounded font-medium border border-purple-200">$1</span>',
+    );
+
     // Links [text](url) - processed after brackets to avoid conflicts
-    html = html.replace(/<span class="bg-purple-100 text-purple-700 px-2 py-1 rounded font-medium border border-purple-200">([^<]+)<\/span>\(([^)]+)\)/g, '<a href="$2" class="text-blue-600 underline hover:text-blue-800">$1</a>');
-    
+    html = html.replace(
+      /<span class="bg-purple-100 text-purple-700 px-2 py-1 rounded font-medium border border-purple-200">([^<]+)<\/span>\(([^)]+)\)/g,
+      '<a href="$2" class="text-blue-600 underline hover:text-blue-800">$1</a>',
+    );
+
     // Line breaks
-    html = html.replace(/\n/g, '<br>');
-    
+    html = html.replace(/\n/g, "<br>");
+
     return html;
   }, []);
 
   // Convert HTML back to markdown
   const htmlToMarkdown = useCallback((html: string) => {
     let markdown = html;
-    
+
     // Headers
-    markdown = markdown.replace(/<h1[^>]*>(.*?)<\/h1>/gi, '# $1');
-    markdown = markdown.replace(/<h2[^>]*>(.*?)<\/h2>/gi, '## $1');
-    markdown = markdown.replace(/<h3[^>]*>(.*?)<\/h3>/gi, '### $1');
-    
+    markdown = markdown.replace(/<h1[^>]*>(.*?)<\/h1>/gi, "# $1");
+    markdown = markdown.replace(/<h2[^>]*>(.*?)<\/h2>/gi, "## $1");
+    markdown = markdown.replace(/<h3[^>]*>(.*?)<\/h3>/gi, "### $1");
+
     // Code blocks
-    markdown = markdown.replace(/<pre[^>]*><code[^>]*>(.*?)<\/code><\/pre>/gi, '```\n$1\n```');
-    
+    markdown = markdown.replace(
+      /<pre[^>]*><code[^>]*>(.*?)<\/code><\/pre>/gi,
+      "```\n$1\n```",
+    );
+
     // Bold and Italic combinations
-    markdown = markdown.replace(/<strong[^>]*><em[^>]*>(.*?)<\/em><\/strong>/gi, '***$1***');
-    
+    markdown = markdown.replace(
+      /<strong[^>]*><em[^>]*>(.*?)<\/em><\/strong>/gi,
+      "***$1***",
+    );
+
     // Bold
-    markdown = markdown.replace(/<strong[^>]*>(.*?)<\/strong>/gi, '**$1**');
-    
+    markdown = markdown.replace(/<strong[^>]*>(.*?)<\/strong>/gi, "**$1**");
+
     // Italic
-    markdown = markdown.replace(/<em[^>]*>(.*?)<\/em>/gi, '*$1*');
-    
+    markdown = markdown.replace(/<em[^>]*>(.*?)<\/em>/gi, "*$1*");
+
     // Underline
-    markdown = markdown.replace(/<u[^>]*>(.*?)<\/u>/gi, '__$1__');
-    
+    markdown = markdown.replace(/<u[^>]*>(.*?)<\/u>/gi, "__$1__");
+
     // Strikethrough
-    markdown = markdown.replace(/<del[^>]*>(.*?)<\/del>/gi, '~~$1~~');
-    
+    markdown = markdown.replace(/<del[^>]*>(.*?)<\/del>/gi, "~~$1~~");
+
     // Inline code
-    markdown = markdown.replace(/<code[^>]*>(.*?)<\/code>/gi, '`$1`');
-    
+    markdown = markdown.replace(/<code[^>]*>(.*?)<\/code>/gi, "`$1`");
+
     // Colored text
-    markdown = markdown.replace(/<span class="text-(\w+)-600[^>]*>(.*?)<\/span>/gi, '{$1:$2}');
-    
+    markdown = markdown.replace(
+      /<span class="text-(\w+)-600[^>]*>(.*?)<\/span>/gi,
+      "{$1:$2}",
+    );
+
     // Highlight with colors
-    markdown = markdown.replace(/<span class="bg-(\w+)-200[^>]*>(.*?)<\/span>/gi, '{highlight-$1:$2}');
-    
+    markdown = markdown.replace(
+      /<span class="bg-(\w+)-200[^>]*>(.*?)<\/span>/gi,
+      "{highlight-$1:$2}",
+    );
+
     // Default highlight
-    markdown = markdown.replace(/<mark[^>]*>(.*?)<\/mark>/gi, '==$1==');
-    
+    markdown = markdown.replace(/<mark[^>]*>(.*?)<\/mark>/gi, "==$1==");
+
     // Obsidian-style brackets - restore before links
-    markdown = markdown.replace(/<span class="bg-purple-100 text-purple-700[^>]*>(.*?)<\/span>/gi, '[$1]');
-    
+    markdown = markdown.replace(
+      /<span class="bg-purple-100 text-purple-700[^>]*>(.*?)<\/span>/gi,
+      "[$1]",
+    );
+
     // Links
-    markdown = markdown.replace(/<a[^>]*href="([^"]*)"[^>]*>(.*?)<\/a>/gi, '[$2]($1)');
-    
+    markdown = markdown.replace(
+      /<a[^>]*href="([^"]*)"[^>]*>(.*?)<\/a>/gi,
+      "[$2]($1)",
+    );
+
     // Clean up
-    markdown = markdown.replace(/<br\s*\/?>/gi, '\n');
-    markdown = markdown.replace(/<div[^>]*>/gi, '\n');
-    markdown = markdown.replace(/<\/div>/gi, '');
-    markdown = markdown.replace(/<p[^>]*>/gi, '');
-    markdown = markdown.replace(/<\/p>/gi, '\n');
-    markdown = markdown.replace(/\n\n+/g, '\n\n');
+    markdown = markdown.replace(/<br\s*\/?>/gi, "\n");
+    markdown = markdown.replace(/<div[^>]*>/gi, "\n");
+    markdown = markdown.replace(/<\/div>/gi, "");
+    markdown = markdown.replace(/<p[^>]*>/gi, "");
+    markdown = markdown.replace(/<\/p>/gi, "\n");
+    markdown = markdown.replace(/\n\n+/g, "\n\n");
     markdown = markdown.trim();
 
     return markdown;
@@ -171,11 +222,11 @@ export default function HybridEditor({
     const range = sel.getRangeAt(0);
     const rect = range.getBoundingClientRect();
     const editorRect = editorRef.current.getBoundingClientRect();
-    
+
     // Position toolbar below the selection
-    const x = rect.left + (rect.width / 2) - editorRect.left;
+    const x = rect.left + rect.width / 2 - editorRect.left;
     const y = rect.bottom - editorRect.top + 8; // 8px gap below selection
-    
+
     setToolbarPosition({ x, y });
   }, []);
 
@@ -183,12 +234,12 @@ export default function HybridEditor({
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node;
-      
+
       // Don't close if clicking inside toolbar or its dropdowns
       if (toolbarRef.current && toolbarRef.current.contains(target)) {
         return;
       }
-      
+
       // Don't close if clicking inside editor and there's still selected text
       if (editorRef.current && editorRef.current.contains(target)) {
         const selection = window.getSelection();
@@ -196,7 +247,7 @@ export default function HybridEditor({
           return;
         }
       }
-      
+
       // Close toolbar and clear selection
       setShowToolbar(false);
       setSelectedText("");
@@ -206,8 +257,9 @@ export default function HybridEditor({
     };
 
     if (showToolbar) {
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => document.removeEventListener('mousedown', handleClickOutside);
+      document.addEventListener("mousedown", handleClickOutside);
+      return () =>
+        document.removeEventListener("mousedown", handleClickOutside);
     }
   }, [showToolbar]);
 
@@ -233,25 +285,31 @@ export default function HybridEditor({
   }, []);
 
   // Handle blur (stop editing)
-  const handleBlur = useCallback((e: React.FocusEvent) => {
-    // Don't blur if clicking on toolbar
-    if (toolbarRef.current && toolbarRef.current.contains(e.relatedTarget as Node)) {
-      return;
-    }
-    
-    // Small delay to allow toolbar interactions
-    setTimeout(() => {
-      if (!showToolbar) {
-        setIsEditing(false);
-        if (editorRef.current) {
-          const newHtml = editorRef.current.innerHTML;
-          const newMarkdown = htmlToMarkdown(newHtml);
-          onChange(newMarkdown);
-          setHtmlContent(markdownToHtml(newMarkdown));
-        }
+  const handleBlur = useCallback(
+    (e: React.FocusEvent) => {
+      // Don't blur if clicking on toolbar
+      if (
+        toolbarRef.current &&
+        toolbarRef.current.contains(e.relatedTarget as Node)
+      ) {
+        return;
       }
-    }, 100);
-  }, [htmlToMarkdown, markdownToHtml, onChange, showToolbar]);
+
+      // Small delay to allow toolbar interactions
+      setTimeout(() => {
+        if (!showToolbar) {
+          setIsEditing(false);
+          if (editorRef.current) {
+            const newHtml = editorRef.current.innerHTML;
+            const newMarkdown = htmlToMarkdown(newHtml);
+            onChange(newMarkdown);
+            setHtmlContent(markdownToHtml(newMarkdown));
+          }
+        }
+      }, 100);
+    },
+    [htmlToMarkdown, markdownToHtml, onChange, showToolbar],
+  );
 
   // Handle text selection
   const handleMouseUp = useCallback(() => {
@@ -275,56 +333,61 @@ export default function HybridEditor({
   }, [onTextSelection, calculateToolbarPosition]);
 
   // Apply formatting to selected text
-  const applyFormatting = useCallback((type: string, value?: string) => {
-    if (!selection || !selectedText) return;
+  const applyFormatting = useCallback(
+    (type: string, value?: string) => {
+      if (!selection || !selectedText) return;
 
-    const selectedRange = selection.cloneRange();
-    let newText = selectedText;
+      const selectedRange = selection.cloneRange();
+      let newText = selectedText;
 
-    switch (type) {
-      case 'bold':
-        newText = `**${selectedText}**`;
-        break;
-      case 'italic':
-        newText = `*${selectedText}*`;
-        break;
-      case 'underline':
-        newText = `__${selectedText}__`;
-        break;
-      case 'highlight':
-        newText = value ? `{highlight-${value}:${selectedText}}` : `==${selectedText}==`;
-        break;
-      case 'color':
-        newText = value ? `{${value}:${selectedText}}` : selectedText;
-        break;
-    }
+      switch (type) {
+        case "bold":
+          newText = `**${selectedText}**`;
+          break;
+        case "italic":
+          newText = `*${selectedText}*`;
+          break;
+        case "underline":
+          newText = `__${selectedText}__`;
+          break;
+        case "highlight":
+          newText = value
+            ? `{highlight-${value}:${selectedText}}`
+            : `==${selectedText}==`;
+          break;
+        case "color":
+          newText = value ? `{${value}:${selectedText}}` : selectedText;
+          break;
+      }
 
-    // Replace selected text
-    selectedRange.deleteContents();
-    selectedRange.insertNode(document.createTextNode(newText));
-    
-    // Update content
-    if (editorRef.current) {
-      const newHtml = editorRef.current.innerHTML;
-      const newMarkdown = htmlToMarkdown(newHtml);
-      onChange(newMarkdown);
-      setHtmlContent(markdownToHtml(newMarkdown));
-    }
+      // Replace selected text
+      selectedRange.deleteContents();
+      selectedRange.insertNode(document.createTextNode(newText));
 
-    // Don't clear selection immediately - let user continue formatting
-    // Close color/highlight pickers
-    setShowColorPicker(false);
-    setShowHighlightPicker(false);
-    
-    // Keep focus on editor
-    if (editorRef.current) {
-      editorRef.current.focus();
-    }
-  }, [selection, selectedText, htmlToMarkdown, markdownToHtml, onChange]);
+      // Update content
+      if (editorRef.current) {
+        const newHtml = editorRef.current.innerHTML;
+        const newMarkdown = htmlToMarkdown(newHtml);
+        onChange(newMarkdown);
+        setHtmlContent(markdownToHtml(newMarkdown));
+      }
+
+      // Don't clear selection immediately - let user continue formatting
+      // Close color/highlight pickers
+      setShowColorPicker(false);
+      setShowHighlightPicker(false);
+
+      // Keep focus on editor
+      if (editorRef.current) {
+        editorRef.current.focus();
+      }
+    },
+    [selection, selectedText, htmlToMarkdown, markdownToHtml, onChange],
+  );
 
   // Handle keyboard shortcuts
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === 'Escape') {
+    if (e.key === "Escape") {
       setShowToolbar(false);
       setSelectedText("");
       setSelection(null);
@@ -342,19 +405,19 @@ export default function HybridEditor({
     <div className={`relative ${className}`}>
       {/* Formatting Toolbar - positioned near selected text */}
       {isEditing && selectedText && showToolbar && (
-        <div 
+        <div
           ref={toolbarRef}
           className="absolute bg-white border border-gray-300 rounded-lg shadow-lg p-2 flex items-center space-x-2 z-50"
           style={{
             left: `${toolbarPosition.x}px`,
             top: `${toolbarPosition.y}px`,
-            transform: 'translateX(-50%)',
+            transform: "translateX(-50%)",
           }}
           onMouseDown={handleToolbarMouseDown}
         >
           {/* Bold */}
           <button
-            onClick={() => applyFormatting('bold')}
+            onClick={() => applyFormatting("bold")}
             className="p-2 hover:bg-gray-100 rounded transition-colors"
             title="Bold"
           >
@@ -363,7 +426,7 @@ export default function HybridEditor({
 
           {/* Italic */}
           <button
-            onClick={() => applyFormatting('italic')}
+            onClick={() => applyFormatting("italic")}
             className="p-2 hover:bg-gray-100 rounded transition-colors"
             title="Italic"
           >
@@ -372,7 +435,7 @@ export default function HybridEditor({
 
           {/* Underline */}
           <button
-            onClick={() => applyFormatting('underline')}
+            onClick={() => applyFormatting("underline")}
             className="p-2 hover:bg-gray-100 rounded transition-colors"
             title="Underline"
           >
@@ -399,7 +462,7 @@ export default function HybridEditor({
                 {TEXT_COLORS.map((color) => (
                   <button
                     key={color.value}
-                    onClick={() => applyFormatting('color', color.value)}
+                    onClick={() => applyFormatting("color", color.value)}
                     className={`p-2 text-sm rounded hover:bg-gray-100 transition-colors ${color.class}`}
                     title={color.name}
                   >
@@ -428,7 +491,7 @@ export default function HybridEditor({
                 {HIGHLIGHT_COLORS.map((color) => (
                   <button
                     key={color.value}
-                    onClick={() => applyFormatting('highlight', color.value)}
+                    onClick={() => applyFormatting("highlight", color.value)}
                     className={`p-2 text-sm rounded hover:bg-gray-100 transition-colors ${color.class}`}
                     title={color.name}
                   >
@@ -475,26 +538,31 @@ export default function HybridEditor({
         onBlur={handleBlur}
         onMouseUp={handleMouseUp}
         onKeyDown={handleKeyDown}
-        data-placeholder={content.trim() === '' ? "Click to start writing..." : ""}
+        data-placeholder={
+          content.trim() === "" ? "Click to start writing..." : ""
+        }
       />
-      
-      {content.trim() === '' && (
+
+      {content.trim() === "" && (
         <div className="absolute top-6 left-6 text-gray-400 pointer-events-none">
           <div className="space-y-2 text-sm">
             <div>Click to start writing...</div>
             <div className="text-xs text-gray-300">
-              Supports: Headers # ## ###, **bold**, *italic*, __underline__, ~~strikethrough~~, 
+              Supports: Headers # ## ###, **bold**, *italic*, __underline__,
+              ~~strikethrough~~,
               <br />
               `code`, ==highlight==, [brackets], colored text, links, etc.
             </div>
           </div>
         </div>
       )}
-      
+
       {isEditing && !selectedText && (
         <div className="absolute bottom-4 right-4 text-xs text-blue-600 bg-white px-3 py-2 rounded-lg shadow border">
           <div className="font-medium">Edit Mode</div>
-          <div className="text-gray-500 mt-1">Select text to show formatting toolbar</div>
+          <div className="text-gray-500 mt-1">
+            Select text to show formatting toolbar
+          </div>
         </div>
       )}
 
@@ -504,31 +572,31 @@ export default function HybridEditor({
           color: #9ca3af;
           pointer-events: none;
         }
-        
+
         [contenteditable="true"]:focus:before {
           content: none;
         }
-        
+
         /* Custom scrollbar */
         [contenteditable="true"] {
           scrollbar-width: thin;
           scrollbar-color: #cbd5e1 #f1f5f9;
         }
-        
+
         [contenteditable="true"]::-webkit-scrollbar {
           width: 8px;
         }
-        
+
         [contenteditable="true"]::-webkit-scrollbar-track {
           background: #f1f5f9;
           border-radius: 4px;
         }
-        
+
         [contenteditable="true"]::-webkit-scrollbar-thumb {
           background: #cbd5e1;
           border-radius: 4px;
         }
-        
+
         [contenteditable="true"]::-webkit-scrollbar-thumb:hover {
           background: #94a3b8;
         }
