@@ -101,35 +101,6 @@ export default function HybridEditor({
       '<code class="bg-gray-100 px-1 py-0.5 rounded font-mono text-sm text-red-600">$1</code>',
     );
 
-    // Colored text {color:text}
-    html = html.replace(
-      /\{(\w+):(.*?)\}/g,
-      '<span class="text-$1-600">$2</span>',
-    );
-
-    // Highlight with colors {highlight-color:text}
-    html = html.replace(
-      /\{highlight-(\w+):(.*?)\}/g,
-      '<span class="bg-$1-200 px-1 py-0.5 rounded">$2</span>',
-    );
-
-    // Default highlight ==text==
-    html = html.replace(
-      /==(.*?)==/g,
-      '<mark class="bg-yellow-200 px-1 py-0.5 rounded">$1</mark>',
-    );
-
-    // Obsidian-style brackets [text] - Purple highlight like Obsidian
-    html = html.replace(
-      /\[([^\]]+)\]/g,
-      '<span class="bg-purple-100 text-purple-700 px-2 py-1 rounded font-medium border border-purple-200">$1</span>',
-    );
-
-    // Links [text](url) - processed after brackets to avoid conflicts
-    html = html.replace(
-      /<span class="bg-purple-100 text-purple-700 px-2 py-1 rounded font-medium border border-purple-200">([^<]+)<\/span>\(([^)]+)\)/g,
-      '<a href="$2" class="text-blue-600 underline hover:text-blue-800">$1</a>',
-    );
 
     // Line breaks
     html = html.replace(/\n/g, "<br>");
