@@ -337,8 +337,6 @@ export default function HybridEditor({
               setShowToolbar(false);
               setSelectedText("");
               setSelection(null);
-              setShowColorPicker(false);
-              setShowHighlightPicker(false);
             }}
             className="p-2 hover:bg-gray-100 rounded transition-colors text-gray-500"
             title="Close"
