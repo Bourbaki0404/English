@@ -500,7 +500,7 @@ export default function ObsidianLikeEditor({
         }}
         onMouseUp={handleMouseUp}
         onClick={handleClick}
-        onKeyDown={(e) => handleKeyDown(e.nativeEvent)}
+        onKeyDown={handleKeyDown}
         tabIndex={0}
         contentEditable={false}
       >
