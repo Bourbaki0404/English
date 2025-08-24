@@ -704,6 +704,16 @@ export default function EditorLayoutSimple() {
         </Button>
       )}
 
+      {/* Collision Notification */}
+      {collisionNotification.show && (
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50">
+          <div className="bg-red-500 text-white px-4 py-3 rounded-lg shadow-lg flex items-center space-x-2 min-w-64 max-w-md">
+            <AlertCircle className="w-5 h-5 flex-shrink-0" />
+            <span className="text-sm font-medium">{collisionNotification.message}</span>
+          </div>
+        </div>
+      )}
+
       {/* Settings Modal */}
       <SettingsModal
         isOpen={settingsOpen}
