@@ -523,7 +523,7 @@ export default function HybridEditor({
 
       <div
         ref={editorRef}
-        className="prose prose-lg max-w-none min-h-[600px] p-6 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 rounded-lg transition-all border border-gray-200"
+        className="prose prose-lg max-w-none min-h-[600px] p-6 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 rounded-lg transition-all"
         style={{
           fontFamily: "system-ui, -apple-system, sans-serif",
           lineHeight: "1.7",
