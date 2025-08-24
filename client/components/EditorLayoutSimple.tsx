@@ -307,9 +307,6 @@ export default function EditorLayoutSimple() {
     return content
       .split('\n')
       .map((line, index) => {
-        if (line.startsWith('# ')) {
-          return <h1 key={index} className="text-2xl font-bold mb-4 mt-6">{line.substring(2)}</h1>;
-        }
         if (line.startsWith('## ')) {
           return <h2 key={index} className="text-xl font-semibold mb-3 mt-5">{line.substring(3)}</h2>;
         }
