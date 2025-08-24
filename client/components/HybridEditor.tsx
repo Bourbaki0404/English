@@ -645,7 +645,7 @@ export default function HybridEditor({
         <div className="absolute bottom-4 right-4 text-xs text-blue-600 bg-white px-3 py-2 rounded-lg shadow border">
           <div className="font-medium">Edit Mode</div>
           <div className="text-gray-500 mt-1">
-            Select text to show formatting toolbar
+            Click on formatted text to see raw markdown
           </div>
         </div>
       )}
