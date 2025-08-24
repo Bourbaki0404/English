@@ -307,13 +307,12 @@ export default function ObsidianLikeEditor({
     }
   }, [isEditing, onTextSelection]);
 
-  // Set up keyboard listeners
+  // Focus editor when entering edit mode
   useEffect(() => {
-    if (isEditing) {
-      document.addEventListener('keydown', handleKeyDown);
-      return () => document.removeEventListener('keydown', handleKeyDown);
+    if (isEditing && editorRef.current) {
+      editorRef.current.focus();
     }
-  }, [isEditing, handleKeyDown]);
+  }, [isEditing]);
 
   // Render mixed content (raw for cursor blocks, formatted for others)
   const renderMixedContent = useCallback(() => {
