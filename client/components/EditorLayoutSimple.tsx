@@ -458,58 +458,70 @@ export default function EditorLayoutSimple() {
         );
       }
 
+      // Sort regions by start position within the line
+      const sortedLineRegions = lineRegions
+        .map(region => ({
+          ...region,
+          startInLine: Math.max(0, region.start - lineStart),
+          endInLine: Math.min(line.length, region.end - lineStart)
+        }))
+        .sort((a, b) => a.startInLine - b.startInLine);
+
       // Build mixed content with revealed/hidden regions
       const elements: JSX.Element[] = [];
       let lastPos = 0;
 
-      lineRegions.forEach((region, regionIndex) => {
-        const regionStartInLine = Math.max(0, region.start - lineStart);
-        const regionEndInLine = Math.min(line.length, region.end - lineStart);
-
+      sortedLineRegions.forEach((region, regionIndex) => {
         // Add text before region
-        if (regionStartInLine > lastPos) {
-          const beforeText = line.substring(lastPos, regionStartInLine);
+        if (region.startInLine > lastPos) {
+          const beforeText = line.substring(lastPos, region.startInLine);
           elements.push(<span key={`before-${regionIndex}`}>{beforeText}</span>);
         }
 
+        // Skip if this region overlaps with previous one
+        if (region.startInLine < lastPos) {
+          return;
+        }
+
         // Add region content (raw or formatted)
-        const regionText = line.substring(regionStartInLine, regionEndInLine);
+        const regionText = line.substring(region.startInLine, region.endInLine);
         const isRevealed = revealedRegions.has(region.id) ||
                           (currentSelection &&
-                           region.start >= currentSelection.start &&
-                           region.end <= currentSelection.end);
+                           ((region.start >= currentSelection.start && region.start < currentSelection.end) ||
+                            (region.end > currentSelection.start && region.end <= currentSelection.end) ||
+                            (region.start < currentSelection.start && region.end > currentSelection.end)));
 
         if (isRevealed) {
           // Show raw markdown
           elements.push(
             <span
-              key={`region-${regionIndex}`}
+              key={`region-${region.id}`}
               className="bg-gray-100 px-1 py-0.5 rounded font-mono text-sm border"
             >
-              {regionText}
+              {region.rawText}
             </span>
           );
         } else {
           // Show formatted content
           const formattedText = region.formattedText;
           if (region.type === 'bold') {
-            elements.push(<strong key={`region-${regionIndex}`}>{formattedText}</strong>);
+            elements.push(<strong key={`region-${region.id}`}>{formattedText}</strong>);
           } else if (region.type === 'highlight') {
             elements.push(
-              <span key={`region-${regionIndex}`} className="bg-yellow-200 px-1 py-0.5 rounded">
+              <span key={`region-${region.id}`} className="bg-yellow-200 px-1 py-0.5 rounded">
                 {formattedText}
               </span>
             );
           } else if (region.type === 'bracket') {
             elements.push(
-              <span key={`region-${regionIndex}`} className="text-purple-600 bg-gray-100 px-1 py-0.5 rounded text-sm">
+              <span key={`region-${region.id}`} className="text-purple-600 bg-gray-100 px-1 py-0.5 rounded text-sm">
                 [{formattedText}]
               </span>
             );
           }
         }
 
-        lastPos = regionEndInLine;
+        lastPos = region.endInLine;
       });
 
       // Add remaining text after last region
