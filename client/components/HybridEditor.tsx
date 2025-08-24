@@ -486,9 +486,15 @@ export default function HybridEditor({
         : getIntersectingRegions(regions, cursorPosition);
 
       const newHtml = markdownToHtml(content, intersectingIds);
+      const previousHtml = htmlContent;
       setHtmlContent(newHtml);
+
+      // Restore cursor position if content structure changed
+      if (previousHtml !== newHtml && (cursorPosition > 0 || selectionRange)) {
+        restoreCursorPosition(cursorPosition, selectionRange);
+      }
     }
-  }, [content, markdownToHtml, isEditing, cursorPosition, selectionRange, parseFormattedRegions, getIntersectingRegions]);
+  }, [content, markdownToHtml, isEditing, cursorPosition, selectionRange, parseFormattedRegions, getIntersectingRegions, htmlContent, restoreCursorPosition]);
 
   // Handle content changes
   const handleInput = useCallback(() => {
