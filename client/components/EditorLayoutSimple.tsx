@@ -34,9 +34,7 @@ const initialDocuments: Document[] = [
   {
     id: '3',
     name: 'English 4',
-    content: `# English 4
-
-The ancient ruins attest to the skill of the builders. [to provide or serve as clear evidence of]
+    content: `The ancient ruins attest to the skill of the builders. [to provide or serve as clear evidence of]
 
 I can attest to his honesty; he is a very trustworthy person. [to declare that something exists or is true, especially formally or as an official witness]
 
