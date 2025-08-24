@@ -2,10 +2,6 @@ import React, { useState, useRef, useEffect, useCallback } from "react";
 import {
   Bold,
   Italic,
-  Underline,
-  Highlighter,
-  Palette,
-  Type,
   X,
 } from "lucide-react";
 
