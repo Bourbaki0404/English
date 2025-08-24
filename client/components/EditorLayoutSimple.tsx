@@ -16,7 +16,7 @@ import { Button } from "./ui/button";
 import SettingsModal, { AppSettings } from "./SettingsModal";
 import { getLLMService } from "../services/llmService";
 import { useQuiz } from "../contexts/QuizContext";
-import ObsidianLikeEditor from "./ObsidianLikeEditor2";
+import ContentEditableEditor from "./ContentEditableEditor";
 
 interface Document {
   id: string;
