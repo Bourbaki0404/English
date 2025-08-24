@@ -1,0 +1,823 @@
+import React, { useState, useRef, useEffect, useCallback } from "react";
+import { Bold, Italic, X } from "lucide-react";
+
+interface FormattedRegion {
+  id: string;
+  type: "bold" | "italic" | "strikethrough" | "code" | "codeBlock" | "header";
+  start: number;
+  end: number;
+  rawText: string;
+  innerText: string;
+  level?: number; // for headers
+}
+
+interface HybridEditorProps {
+  content: string;
+  onChange: (content: string) => void;
+  onTextSelection?: (text: string) => void;
+  className?: string;
+}
+
+export default function HybridEditor({
+  content,
+  onChange,
+  onTextSelection,
+  className = "",
+}: HybridEditorProps) {
+  const [htmlContent, setHtmlContent] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+  const [selectedText, setSelectedText] = useState("");
+  const [selection, setSelection] = useState<Range | null>(null);
+  const [toolbarPosition, setToolbarPosition] = useState({ x: 0, y: 0 });
+  const [showToolbar, setShowToolbar] = useState(false);
+  const [cursorPosition, setCursorPosition] = useState(0);
+  const [selectionRange, setSelectionRange] = useState<{
+    start: number;
+    end: number;
+  } | null>(null);
+
+  const editorRef = useRef<HTMLDivElement>(null);
+  const toolbarRef = useRef<HTMLDivElement>(null);
+
+  // Parse markdown to identify formatted regions
+  const parseFormattedRegions = useCallback(
+    (markdown: string): FormattedRegion[] => {
+      const regions: FormattedRegion[] = [];
+      let regionId = 0;
+
+      // Headers
+      const headerMatches = markdown.matchAll(/^(#{1,6})\s+(.*)$/gim);
+      for (const match of headerMatches) {
+        const level = match[1].length;
+        regions.push({
+          id: `header-${regionId++}`,
+          type: "header",
+          level,
+          start: match.index!,
+          end: match.index! + match[0].length,
+          rawText: match[0],
+          innerText: match[2],
+        });
+      }
+
+      // Code blocks
+      const codeBlockMatches = markdown.matchAll(/```([\s\S]*?)```/g);
+      for (const match of codeBlockMatches) {
+        regions.push({
+          id: `codeBlock-${regionId++}`,
+          type: "codeBlock",
+          start: match.index!,
+          end: match.index! + match[0].length,
+          rawText: match[0],
+          innerText: match[1],
+        });
+      }
+
+      // Bold and Italic combinations
+      const boldItalicMatches = markdown.matchAll(/\*\*\*(.*?)\*\*\*/g);
+      for (const match of boldItalicMatches) {
+        regions.push({
+          id: `bolditalic-${regionId++}`,
+          type: "bold",
+          start: match.index!,
+          end: match.index! + match[0].length,
+          rawText: match[0],
+          innerText: match[1],
+        });
+      }
+
+      // Bold
+      const boldMatches = markdown.matchAll(/\*\*(.*?)\*\*/g);
+      for (const match of boldMatches) {
+        // Skip if already covered by bold+italic
+        if (
+          !regions.some(
+            (r) =>
+              r.start <= match.index! &&
+              r.end >= match.index! + match[0].length,
+          )
+        ) {
+          regions.push({
+            id: `bold-${regionId++}`,
+            type: "bold",
+            start: match.index!,
+            end: match.index! + match[0].length,
+            rawText: match[0],
+            innerText: match[1],
+          });
+        }
+      }
+
+      // Italic
+      const italicMatches = markdown.matchAll(/\*(.*?)\*/g);
+      for (const match of italicMatches) {
+        // Skip if already covered by bold or bold+italic
+        if (
+          !regions.some(
+            (r) =>
+              r.start <= match.index! &&
+              r.end >= match.index! + match[0].length,
+          )
+        ) {
+          regions.push({
+            id: `italic-${regionId++}`,
+            type: "italic",
+            start: match.index!,
+            end: match.index! + match[0].length,
+            rawText: match[0],
+            innerText: match[1],
+          });
+        }
+      }
+
+      // Strikethrough
+      const strikeMatches = markdown.matchAll(/~~(.*?)~~/g);
+      for (const match of strikeMatches) {
+        regions.push({
+          id: `strike-${regionId++}`,
+          type: "strikethrough",
+          start: match.index!,
+          end: match.index! + match[0].length,
+          rawText: match[0],
+          innerText: match[1],
+        });
+      }
+
+      // Inline code
+      const codeMatches = markdown.matchAll(/`([^`]+)`/g);
+      for (const match of codeMatches) {
+        regions.push({
+          id: `code-${regionId++}`,
+          type: "code",
+          start: match.index!,
+          end: match.index! + match[0].length,
+          rawText: match[0],
+          innerText: match[1],
+        });
+      }
+
+      return regions.sort((a, b) => a.start - b.start);
+    },
+    [],
+  );
+
+  // Check if cursor/selection intersects with any formatted region
+  const getIntersectingRegions = useCallback(
+    (
+      regions: FormattedRegion[],
+      cursorPos: number,
+      selectionStart?: number,
+      selectionEnd?: number,
+    ) => {
+      const intersecting = new Set<string>();
+
+      for (const region of regions) {
+        if (selectionStart !== undefined && selectionEnd !== undefined) {
+          // Check selection intersection
+          if (!(region.end <= selectionStart || region.start >= selectionEnd)) {
+            intersecting.add(region.id);
+          }
+        } else {
+          // Check cursor intersection
+          if (cursorPos >= region.start && cursorPos <= region.end) {
+            intersecting.add(region.id);
+          }
+        }
+      }
+
+      return intersecting;
+    },
+    [],
+  );
+
+  // Get current cursor position and selection in text
+  const updateCursorAndSelection = useCallback(() => {
+    if (!editorRef.current) return;
+
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0) return;
+
+    const range = selection.getRangeAt(0);
+
+    // Calculate text position from DOM position
+    const getCursorPosition = () => {
+      const preCaretRange = range.cloneRange();
+      preCaretRange.selectNodeContents(editorRef.current!);
+      preCaretRange.setEnd(range.startContainer, range.startOffset);
+      return preCaretRange.toString().length;
+    };
+
+    const cursorPos = getCursorPosition();
+    setCursorPosition(cursorPos);
+
+    if (range.collapsed) {
+      setSelectionRange(null);
+    } else {
+      const selectionStart = cursorPos;
+      const selectionEnd = cursorPos + range.toString().length;
+      setSelectionRange({ start: selectionStart, end: selectionEnd });
+    }
+  }, []);
+
+  // Restore cursor position after content update
+  const restoreCursorPosition = useCallback(
+    (
+      textPosition: number,
+      selectionRange?: { start: number; end: number } | null,
+    ) => {
+      if (!editorRef.current) return;
+
+      // Use setTimeout to ensure DOM has been updated
+      setTimeout(() => {
+        try {
+          const selection = window.getSelection();
+          if (!selection) return;
+
+          // Function to find DOM position from text position
+          const findDOMPosition = (targetPosition: number) => {
+            let currentPosition = 0;
+            const walker = document.createTreeWalker(
+              editorRef.current!,
+              NodeFilter.SHOW_TEXT,
+              null,
+            );
+
+            let node;
+            while ((node = walker.nextNode())) {
+              const nodeLength = node.textContent?.length || 0;
+              if (currentPosition + nodeLength >= targetPosition) {
+                return {
+                  node,
+                  offset: targetPosition - currentPosition,
+                };
+              }
+              currentPosition += nodeLength;
+            }
+
+            // If position is beyond content, place at end
+            const lastNode = walker.currentNode || editorRef.current!;
+            return {
+              node: lastNode,
+              offset: lastNode.textContent?.length || 0,
+            };
+          };
+
+          const range = document.createRange();
+
+          if (selectionRange) {
+            // Restore selection range
+            const startPos = findDOMPosition(selectionRange.start);
+            const endPos = findDOMPosition(selectionRange.end);
+
+            range.setStart(startPos.node, startPos.offset);
+            range.setEnd(endPos.node, endPos.offset);
+          } else {
+            // Restore cursor position
+            const pos = findDOMPosition(textPosition);
+            range.setStart(pos.node, pos.offset);
+            range.collapse(true);
+          }
+
+          selection.removeAllRanges();
+          selection.addRange(range);
+
+          // Focus the editor
+          if (editorRef.current) {
+            editorRef.current.focus();
+          }
+        } catch (error) {
+          console.error("Error restoring cursor position:", error);
+        }
+      }, 0);
+    },
+    [],
+  );
+
+  // Helper function to escape HTML
+  const escapeHtml = (text: string) => {
+    const div = document.createElement("div");
+    div.textContent = text;
+    return div.innerHTML;
+  };
+
+  // Standard markdown to HTML conversion
+  const markdownToHtmlFormatted = useCallback((markdown: string) => {
+    let html = markdown;
+
+    // Headers (h1-h6)
+    html = html.replace(
+      /^#{6}\s+(.*)$/gim,
+      '<h6 class="text-sm font-semibold mb-2 mt-3">$1</h6>',
+    );
+    html = html.replace(
+      /^#{5}\s+(.*)$/gim,
+      '<h5 class="text-base font-semibold mb-2 mt-3">$1</h5>',
+    );
+    html = html.replace(
+      /^#{4}\s+(.*)$/gim,
+      '<h4 class="text-lg font-semibold mb-3 mt-4">$1</h4>',
+    );
+    html = html.replace(
+      /^#{3}\s+(.*)$/gim,
+      '<h3 class="text-xl font-semibold mb-3 mt-5">$1</h3>',
+    );
+    html = html.replace(
+      /^#{2}\s+(.*)$/gim,
+      '<h2 class="text-2xl font-semibold mb-4 mt-6">$1</h2>',
+    );
+    html = html.replace(
+      /^#{1}\s+(.*)$/gim,
+      '<h1 class="text-3xl font-bold mb-6 mt-8">$1</h1>',
+    );
+
+    // Code blocks (```...```)
+    html = html.replace(
+      /```([\s\S]*?)```/g,
+      '<pre class="bg-gray-100 p-4 rounded-lg my-4 overflow-x-auto"><code class="text-sm font-mono block">$1</code></pre>',
+    );
+
+    // Bold and Italic combinations (***text***)
+    html = html.replace(/\*\*\*(.*?)\*\*\*/g, "<strong><em>$1</em></strong>");
+
+    // Bold (**text**)
+    html = html.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+
+    // Italic (*text*)
+    html = html.replace(/\*(.*?)\*/g, "<em>$1</em>");
+
+    // Strikethrough (~~text~~)
+    html = html.replace(
+      /~~(.*?)~~/g,
+      '<del class="line-through text-gray-500">$1</del>',
+    );
+
+    // Inline code (`text`)
+    html = html.replace(
+      /`([^`]+)`/g,
+      '<code class="bg-gray-100 px-1 py-0.5 rounded font-mono text-sm text-red-600">$1</code>',
+    );
+
+    // Line breaks
+    html = html.replace(/\n/g, "<br>");
+
+    return html;
+  }, []);
+
+  // Convert markdown to HTML for display (only closed syntax)
+  const markdownToHtml = useCallback(
+    (markdown: string, showRawFor?: Set<string>) => {
+      if (!isEditing || !showRawFor || showRawFor.size === 0) {
+        // Normal formatted display
+        return markdownToHtmlFormatted(markdown);
+      }
+
+      const regions = parseFormattedRegions(markdown);
+      const intersectingIds = showRawFor;
+
+      // Build HTML with selective raw display
+      let html = "";
+      let lastEnd = 0;
+
+      for (const region of regions) {
+        // Add text before this region
+        if (region.start > lastEnd) {
+          const beforeText = markdown.substring(lastEnd, region.start);
+          html += markdownToHtmlFormatted(beforeText);
+        }
+
+        if (intersectingIds.has(region.id)) {
+          // Show raw markdown for intersecting regions
+          html += `<span>${escapeHtml(region.rawText)}</span>`;
+        } else {
+          // Show formatted version
+          html += markdownToHtmlFormatted(region.rawText);
+        }
+
+        lastEnd = region.end;
+      }
+
+      // Add remaining text
+      if (lastEnd < markdown.length) {
+        const remainingText = markdown.substring(lastEnd);
+        html += markdownToHtmlFormatted(remainingText);
+      }
+
+      return html;
+    },
+    [isEditing, parseFormattedRegions, markdownToHtmlFormatted],
+  );
+
+  // Convert HTML back to markdown
+  const htmlToMarkdown = useCallback((html: string) => {
+    let markdown = html;
+
+    // Headers
+    markdown = markdown.replace(/<h1[^>]*>(.*?)<\/h1>/gi, "# $1");
+    markdown = markdown.replace(/<h2[^>]*>(.*?)<\/h2>/gi, "## $1");
+    markdown = markdown.replace(/<h3[^>]*>(.*?)<\/h3>/gi, "### $1");
+    markdown = markdown.replace(/<h4[^>]*>(.*?)<\/h4>/gi, "#### $1");
+    markdown = markdown.replace(/<h5[^>]*>(.*?)<\/h5>/gi, "##### $1");
+    markdown = markdown.replace(/<h6[^>]*>(.*?)<\/h6>/gi, "###### $1");
+
+    // Code blocks
+    markdown = markdown.replace(
+      /<pre[^>]*><code[^>]*>(.*?)<\/code><\/pre>/gi,
+      "```\n$1\n```",
+    );
+
+    // Bold and Italic combinations
+    markdown = markdown.replace(
+      /<strong[^>]*><em[^>]*>(.*?)<\/em><\/strong>/gi,
+      "***$1***",
+    );
+
+    // Bold
+    markdown = markdown.replace(/<strong[^>]*>(.*?)<\/strong>/gi, "**$1**");
+
+    // Italic
+    markdown = markdown.replace(/<em[^>]*>(.*?)<\/em>/gi, "*$1*");
+
+    // Strikethrough
+    markdown = markdown.replace(/<del[^>]*>(.*?)<\/del>/gi, "~~$1~~");
+
+    // Inline code
+    markdown = markdown.replace(/<code[^>]*>(.*?)<\/code>/gi, "`$1`");
+
+    // Clean up
+    markdown = markdown.replace(/<br\s*\/?>/gi, "\n");
+    markdown = markdown.replace(/<div[^>]*>/gi, "\n");
+    markdown = markdown.replace(/<\/div>/gi, "");
+    markdown = markdown.replace(/<p[^>]*>/gi, "");
+    markdown = markdown.replace(/<\/p>/gi, "\n");
+    markdown = markdown.replace(/\n\n+/g, "\n\n");
+    markdown = markdown.trim();
+
+    return markdown;
+  }, []);
+
+  // Calculate toolbar position based on selection
+  const calculateToolbarPosition = useCallback(() => {
+    const sel = window.getSelection();
+    if (!sel || sel.rangeCount === 0 || !editorRef.current) return;
+
+    const range = sel.getRangeAt(0);
+    const rect = range.getBoundingClientRect();
+    const editorRect = editorRef.current.getBoundingClientRect();
+
+    // Position toolbar below the selection
+    const x = rect.left + rect.width / 2 - editorRect.left;
+    const y = rect.bottom - editorRect.top + 8; // 8px gap below selection
+
+    setToolbarPosition({ x, y });
+  }, []);
+
+  // Handle clicks outside toolbar to close it
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node;
+
+      // Don't close if clicking inside toolbar or its dropdowns
+      if (toolbarRef.current && toolbarRef.current.contains(target)) {
+        return;
+      }
+
+      // Don't close if clicking inside editor and there's still selected text
+      if (editorRef.current && editorRef.current.contains(target)) {
+        const selection = window.getSelection();
+        if (selection && selection.toString().trim()) {
+          return;
+        }
+      }
+
+      // Close toolbar and clear selection
+      setShowToolbar(false);
+      setSelectedText("");
+      setSelection(null);
+    };
+
+    if (showToolbar) {
+      document.addEventListener("mousedown", handleClickOutside);
+      return () =>
+        document.removeEventListener("mousedown", handleClickOutside);
+    }
+  }, [showToolbar]);
+
+  // Update HTML when content changes
+  useEffect(() => {
+    if (!isEditing) {
+      setHtmlContent(markdownToHtml(content));
+    } else {
+      // In editing mode, show raw markdown for intersecting regions
+      const regions = parseFormattedRegions(content);
+      const intersectingIds = selectionRange
+        ? getIntersectingRegions(
+            regions,
+            cursorPosition,
+            selectionRange.start,
+            selectionRange.end,
+          )
+        : getIntersectingRegions(regions, cursorPosition);
+
+      const newHtml = markdownToHtml(content, intersectingIds);
+      const previousHtml = htmlContent;
+      setHtmlContent(newHtml);
+
+      // Restore cursor position if content structure changed
+      if (previousHtml !== newHtml && (cursorPosition > 0 || selectionRange)) {
+        restoreCursorPosition(cursorPosition, selectionRange);
+      }
+    }
+  }, [
+    content,
+    markdownToHtml,
+    isEditing,
+    cursorPosition,
+    selectionRange,
+    parseFormattedRegions,
+    getIntersectingRegions,
+    htmlContent,
+    restoreCursorPosition,
+  ]);
+
+  // Handle content changes
+  const handleInput = useCallback(() => {
+    if (editorRef.current && isEditing) {
+      const newHtml = editorRef.current.innerHTML;
+      const newMarkdown = htmlToMarkdown(newHtml);
+      onChange(newMarkdown);
+    }
+  }, [isEditing, htmlToMarkdown, onChange]);
+
+  // Handle focus (start editing)
+  const handleFocus = useCallback(() => {
+    setIsEditing(true);
+  }, []);
+
+  // Handle blur (stop editing)
+  const handleBlur = useCallback(
+    (e: React.FocusEvent) => {
+      // Don't blur if clicking on toolbar
+      if (
+        toolbarRef.current &&
+        toolbarRef.current.contains(e.relatedTarget as Node)
+      ) {
+        return;
+      }
+
+      // Small delay to allow toolbar interactions
+      setTimeout(() => {
+        if (!showToolbar) {
+          setIsEditing(false);
+          if (editorRef.current) {
+            const newHtml = editorRef.current.innerHTML;
+            const newMarkdown = htmlToMarkdown(newHtml);
+            onChange(newMarkdown);
+            setHtmlContent(markdownToHtml(newMarkdown));
+          }
+        }
+      }, 100);
+    },
+    [htmlToMarkdown, markdownToHtml, onChange, showToolbar],
+  );
+
+  // Handle cursor movement and selection changes
+  const handleSelectionChange = useCallback(() => {
+    if (!isEditing) return;
+
+    updateCursorAndSelection();
+
+    const sel = window.getSelection();
+    if (sel && sel.toString().trim()) {
+      const selectedTextValue = sel.toString().trim();
+      setSelectedText(selectedTextValue);
+      setSelection(sel.rangeCount > 0 ? sel.getRangeAt(0) : null);
+      setShowToolbar(true);
+      calculateToolbarPosition();
+      if (onTextSelection) {
+        onTextSelection(selectedTextValue);
+      }
+    } else {
+      setSelectedText("");
+      setSelection(null);
+      setShowToolbar(false);
+    }
+  }, [
+    isEditing,
+    updateCursorAndSelection,
+    onTextSelection,
+    calculateToolbarPosition,
+  ]);
+
+  // Handle text selection
+  const handleMouseUp = useCallback(() => {
+    handleSelectionChange();
+  }, [handleSelectionChange]);
+
+  // Handle keyboard events for cursor movement
+  const handleKeyUp = useCallback(
+    (e: React.KeyboardEvent) => {
+      // Update cursor position on arrow keys, etc.
+      if (
+        [
+          "ArrowLeft",
+          "ArrowRight",
+          "ArrowUp",
+          "ArrowDown",
+          "Home",
+          "End",
+        ].includes(e.key)
+      ) {
+        setTimeout(() => {
+          handleSelectionChange();
+        }, 0);
+      }
+    },
+    [handleSelectionChange],
+  );
+
+  // Apply formatting to selected text
+  const applyFormatting = useCallback(
+    (type: string, value?: string) => {
+      if (!selection || !selectedText) return;
+
+      const selectedRange = selection.cloneRange();
+      let newText = selectedText;
+
+      switch (type) {
+        case "bold":
+          newText = `**${selectedText}**`;
+          break;
+        case "italic":
+          newText = `*${selectedText}*`;
+          break;
+      }
+
+      // Replace selected text
+      selectedRange.deleteContents();
+      selectedRange.insertNode(document.createTextNode(newText));
+
+      // Update content
+      if (editorRef.current) {
+        const newHtml = editorRef.current.innerHTML;
+        const newMarkdown = htmlToMarkdown(newHtml);
+        onChange(newMarkdown);
+        setHtmlContent(markdownToHtml(newMarkdown));
+      }
+
+      // Don't clear selection immediately - let user continue formatting
+
+      // Keep focus on editor
+      if (editorRef.current) {
+        editorRef.current.focus();
+      }
+    },
+    [selection, selectedText, htmlToMarkdown, markdownToHtml, onChange],
+  );
+
+  // Handle keyboard shortcuts
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === "Escape") {
+      setShowToolbar(false);
+      setSelectedText("");
+      setSelection(null);
+    }
+  }, []);
+
+  // Prevent toolbar from losing focus when clicking buttons
+  const handleToolbarMouseDown = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+  }, []);
+
+  return (
+    <div className={`relative ${className}`}>
+      {/* Formatting Toolbar - positioned near selected text */}
+      {isEditing && selectedText && showToolbar && (
+        <div
+          ref={toolbarRef}
+          className="absolute bg-white border border-gray-300 rounded-lg shadow-lg p-2 flex items-center space-x-2 z-50"
+          style={{
+            left: `${toolbarPosition.x}px`,
+            top: `${toolbarPosition.y}px`,
+            transform: "translateX(-50%)",
+          }}
+          onMouseDown={handleToolbarMouseDown}
+        >
+          {/* Bold */}
+          <button
+            onClick={() => applyFormatting("bold")}
+            className="p-2 hover:bg-gray-100 rounded transition-colors"
+            title="Bold"
+          >
+            <Bold size={18} />
+          </button>
+
+          {/* Italic */}
+          <button
+            onClick={() => applyFormatting("italic")}
+            className="p-2 hover:bg-gray-100 rounded transition-colors"
+            title="Italic"
+          >
+            <Italic size={18} />
+          </button>
+
+          <div className="w-px h-6 bg-gray-300" />
+
+          {/* Close */}
+          <button
+            onClick={() => {
+              setShowToolbar(false);
+              setSelectedText("");
+              setSelection(null);
+            }}
+            className="p-2 hover:bg-gray-100 rounded transition-colors text-gray-500"
+            title="Close"
+          >
+            <X size={16} />
+          </button>
+        </div>
+      )}
+
+      <div
+        ref={editorRef}
+        className="prose prose-lg max-w-none min-h-[600px] p-6 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 rounded-lg transition-all"
+        style={{
+          fontFamily: "system-ui, -apple-system, sans-serif",
+          lineHeight: "1.7",
+          fontSize: "16px",
+          width: "100%",
+        }}
+        contentEditable
+        suppressContentEditableWarning
+        dangerouslySetInnerHTML={{ __html: htmlContent }}
+        onInput={handleInput}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
+        onMouseUp={handleMouseUp}
+        onKeyUp={handleKeyUp}
+        onKeyDown={handleKeyDown}
+        onClick={handleSelectionChange}
+        data-placeholder={
+          content.trim() === "" ? "Click to start writing..." : ""
+        }
+      />
+
+      {content.trim() === "" && (
+        <div className="absolute top-6 left-6 text-gray-400 pointer-events-none">
+          <div className="space-y-2 text-sm">
+            <div>Click to start writing...</div>
+            <div className="text-xs text-gray-300">
+              Supports: Headers #, **bold**, *italic*, ~~strikethrough~~,
+              <br />
+              `code`, and ```code blocks```
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isEditing && !selectedText && (
+        <div className="absolute bottom-4 right-4 text-xs text-blue-600 bg-white px-3 py-2 rounded-lg shadow border">
+          <div className="font-medium">Edit Mode</div>
+          <div className="text-gray-500 mt-1">
+            Click on formatted text to see raw markdown
+          </div>
+        </div>
+      )}
+
+      <style jsx>{`
+        [contenteditable="true"]:empty:before {
+          content: attr(data-placeholder);
+          color: #9ca3af;
+          pointer-events: none;
+        }
+
+        [contenteditable="true"]:focus:before {
+          content: none;
+        }
+
+        /* Custom scrollbar */
+        [contenteditable="true"] {
+          scrollbar-width: thin;
+          scrollbar-color: #cbd5e1 #f1f5f9;
+        }
+
+        [contenteditable="true"]::-webkit-scrollbar {
+          width: 8px;
+        }
+
+        [contenteditable="true"]::-webkit-scrollbar-track {
+          background: #f1f5f9;
+          border-radius: 4px;
+        }
+
+        [contenteditable="true"]::-webkit-scrollbar-thumb {
+          background: #cbd5e1;
+          border-radius: 4px;
+        }
+
+        [contenteditable="true"]::-webkit-scrollbar-thumb:hover {
+          background: #94a3b8;
+        }
+      `}</style>
+    </div>
+  );
+}
