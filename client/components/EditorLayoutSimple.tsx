@@ -1,10 +1,21 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, FileText, Plus, Menu, X, Settings, Loader2, GripVertical, AlertCircle } from 'lucide-react';
-import { Button } from './ui/button';
-import SettingsModal, { AppSettings } from './SettingsModal';
-import { getLLMService } from '../services/llmService';
-import { useQuiz } from '../contexts/QuizContext';
+import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  ChevronLeft,
+  ChevronRight,
+  FileText,
+  Plus,
+  Menu,
+  X,
+  Settings,
+  Loader2,
+  GripVertical,
+  AlertCircle,
+} from "lucide-react";
+import { Button } from "./ui/button";
+import SettingsModal, { AppSettings } from "./SettingsModal";
+import { getLLMService } from "../services/llmService";
+import { useQuiz } from "../contexts/QuizContext";
 
 interface Document {
   id: string;
@@ -20,20 +31,20 @@ interface CollisionNotification {
 
 const initialDocuments: Document[] = [
   {
-    id: '1',
-    name: 'English 2',
-    content: 'Welcome to English 2! Start writing your notes here...',
-    createdAt: new Date('2024-01-15')
+    id: "1",
+    name: "English 2",
+    content: "Welcome to English 2! Start writing your notes here...",
+    createdAt: new Date("2024-01-15"),
   },
   {
-    id: '2',
-    name: 'English 3',
-    content: 'Welcome to English 3! This is your study space.',
-    createdAt: new Date('2024-01-16')
+    id: "2",
+    name: "English 3",
+    content: "Welcome to English 3! This is your study space.",
+    createdAt: new Date("2024-01-16"),
   },
   {
-    id: '3',
-    name: 'English 4',
+    id: "3",
+    name: "English 4",
     content: `The ancient ruins attest to the skill of the builders. [to provide or serve as clear evidence of]
 
 I can attest to his honesty; he is a very trustworthy person. [to declare that something exists or is true, especially formally or as an official witness]
@@ -45,49 +56,68 @@ The team made an **inadvertent** error, realizing their mistake immediately afte
 She had a natural **propensity** for art, easily sketching intricate designs from a young age. [an inclination or natural tendency to behave in a particular way]
 
 The **primeval** forest felt untouched by time, with ancient trees standing in peaceful solitude.`,
-    createdAt: new Date('2024-01-17')
-  }
+    createdAt: new Date("2024-01-17"),
+  },
 ];
 
 export default function EditorLayoutSimple() {
   const navigate = useNavigate();
   const [documents, setDocuments] = useState<Document[]>(initialDocuments);
-  const [selectedDocumentId, setSelectedDocumentId] = useState<string>('3');
-  const [selectedText, setSelectedText] = useState('');
+  const [selectedDocumentId, setSelectedDocumentId] = useState<string>("3");
+  const [selectedText, setSelectedText] = useState("");
   const [leftSidebarOpen, setLeftSidebarOpen] = useState(true);
   const [rightSidebarOpen, setRightSidebarOpen] = useState(true);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [isGeneratingQuiz, setIsGeneratingQuiz] = useState(false);
-  const [generatingType, setGeneratingType] = useState<string>('');
+  const [generatingType, setGeneratingType] = useState<string>("");
   const [settings, setSettings] = useState<AppSettings>({
     general: {
-      languageLevel: 'cet4'
+      languageLevel: "cet4",
     },
     llm: {
-      apiKey: 'AIzaSyCNDJgpRcdDiEVSNomjIMTW1yNWjX7K6P0',
-      provider: 'gemini',
-      model: 'gemini-2.0-flash-exp'
-    }
+      apiKey: "AIzaSyCNDJgpRcdDiEVSNomjIMTW1yNWjX7K6P0",
+      provider: "gemini",
+      model: "gemini-2.0-flash-exp",
+    },
   });
   const { createQuiz, getQuizzesByDocument } = useQuiz();
   const [draggedQuiz, setDraggedQuiz] = useState<any>(null);
   const [showPreview, setShowPreview] = useState(false);
-  const [previewContent, setPreviewContent] = useState('');
-  const [originalContent, setOriginalContent] = useState('');
+  const [previewContent, setPreviewContent] = useState("");
+  const [originalContent, setOriginalContent] = useState("");
   const [isEditingContent, setIsEditingContent] = useState(false);
-  const [collisionNotification, setCollisionNotification] = useState<CollisionNotification>({ show: false, message: '' });
-  const [tempTitle, setTempTitle] = useState('');
-  const [revealedRegions, setRevealedRegions] = useState<Set<string>>(new Set());
-  const [manuallyRevealedRegions, setManuallyRevealedRegions] = useState<Set<string>>(new Set());
-  const [currentSelection, setCurrentSelection] = useState<{start: number, end: number} | null>(null);
+  const [collisionNotification, setCollisionNotification] =
+    useState<CollisionNotification>({ show: false, message: "" });
+  const [tempTitle, setTempTitle] = useState("");
+  const [revealedRegions, setRevealedRegions] = useState<Set<string>>(
+    new Set(),
+  );
+  const [manuallyRevealedRegions, setManuallyRevealedRegions] = useState<
+    Set<string>
+  >(new Set());
+  const [currentSelection, setCurrentSelection] = useState<{
+    start: number;
+    end: number;
+  } | null>(null);
   const editorRef = useRef<HTMLDivElement>(null);
 
-  const selectedDocument = documents.find(doc => doc.id === selectedDocumentId);
-  const documentQuizzes = selectedDocument ? getQuizzesByDocument(selectedDocument.id) : [];
+  const selectedDocument = documents.find(
+    (doc) => doc.id === selectedDocumentId,
+  );
+  const documentQuizzes = selectedDocument
+    ? getQuizzesByDocument(selectedDocument.id)
+    : [];
 
   // Check for name collision
-  const checkNameCollision = (newName: string, currentDocId: string): boolean => {
-    return documents.some(doc => doc.id !== currentDocId && doc.name.toLowerCase() === newName.toLowerCase());
+  const checkNameCollision = (
+    newName: string,
+    currentDocId: string,
+  ): boolean => {
+    return documents.some(
+      (doc) =>
+        doc.id !== currentDocId &&
+        doc.name.toLowerCase() === newName.toLowerCase(),
+    );
   };
 
   // Show collision notification (persistent during editing)
@@ -104,17 +134,19 @@ export default function EditorLayoutSimple() {
     const trimmedTitle = newTitle.trim();
     if (!trimmedTitle) {
       // Hide collision notification if field is empty
-      setCollisionNotification({ show: false, message: '' });
+      setCollisionNotification({ show: false, message: "" });
       return;
     }
 
     // Check for collision during typing and show warning immediately
     if (checkNameCollision(trimmedTitle, selectedDocument.id)) {
-      showCollisionNotification(`A document with the name "${trimmedTitle}" already exists. Please choose a different name.`);
+      showCollisionNotification(
+        `A document with the name "${trimmedTitle}" already exists. Please choose a different name.`,
+      );
       return;
     } else {
       // Hide collision notification if no collision
-      setCollisionNotification({ show: false, message: '' });
+      setCollisionNotification({ show: false, message: "" });
     }
   };
 
@@ -134,12 +166,10 @@ export default function EditorLayoutSimple() {
     }
 
     // Update the document name
-    setDocuments(prev =>
-      prev.map(doc =>
-        doc.id === selectedDocument.id
-          ? { ...doc, name: trimmedTitle }
-          : doc
-      )
+    setDocuments((prev) =>
+      prev.map((doc) =>
+        doc.id === selectedDocument.id ? { ...doc, name: trimmedTitle } : doc,
+      ),
     );
   };
 
@@ -148,23 +178,23 @@ export default function EditorLayoutSimple() {
     if (selectedDocument) {
       setTempTitle(selectedDocument.name);
       // Clear any existing collision notification when switching documents
-      setCollisionNotification({ show: false, message: '' });
+      setCollisionNotification({ show: false, message: "" });
       // Clear revealed regions and selection when switching documents
       setRevealedRegions(new Set());
       setManuallyRevealedRegions(new Set());
       setCurrentSelection(null);
-      setSelectedText('');
+      setSelectedText("");
     }
   }, [selectedDocument?.id]);
 
   const handleQuizToolClick = async (toolId: string) => {
     if (!selectedText) {
-      alert('Please select some text first to generate a quiz!');
+      alert("Please select some text first to generate a quiz!");
       return;
     }
 
     if (!settings.llm.apiKey) {
-      alert('Please configure your LLM API key in settings first!');
+      alert("Please configure your LLM API key in settings first!");
       setSettingsOpen(true);
       return;
     }
@@ -176,31 +206,52 @@ export default function EditorLayoutSimple() {
       const llmService = getLLMService(settings);
 
       switch (toolId) {
-        case 'flashcard': {
+        case "flashcard": {
           const flashcards = await llmService.generateFlashCards(selectedText);
-          createQuiz('flashcard', `Flashcards - ${selectedDocument!.name}`, selectedText, flashcards, selectedDocument!.id);
-          navigate('/quiz/flashcard');
+          createQuiz(
+            "flashcard",
+            `Flashcards - ${selectedDocument!.name}`,
+            selectedText,
+            flashcards,
+            selectedDocument!.id,
+          );
+          navigate("/quiz/flashcard");
           break;
         }
-        case 'multiple-choice': {
-          const questions = await llmService.generateMultipleChoice(selectedText);
-          createQuiz('multiple-choice', `Multiple Choice - ${selectedDocument!.name}`, selectedText, questions, selectedDocument!.id);
-          navigate('/quiz/multiple-choice');
+        case "multiple-choice": {
+          const questions =
+            await llmService.generateMultipleChoice(selectedText);
+          createQuiz(
+            "multiple-choice",
+            `Multiple Choice - ${selectedDocument!.name}`,
+            selectedText,
+            questions,
+            selectedDocument!.id,
+          );
+          navigate("/quiz/multiple-choice");
           break;
         }
-        case 'short-writing': {
+        case "short-writing": {
           const tasks = await llmService.generateWritingTasks(selectedText);
-          createQuiz('short-writing', `Writing Tasks - ${selectedDocument!.name}`, selectedText, tasks, selectedDocument!.id);
-          navigate('/quiz/short-writing');
+          createQuiz(
+            "short-writing",
+            `Writing Tasks - ${selectedDocument!.name}`,
+            selectedText,
+            tasks,
+            selectedDocument!.id,
+          );
+          navigate("/quiz/short-writing");
           break;
         }
       }
     } catch (error) {
-      console.error('Error generating quiz:', error);
-      alert(`Failed to generate quiz: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      console.error("Error generating quiz:", error);
+      alert(
+        `Failed to generate quiz: ${error instanceof Error ? error.message : "Unknown error"}`,
+      );
     } finally {
       setIsGeneratingQuiz(false);
-      setGeneratingType('');
+      setGeneratingType("");
     }
   };
 
@@ -208,7 +259,7 @@ export default function EditorLayoutSimple() {
   const parseMarkdownRegions = (content: string) => {
     const regions: Array<{
       id: string;
-      type: 'bold' | 'highlight' | 'bracket';
+      type: "bold" | "highlight" | "bracket";
       start: number;
       end: number;
       rawText: string;
@@ -221,11 +272,11 @@ export default function EditorLayoutSimple() {
     content.replace(/\*\*(.*?)\*\*/g, (match, group, offset) => {
       regions.push({
         id: `bold-${regionId++}`,
-        type: 'bold',
+        type: "bold",
         start: offset,
         end: offset + match.length,
         rawText: match,
-        formattedText: group
+        formattedText: group,
       });
       return match;
     });
@@ -234,11 +285,11 @@ export default function EditorLayoutSimple() {
     content.replace(/==(.*?)==/g, (match, group, offset) => {
       regions.push({
         id: `highlight-${regionId++}`,
-        type: 'highlight',
+        type: "highlight",
         start: offset,
         end: offset + match.length,
         rawText: match,
-        formattedText: group
+        formattedText: group,
       });
       return match;
     });
@@ -247,11 +298,11 @@ export default function EditorLayoutSimple() {
     content.replace(/\[([^\]]+)\]/g, (match, group, offset) => {
       regions.push({
         id: `bracket-${regionId++}`,
-        type: 'bracket',
+        type: "bracket",
         start: offset,
         end: offset + match.length,
         rawText: match,
-        formattedText: group
+        formattedText: group,
       });
       return match;
     });
@@ -263,7 +314,7 @@ export default function EditorLayoutSimple() {
     const selection = window.getSelection();
     if (selection && selection.toString()) {
       const selectedText = selection.toString();
-      const content = selectedDocument?.content || '';
+      const content = selectedDocument?.content || "";
 
       setSelectedText(selectedText);
 
@@ -272,11 +323,13 @@ export default function EditorLayoutSimple() {
       const newRevealedRegions = new Set<string>();
 
       // Simple approach: if the selected text overlaps with a region's formatted text or raw text
-      regions.forEach(region => {
-        if (selectedText.includes(region.formattedText) ||
-            selectedText.includes(region.rawText) ||
-            region.formattedText.includes(selectedText) ||
-            region.rawText.includes(selectedText)) {
+      regions.forEach((region) => {
+        if (
+          selectedText.includes(region.formattedText) ||
+          selectedText.includes(region.rawText) ||
+          region.formattedText.includes(selectedText) ||
+          region.rawText.includes(selectedText)
+        ) {
           newRevealedRegions.add(region.id);
         }
       });
@@ -284,7 +337,7 @@ export default function EditorLayoutSimple() {
       setRevealedRegions(newRevealedRegions);
     } else {
       // When selection is cleared, clear everything to return to formatted state
-      setSelectedText('');
+      setSelectedText("");
       setCurrentSelection(null);
       setRevealedRegions(new Set());
     }
@@ -293,12 +346,12 @@ export default function EditorLayoutSimple() {
   const handleDoubleClick = () => {
     if (!showPreview) {
       setIsEditingContent(true);
-      setSelectedText(''); // Clear selection when entering edit mode
+      setSelectedText(""); // Clear selection when entering edit mode
     }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Escape') {
+    if (e.key === "Escape") {
       setIsEditingContent(false);
     }
   };
@@ -314,7 +367,7 @@ export default function EditorLayoutSimple() {
     if (selection?.toString()) return; // Don't handle clicks during text selection
 
     // Clear selection and revealed regions when clicking in unformatted areas
-    setSelectedText('');
+    setSelectedText("");
     setCurrentSelection(null);
 
     // Clear revealed regions to return text to formatted state
@@ -336,39 +389,40 @@ export default function EditorLayoutSimple() {
     setManuallyRevealedRegions(newManuallyRevealedRegions);
   };
 
-
   const handleAddDocument = () => {
-    const newId = (Math.max(...documents.map(d => parseInt(d.id))) + 1).toString();
+    const newId = (
+      Math.max(...documents.map((d) => parseInt(d.id))) + 1
+    ).toString();
     const newDocument: Document = {
       id: newId,
-      name: 'New Document',
-      content: '# New Document\n\nStart writing your content here...',
-      createdAt: new Date()
+      name: "New Document",
+      content: "# New Document\n\nStart writing your content here...",
+      createdAt: new Date(),
     };
 
-    setDocuments(prev => [...prev, newDocument]);
+    setDocuments((prev) => [...prev, newDocument]);
     setSelectedDocumentId(newId);
   };
 
   const handleDeleteDocument = (docId: string) => {
     if (documents.length <= 1) {
-      alert('You must have at least one document.');
+      alert("You must have at least one document.");
       return;
     }
-    
-    if (confirm('Are you sure you want to delete this document?')) {
-      setDocuments(prev => prev.filter(doc => doc.id !== docId));
-      
+
+    if (confirm("Are you sure you want to delete this document?")) {
+      setDocuments((prev) => prev.filter((doc) => doc.id !== docId));
+
       if (selectedDocumentId === docId) {
-        const remainingDocs = documents.filter(doc => doc.id !== docId);
-        setSelectedDocumentId(remainingDocs[0]?.id || '');
+        const remainingDocs = documents.filter((doc) => doc.id !== docId);
+        setSelectedDocumentId(remainingDocs[0]?.id || "");
       }
     }
   };
 
   const handleDocumentSelect = (docId: string) => {
     setSelectedDocumentId(docId);
-    setSelectedText('');
+    setSelectedText("");
     setRevealedRegions(new Set());
     setManuallyRevealedRegions(new Set());
     setCurrentSelection(null);
@@ -376,46 +430,59 @@ export default function EditorLayoutSimple() {
 
   const handleContentChange = (newContent: string) => {
     if (selectedDocument) {
-      setDocuments(prev => 
-        prev.map(doc => 
-          doc.id === selectedDocument.id 
+      setDocuments((prev) =>
+        prev.map((doc) =>
+          doc.id === selectedDocument.id
             ? { ...doc, content: newContent }
-            : doc
-        )
+            : doc,
+        ),
       );
     }
   };
 
-
   // Advanced rendering with mixed raw/formatted content
   const renderAdvancedMarkdownContent = (content: string) => {
-    const lines = content.split('\n');
+    const lines = content.split("\n");
 
     return lines.map((line, lineIndex) => {
       // Handle headers first
-      if (line.startsWith('# ')) {
-        return <h1 key={lineIndex} className="text-2xl font-bold mb-4 mt-6">{line.substring(2)}</h1>;
+      if (line.startsWith("# ")) {
+        return (
+          <h1 key={lineIndex} className="text-2xl font-bold mb-4 mt-6">
+            {line.substring(2)}
+          </h1>
+        );
       }
-      if (line.startsWith('## ')) {
-        return <h2 key={lineIndex} className="text-xl font-semibold mb-3 mt-5">{line.substring(3)}</h2>;
+      if (line.startsWith("## ")) {
+        return (
+          <h2 key={lineIndex} className="text-xl font-semibold mb-3 mt-5">
+            {line.substring(3)}
+          </h2>
+        );
       }
-      if (line.startsWith('### ')) {
-        return <h3 key={lineIndex} className="text-lg font-semibold mb-2 mt-4">{line.substring(4)}</h3>;
+      if (line.startsWith("### ")) {
+        return (
+          <h3 key={lineIndex} className="text-lg font-semibold mb-2 mt-4">
+            {line.substring(4)}
+          </h3>
+        );
       }
-      if (line.trim() === '') {
+      if (line.trim() === "") {
         return <div key={lineIndex} className="mb-2"></div>;
       }
 
       // Calculate line start position in full content
-      const lineStart = lines.slice(0, lineIndex).join('\n').length + (lineIndex > 0 ? 1 : 0);
+      const lineStart =
+        lines.slice(0, lineIndex).join("\n").length + (lineIndex > 0 ? 1 : 0);
       const lineEnd = lineStart + line.length;
 
       // Get regions that affect this line
       const regions = parseMarkdownRegions(content);
-      const lineRegions = regions.filter(region =>
-        (region.start >= lineStart && region.start < lineEnd) ||
-        (region.end > lineStart && region.end <= lineEnd) ||
-        (region.start < lineStart && region.end > lineEnd)
+      const lineRegions = regions.filter(
+        (region) =>
+          (region.start >= lineStart && region.start < lineEnd) ||
+          (region.end > lineStart && region.end <= lineEnd) ||
+          (region.start < lineStart && region.end > lineEnd),
       );
 
       if (lineRegions.length === 0) {
@@ -429,10 +496,10 @@ export default function EditorLayoutSimple() {
 
       // Sort regions by start position within the line
       const sortedLineRegions = lineRegions
-        .map(region => ({
+        .map((region) => ({
           ...region,
           startInLine: Math.max(0, region.start - lineStart),
-          endInLine: Math.min(line.length, region.end - lineStart)
+          endInLine: Math.min(line.length, region.end - lineStart),
         }))
         .sort((a, b) => a.startInLine - b.startInLine);
 
@@ -444,7 +511,9 @@ export default function EditorLayoutSimple() {
         // Add text before region
         if (region.startInLine > lastPos) {
           const beforeText = line.substring(lastPos, region.startInLine);
-          elements.push(<span key={`before-${regionIndex}`}>{beforeText}</span>);
+          elements.push(
+            <span key={`before-${regionIndex}`}>{beforeText}</span>,
+          );
         }
 
         // Skip if this region overlaps with previous one
@@ -454,7 +523,9 @@ export default function EditorLayoutSimple() {
 
         // Add region content (raw or formatted)
         const regionText = line.substring(region.startInLine, region.endInLine);
-        const isRevealed = manuallyRevealedRegions.has(region.id) || revealedRegions.has(region.id);
+        const isRevealed =
+          manuallyRevealedRegions.has(region.id) ||
+          revealedRegions.has(region.id);
 
         if (isRevealed) {
           // Show raw markdown
@@ -465,12 +536,12 @@ export default function EditorLayoutSimple() {
               onClick={(e) => handleRegionClick(region.id, e)}
             >
               {region.rawText}
-            </span>
+            </span>,
           );
         } else {
           // Show formatted content with click handlers
           const formattedText = region.formattedText;
-          if (region.type === 'bold') {
+          if (region.type === "bold") {
             elements.push(
               <strong
                 key={`region-${region.id}`}
@@ -478,9 +549,9 @@ export default function EditorLayoutSimple() {
                 onClick={(e) => handleRegionClick(region.id, e)}
               >
                 {formattedText}
-              </strong>
+              </strong>,
             );
-          } else if (region.type === 'highlight') {
+          } else if (region.type === "highlight") {
             elements.push(
               <span
                 key={`region-${region.id}`}
@@ -488,9 +559,9 @@ export default function EditorLayoutSimple() {
                 onClick={(e) => handleRegionClick(region.id, e)}
               >
                 {formattedText}
-              </span>
+              </span>,
             );
-          } else if (region.type === 'bracket') {
+          } else if (region.type === "bracket") {
             elements.push(
               <span
                 key={`region-${region.id}`}
@@ -498,7 +569,7 @@ export default function EditorLayoutSimple() {
                 onClick={(e) => handleRegionClick(region.id, e)}
               >
                 [{formattedText}]
-              </span>
+              </span>,
             );
           }
         }
@@ -520,19 +591,20 @@ export default function EditorLayoutSimple() {
     });
   };
 
-
   return (
     <div className="h-screen flex bg-white">
       {/* Left Sidebar - Document Navigation */}
-      <div className={`transition-all duration-300 border-r border-gray-200 bg-gray-50 ${
-        leftSidebarOpen ? 'w-64' : 'w-0 overflow-hidden'
-      }`}>
+      <div
+        className={`transition-all duration-300 border-r border-gray-200 bg-gray-50 ${
+          leftSidebarOpen ? "w-64" : "w-0 overflow-hidden"
+        }`}
+      >
         <div className="p-4 border-b border-gray-200">
           <div className="flex items-center justify-between">
             <h2 className="font-semibold text-gray-800">Documents</h2>
-            <Button 
-              variant="ghost" 
-              size="sm" 
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={handleAddDocument}
               title="Add new document"
             >
@@ -540,23 +612,27 @@ export default function EditorLayoutSimple() {
             </Button>
           </div>
         </div>
-        
+
         <div className="p-2 overflow-y-auto max-h-full">
           <div className="space-y-1">
             {documents.map((doc) => (
               <div
                 key={doc.id}
                 className={`group flex items-center justify-between py-2 px-3 rounded cursor-pointer transition-colors ${
-                  selectedDocumentId === doc.id 
-                    ? 'bg-blue-50 text-blue-700 border border-blue-200' 
-                    : 'text-gray-700 hover:bg-gray-100'
+                  selectedDocumentId === doc.id
+                    ? "bg-blue-50 text-blue-700 border border-blue-200"
+                    : "text-gray-700 hover:bg-gray-100"
                 }`}
                 onClick={() => handleDocumentSelect(doc.id)}
               >
                 <div className="flex items-center flex-1 min-w-0">
-                  <FileText className={`w-4 h-4 mr-2 flex-shrink-0 ${
-                    selectedDocumentId === doc.id ? 'text-blue-500' : 'text-gray-500'
-                  }`} />
+                  <FileText
+                    className={`w-4 h-4 mr-2 flex-shrink-0 ${
+                      selectedDocumentId === doc.id
+                        ? "text-blue-500"
+                        : "text-gray-500"
+                    }`}
+                  />
                   <span className="text-sm truncate">{doc.name}</span>
                 </div>
                 {documents.length > 1 && (
@@ -586,15 +662,21 @@ export default function EditorLayoutSimple() {
         className="absolute top-4 left-2 z-10"
         onClick={() => setLeftSidebarOpen(!leftSidebarOpen)}
       >
-        {leftSidebarOpen ? <ChevronLeft className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+        {leftSidebarOpen ? (
+          <ChevronLeft className="w-4 h-4" />
+        ) : (
+          <Menu className="w-4 h-4" />
+        )}
       </Button>
-      
+
       {/* Main Editor Area */}
       <div className="flex-1 flex flex-col">
         <div className="h-14 border-b border-gray-200 flex items-center justify-between px-6">
           <div className="flex items-center space-x-2">
             <span className="text-sm text-gray-500">
-              {selectedDocument ? selectedDocument.name : 'No document selected'}
+              {selectedDocument
+                ? selectedDocument.name
+                : "No document selected"}
             </span>
           </div>
           <div className="flex items-center space-x-2">
@@ -611,7 +693,7 @@ export default function EditorLayoutSimple() {
             </Button>
           </div>
         </div>
-        
+
         <div className="flex-1 overflow-y-auto">
           <div className="max-w-4xl mx-auto relative">
             {selectedDocument ? (
@@ -624,7 +706,7 @@ export default function EditorLayoutSimple() {
                     onChange={(e) => handleTitleChange(e.target.value)}
                     onBlur={() => handleTitleSave()}
                     onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
+                      if (e.key === "Enter") {
                         e.currentTarget.blur();
                       }
                     }}
@@ -643,9 +725,9 @@ export default function EditorLayoutSimple() {
                       onBlur={handleEditingBlur}
                       className="w-full min-h-[600px] p-4 border-0 resize-none focus:outline-none bg-transparent"
                       style={{
-                        fontFamily: 'system-ui, -apple-system, sans-serif',
-                        lineHeight: '1.6',
-                        fontSize: '16px'
+                        fontFamily: "system-ui, -apple-system, sans-serif",
+                        lineHeight: "1.6",
+                        fontSize: "16px",
                       }}
                       placeholder="Start writing your document content here..."
                       autoFocus
@@ -655,16 +737,18 @@ export default function EditorLayoutSimple() {
                       ref={editorRef}
                       className="prose prose-lg max-w-none cursor-text hover:bg-gray-50 rounded p-2 transition-colors"
                       style={{
-                        fontFamily: 'system-ui, -apple-system, sans-serif',
-                        lineHeight: '1.6',
-                        fontSize: '16px'
+                        fontFamily: "system-ui, -apple-system, sans-serif",
+                        lineHeight: "1.6",
+                        fontSize: "16px",
                       }}
                       onMouseUp={!showPreview ? handleTextSelection : undefined}
-                      onDoubleClick={!showPreview ? handleDoubleClick : undefined}
+                      onDoubleClick={
+                        !showPreview ? handleDoubleClick : undefined
+                      }
                       onClick={!showPreview ? handleClick : undefined}
                       onDragOver={(e) => {
                         e.preventDefault();
-                        e.dataTransfer.dropEffect = 'copy';
+                        e.dataTransfer.dropEffect = "copy";
                       }}
                       onDrop={(e) => {
                         e.preventDefault();
@@ -676,10 +760,11 @@ export default function EditorLayoutSimple() {
                         }
                       }}
                     >
-                      {showPreview ?
-                        renderAdvancedMarkdownContent(previewContent) :
-                        renderAdvancedMarkdownContent(selectedDocument.content)
-                      }
+                      {showPreview
+                        ? renderAdvancedMarkdownContent(previewContent)
+                        : renderAdvancedMarkdownContent(
+                            selectedDocument.content,
+                          )}
                       {!showPreview && !isEditingContent && (
                         <div className="absolute bottom-4 right-4 text-xs text-gray-400 opacity-50 pointer-events-none">
                           Double-click to edit
@@ -693,7 +778,9 @@ export default function EditorLayoutSimple() {
               <div className="flex items-center justify-center h-full">
                 <div className="text-center">
                   <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                  <p className="text-gray-500 mb-4">Select a document to start editing</p>
+                  <p className="text-gray-500 mb-4">
+                    Select a document to start editing
+                  </p>
                   <Button onClick={handleAddDocument}>
                     <Plus className="w-4 h-4 mr-2" />
                     Create New Document
@@ -704,11 +791,13 @@ export default function EditorLayoutSimple() {
           </div>
         </div>
       </div>
-      
+
       {/* Right Sidebar - Quiz Tools */}
-      <div className={`transition-all duration-300 border-l border-gray-200 bg-white ${
-        rightSidebarOpen ? 'w-80' : 'w-0 overflow-hidden'
-      }`}>
+      <div
+        className={`transition-all duration-300 border-l border-gray-200 bg-white ${
+          rightSidebarOpen ? "w-80" : "w-0 overflow-hidden"
+        }`}
+      >
         <div className="p-4 border-b border-gray-200">
           <div className="flex items-center justify-between">
             <h2 className="font-semibold text-gray-800">Quiz Tools</h2>
@@ -721,20 +810,22 @@ export default function EditorLayoutSimple() {
             </Button>
           </div>
         </div>
-        
+
         <div className="p-4 space-y-4">
           <div className="text-sm text-gray-600 mb-4">
             {showPreview ? (
               <div className="p-3 bg-orange-50 border border-orange-200 rounded">
-                <div className="font-medium text-orange-800 mb-2">Viewing Originally Selected Text</div>
+                <div className="font-medium text-orange-800 mb-2">
+                  Viewing Originally Selected Text
+                </div>
                 <Button
                   size="sm"
                   variant="outline"
                   className="w-full"
                   onClick={() => {
                     setShowPreview(false);
-                    setPreviewContent('');
-                    setOriginalContent('');
+                    setPreviewContent("");
+                    setOriginalContent("");
                     setIsEditingContent(false);
                   }}
                 >
@@ -743,68 +834,96 @@ export default function EditorLayoutSimple() {
               </div>
             ) : selectedText ? (
               <div className="p-2 bg-blue-50 border border-blue-200 rounded">
-                <div className="font-medium text-blue-800 mb-1">Selected text:</div>
-                <div className="text-blue-700 text-xs">"{selectedText.substring(0, 50)}{selectedText.length > 50 ? '...' : '"'}</div>
+                <div className="font-medium text-blue-800 mb-1">
+                  Selected text:
+                </div>
+                <div className="text-blue-700 text-xs">
+                  "{selectedText.substring(0, 50)}
+                  {selectedText.length > 50 ? "..." : '"'}
+                </div>
               </div>
             ) : (
-              'Select text in the editor to generate quizzes'
+              "Select text in the editor to generate quizzes"
             )}
           </div>
 
-
-          <div className={`p-4 rounded-lg border-2 border-blue-200 bg-blue-50 cursor-pointer hover:shadow-md transition-all ${
-            isGeneratingQuiz && generatingType === 'flashcard' ? 'opacity-50 pointer-events-none' : ''
-          }`}
-               onClick={() => handleQuizToolClick('flashcard')}>
+          <div
+            className={`p-4 rounded-lg border-2 border-blue-200 bg-blue-50 cursor-pointer hover:shadow-md transition-all ${
+              isGeneratingQuiz && generatingType === "flashcard"
+                ? "opacity-50 pointer-events-none"
+                : ""
+            }`}
+            onClick={() => handleQuizToolClick("flashcard")}
+          >
             <div className="flex items-start space-x-3">
-              {isGeneratingQuiz && generatingType === 'flashcard' ? (
+              {isGeneratingQuiz && generatingType === "flashcard" ? (
                 <Loader2 className="w-6 h-6 animate-spin text-blue-600 mt-1" />
               ) : (
                 <span className="text-2xl">🎴</span>
               )}
               <div>
                 <h3 className="font-semibold text-gray-800 mb-1">
-                  {isGeneratingQuiz && generatingType === 'flashcard' ? 'Generating...' : 'Flash Card'}
+                  {isGeneratingQuiz && generatingType === "flashcard"
+                    ? "Generating..."
+                    : "Flash Card"}
                 </h3>
-                <p className="text-sm text-gray-600">Create flashcards from selected text</p>
+                <p className="text-sm text-gray-600">
+                  Create flashcards from selected text
+                </p>
               </div>
             </div>
           </div>
-          
-          <div className={`p-4 rounded-lg border-2 border-green-200 bg-green-50 cursor-pointer hover:shadow-md transition-all ${
-            isGeneratingQuiz && generatingType === 'multiple-choice' ? 'opacity-50 pointer-events-none' : ''
-          }`}
-               onClick={() => handleQuizToolClick('multiple-choice')}>
+
+          <div
+            className={`p-4 rounded-lg border-2 border-green-200 bg-green-50 cursor-pointer hover:shadow-md transition-all ${
+              isGeneratingQuiz && generatingType === "multiple-choice"
+                ? "opacity-50 pointer-events-none"
+                : ""
+            }`}
+            onClick={() => handleQuizToolClick("multiple-choice")}
+          >
             <div className="flex items-start space-x-3">
-              {isGeneratingQuiz && generatingType === 'multiple-choice' ? (
+              {isGeneratingQuiz && generatingType === "multiple-choice" ? (
                 <Loader2 className="w-6 h-6 animate-spin text-green-600 mt-1" />
               ) : (
                 <span className="text-2xl">📝</span>
               )}
               <div>
                 <h3 className="font-semibold text-gray-800 mb-1">
-                  {isGeneratingQuiz && generatingType === 'multiple-choice' ? 'Generating...' : 'Multiple Choice'}
+                  {isGeneratingQuiz && generatingType === "multiple-choice"
+                    ? "Generating..."
+                    : "Multiple Choice"}
                 </h3>
-                <p className="text-sm text-gray-600">Generate multiple choice questions</p>
+                <p className="text-sm text-gray-600">
+                  Generate multiple choice questions
+                </p>
               </div>
             </div>
           </div>
-          
-          <div className={`p-4 rounded-lg border-2 border-purple-200 bg-purple-50 cursor-pointer hover:shadow-md transition-all ${
-            isGeneratingQuiz && generatingType === 'short-writing' ? 'opacity-50 pointer-events-none' : ''
-          }`}
-               onClick={() => handleQuizToolClick('short-writing')}>
+
+          <div
+            className={`p-4 rounded-lg border-2 border-purple-200 bg-purple-50 cursor-pointer hover:shadow-md transition-all ${
+              isGeneratingQuiz && generatingType === "short-writing"
+                ? "opacity-50 pointer-events-none"
+                : ""
+            }`}
+            onClick={() => handleQuizToolClick("short-writing")}
+          >
             <div className="flex items-start space-x-3">
-              {isGeneratingQuiz && generatingType === 'short-writing' ? (
+              {isGeneratingQuiz && generatingType === "short-writing" ? (
                 <Loader2 className="w-6 h-6 animate-spin text-purple-600 mt-1" />
               ) : (
                 <span className="text-2xl">✍️</span>
               )}
               <div>
                 <h3 className="font-semibold text-gray-800 mb-1">
-                  {isGeneratingQuiz && generatingType === 'short-writing' ? 'Generating...' : 'Short Writing'}
+                  {isGeneratingQuiz && generatingType === "short-writing"
+                    ? "Generating..."
+                    : "Short Writing"}
                 </h3>
-                <p className="text-sm text-gray-600">Create writing prompts and exercises</p>
+                <p className="text-sm text-gray-600">
+                  Create writing prompts and exercises
+                </p>
               </div>
             </div>
           </div>
@@ -817,23 +936,31 @@ export default function EditorLayoutSimple() {
               documentQuizzes.map((quiz) => {
                 const getQuizIcon = (type: string) => {
                   switch (type) {
-                    case 'flashcard': return '🎴';
-                    case 'multiple-choice': return '📝';
-                    case 'short-writing': return '✍️';
-                    default: return '📄';
+                    case "flashcard":
+                      return "🎴";
+                    case "multiple-choice":
+                      return "📝";
+                    case "short-writing":
+                      return "✍️";
+                    default:
+                      return "📄";
                   }
                 };
 
                 const getItemCount = (quiz: any) => {
                   if (Array.isArray(quiz.data)) {
                     switch (quiz.type) {
-                      case 'flashcard': return `${quiz.data.length} cards`;
-                      case 'multiple-choice': return `${quiz.data.length} questions`;
-                      case 'short-writing': return `${quiz.data.length} tasks`;
-                      default: return `${quiz.data.length} items`;
+                      case "flashcard":
+                        return `${quiz.data.length} cards`;
+                      case "multiple-choice":
+                        return `${quiz.data.length} questions`;
+                      case "short-writing":
+                        return `${quiz.data.length} tasks`;
+                      default:
+                        return `${quiz.data.length} items`;
                     }
                   }
-                  return '0 items';
+                  return "0 items";
                 };
 
                 return (
@@ -843,7 +970,7 @@ export default function EditorLayoutSimple() {
                     draggable
                     onDragStart={(e) => {
                       setDraggedQuiz(quiz);
-                      e.dataTransfer.effectAllowed = 'copy';
+                      e.dataTransfer.effectAllowed = "copy";
                     }}
                     onDragEnd={() => setDraggedQuiz(null)}
                     onClick={() => {
@@ -854,11 +981,19 @@ export default function EditorLayoutSimple() {
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center space-x-2">
-                          <span className="text-sm">{getQuizIcon(quiz.type)}</span>
-                          <div className="text-sm font-medium text-gray-800 truncate">{quiz.title}</div>
+                          <span className="text-sm">
+                            {getQuizIcon(quiz.type)}
+                          </span>
+                          <div className="text-sm font-medium text-gray-800 truncate">
+                            {quiz.title}
+                          </div>
                         </div>
-                        <div className="text-xs text-gray-500 mt-1">{getItemCount(quiz)}</div>
-                        <div className="text-xs text-gray-400">{quiz.createdAt.toLocaleDateString()}</div>
+                        <div className="text-xs text-gray-500 mt-1">
+                          {getItemCount(quiz)}
+                        </div>
+                        <div className="text-xs text-gray-400">
+                          {quiz.createdAt.toLocaleDateString()}
+                        </div>
                       </div>
                       <div className="opacity-0 group-hover:opacity-100 transition-opacity">
                         <GripVertical className="w-4 h-4 text-gray-400" />
@@ -870,7 +1005,8 @@ export default function EditorLayoutSimple() {
             ) : (
               <div className="text-sm text-gray-500 text-center py-4">
                 No quizzes for this document yet.
-                <br />Select text and generate some quizzes!
+                <br />
+                Select text and generate some quizzes!
               </div>
             )}
           </div>
@@ -894,7 +1030,9 @@ export default function EditorLayoutSimple() {
         <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50">
           <div className="bg-red-500 text-white px-4 py-3 rounded-lg shadow-lg flex items-center space-x-2 min-w-64 max-w-md">
             <AlertCircle className="w-5 h-5 flex-shrink-0" />
-            <span className="text-sm font-medium">{collisionNotification.message}</span>
+            <span className="text-sm font-medium">
+              {collisionNotification.message}
+            </span>
           </div>
         </div>
       )}
