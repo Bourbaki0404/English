@@ -33,7 +33,19 @@ export default function HybridEditor({
   const markdownToHtml = useCallback((markdown: string) => {
     let html = markdown;
 
-    // Headers (h1-h3 only, simplified)
+    // Headers (h1-h6)
+    html = html.replace(
+      /^#{6}\s+(.*)$/gim,
+      '<h6 class="text-sm font-semibold mb-2 mt-3">$1</h6>',
+    );
+    html = html.replace(
+      /^#{5}\s+(.*)$/gim,
+      '<h5 class="text-base font-semibold mb-2 mt-3">$1</h5>',
+    );
+    html = html.replace(
+      /^#{4}\s+(.*)$/gim,
+      '<h4 class="text-lg font-semibold mb-3 mt-4">$1</h4>',
+    );
     html = html.replace(
       /^#{3}\s+(.*)$/gim,
       '<h3 class="text-xl font-semibold mb-3 mt-5">$1</h3>',
