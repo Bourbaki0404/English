@@ -148,6 +148,10 @@ export default function EditorLayoutSimple() {
       setTempTitle(selectedDocument.name);
       // Clear any existing collision notification when switching documents
       setCollisionNotification({ show: false, message: '' });
+      // Clear revealed regions and selection when switching documents
+      setRevealedRegions(new Set());
+      setCurrentSelection(null);
+      setSelectedText('');
     }
   }, [selectedDocument?.id]);
 
