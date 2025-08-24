@@ -5,6 +5,16 @@ import {
   X,
 } from "lucide-react";
 
+interface FormattedRegion {
+  id: string;
+  type: 'bold' | 'italic' | 'strikethrough' | 'code' | 'codeBlock' | 'header';
+  start: number;
+  end: number;
+  rawText: string;
+  innerText: string;
+  level?: number; // for headers
+}
+
 interface HybridEditorProps {
   content: string;
   onChange: (content: string) => void;
