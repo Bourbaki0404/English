@@ -135,8 +135,6 @@ export default function HybridEditor({
     // Italic
     markdown = markdown.replace(/<em[^>]*>(.*?)<\/em>/gi, "*$1*");
 
-    // Underline
-    markdown = markdown.replace(/<u[^>]*>(.*?)<\/u>/gi, "__$1__");
 
     // Strikethrough
     markdown = markdown.replace(/<del[^>]*>(.*?)<\/del>/gi, "~~$1~~");
