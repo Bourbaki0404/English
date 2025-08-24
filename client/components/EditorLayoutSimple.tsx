@@ -702,7 +702,7 @@ export default function EditorLayoutSimple() {
                       {renderAdvancedMarkdownContent(previewContent)}
                     </div>
                   ) : (
-                    <ObsidianLikeEditor
+                    <ContentEditableEditor
                       content={selectedDocument.content}
                       onChange={handleContentChange}
                       onTextSelection={(text) => {
