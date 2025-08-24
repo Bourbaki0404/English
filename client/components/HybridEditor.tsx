@@ -16,26 +16,6 @@ interface HybridEditorProps {
   className?: string;
 }
 
-const TEXT_COLORS = [
-  { name: "Default", value: "", class: "" },
-  { name: "Red", value: "red", class: "text-red-600" },
-  { name: "Blue", value: "blue", class: "text-blue-600" },
-  { name: "Green", value: "green", class: "text-green-600" },
-  { name: "Purple", value: "purple", class: "text-purple-600" },
-  { name: "Orange", value: "orange", class: "text-orange-600" },
-  { name: "Pink", value: "pink", class: "text-pink-600" },
-  { name: "Gray", value: "gray", class: "text-gray-600" },
-];
-
-const HIGHLIGHT_COLORS = [
-  { name: "No highlight", value: "", class: "" },
-  { name: "Yellow", value: "yellow", class: "bg-yellow-200" },
-  { name: "Green", value: "green", class: "bg-green-200" },
-  { name: "Blue", value: "blue", class: "bg-blue-200" },
-  { name: "Purple", value: "purple", class: "bg-purple-200" },
-  { name: "Pink", value: "pink", class: "bg-pink-200" },
-  { name: "Orange", value: "orange", class: "bg-orange-200" },
-];
 
 export default function HybridEditor({
   content,
