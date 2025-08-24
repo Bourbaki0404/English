@@ -620,7 +620,9 @@ export default function HybridEditor({
         onFocus={handleFocus}
         onBlur={handleBlur}
         onMouseUp={handleMouseUp}
+        onKeyUp={handleKeyUp}
         onKeyDown={handleKeyDown}
+        onClick={handleSelectionChange}
         data-placeholder={
           content.trim() === "" ? "Click to start writing..." : ""
         }
