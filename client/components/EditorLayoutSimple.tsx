@@ -77,6 +77,8 @@ export default function EditorLayoutSimple() {
   const [isEditingContent, setIsEditingContent] = useState(false);
   const [collisionNotification, setCollisionNotification] = useState<CollisionNotification>({ show: false, message: '' });
   const [tempTitle, setTempTitle] = useState('');
+  const [revealedRegions, setRevealedRegions] = useState<Set<string>>(new Set());
+  const [currentSelection, setCurrentSelection] = useState<{start: number, end: number} | null>(null);
   const editorRef = useRef<HTMLDivElement>(null);
 
   const selectedDocument = documents.find(doc => doc.id === selectedDocumentId);
@@ -196,12 +198,118 @@ export default function EditorLayoutSimple() {
     }
   };
 
+  // Advanced markdown parsing to identify formatted regions
+  const parseMarkdownRegions = (content: string) => {
+    const regions: Array<{
+      id: string;
+      type: 'bold' | 'highlight' | 'bracket';
+      start: number;
+      end: number;
+      rawText: string;
+      formattedText: string;
+    }> = [];
+
+    let regionId = 0;
+
+    // Find bold regions **text**
+    content.replace(/\*\*(.*?)\*\*/g, (match, group, offset) => {
+      regions.push({
+        id: `bold-${regionId++}`,
+        type: 'bold',
+        start: offset,
+        end: offset + match.length,
+        rawText: match,
+        formattedText: group
+      });
+      return match;
+    });
+
+    // Find highlight regions ==text==
+    content.replace(/==(.*?)==/g, (match, group, offset) => {
+      regions.push({
+        id: `highlight-${regionId++}`,
+        type: 'highlight',
+        start: offset,
+        end: offset + match.length,
+        rawText: match,
+        formattedText: group
+      });
+      return match;
+    });
+
+    // Find bracket regions [text]
+    content.replace(/\[([^\]]+)\]/g, (match, group, offset) => {
+      regions.push({
+        id: `bracket-${regionId++}`,
+        type: 'bracket',
+        start: offset,
+        end: offset + match.length,
+        rawText: match,
+        formattedText: group
+      });
+      return match;
+    });
+
+    return regions.sort((a, b) => a.start - b.start);
+  };
+
   const handleTextSelection = () => {
     const selection = window.getSelection();
     if (selection && selection.toString()) {
+      const range = selection.getRangeAt(0);
+      const content = selectedDocument?.content || '';
+
+      // Calculate selection positions in the text content
+      const startOffset = getTextOffset(range.startContainer, range.startOffset);
+      const endOffset = getTextOffset(range.endContainer, range.endOffset);
+
+      setCurrentSelection({ start: startOffset, end: endOffset });
       setSelectedText(selection.toString());
+
+      // Reveal regions that are within the selection
+      const regions = parseMarkdownRegions(content);
+      const newRevealedRegions = new Set<string>();
+
+      regions.forEach(region => {
+        if ((region.start >= startOffset && region.start < endOffset) ||
+            (region.end > startOffset && region.end <= endOffset) ||
+            (region.start < startOffset && region.end > endOffset)) {
+          newRevealedRegions.add(region.id);
+        }
+      });
+
+      setRevealedRegions(newRevealedRegions);
+    } else {
+      setCurrentSelection(null);
+      setSelectedText('');
+      if (!window.getSelection()?.toString()) {
+        // Clear revealed regions when no selection
+        setRevealedRegions(new Set());
+      }
     }
-    // Note: Don't clear selectedText here, let user see the raw formatting
+  };
+
+  // Helper function to get text offset from DOM position
+  const getTextOffset = (node: Node, offset: number): number => {
+    if (!editorRef.current) return 0;
+
+    const walker = document.createTreeWalker(
+      editorRef.current,
+      NodeFilter.SHOW_TEXT,
+      null
+    );
+
+    let textOffset = 0;
+    let currentNode;
+
+    while (currentNode = walker.nextNode()) {
+      if (currentNode === node) {
+        return textOffset + offset;
+      }
+      textOffset += currentNode.textContent?.length || 0;
+    }
+
+    return textOffset;
   };
 
   const handleDoubleClick = () => {
@@ -222,9 +330,37 @@ export default function EditorLayoutSimple() {
   };
 
   const handleClick = (e: React.MouseEvent) => {
-    // Clear selection when clicking (but not when selecting text)
-    if (!window.getSelection()?.toString()) {
+    if (!selectedDocument) return;
+
+    const selection = window.getSelection();
+    if (selection?.toString()) return; // Don't handle clicks during text selection
+
+    // Get click position in text content
+    const range = document.caretRangeFromPoint(e.clientX, e.clientY);
+    if (!range) return;
+
+    const clickOffset = getTextOffset(range.startContainer, range.startOffset);
+    const regions = parseMarkdownRegions(selectedDocument.content);
+
+    // Check if click is within a formatted region
+    const clickedRegion = regions.find(region =>
+      clickOffset >= region.start && clickOffset < region.end
+    );
+
+    if (clickedRegion) {
+      // Toggle reveal for this specific region
+      const newRevealedRegions = new Set(revealedRegions);
+      if (newRevealedRegions.has(clickedRegion.id)) {
+        newRevealedRegions.delete(clickedRegion.id);
+      } else {
+        newRevealedRegions.add(clickedRegion.id);
+      }
+      setRevealedRegions(newRevealedRegions);
+    } else {
+      // Click in unformatted area - clear revealed regions and selection
+      setRevealedRegions(new Set());
       setSelectedText('');
+      setCurrentSelection(null);
     }
   };
 
