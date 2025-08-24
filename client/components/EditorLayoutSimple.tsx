@@ -84,39 +84,52 @@ export default function EditorLayoutSimple() {
   const selectedDocument = documents.find(doc => doc.id === selectedDocumentId);
   const documentQuizzes = selectedDocument ? getQuizzesByDocument(selectedDocument.id) : [];
 
-  // Function to extract title from markdown content
-  const extractTitleFromContent = (content: string): string => {
-    const lines = content.split('\n');
-    for (const line of lines) {
-      const trimmed = line.trim();
-      if (trimmed.startsWith('# ')) {
-        return trimmed.substring(2).trim();
-      }
+  // Check for name collision
+  const checkNameCollision = (newName: string, currentDocId: string): boolean => {
+    return documents.some(doc => doc.id !== currentDocId && doc.name.toLowerCase() === newName.toLowerCase());
+  };
+
+  // Show collision notification
+  const showCollisionNotification = (message: string) => {
+    setCollisionNotification({ show: true, message });
+    setTimeout(() => {
+      setCollisionNotification({ show: false, message: '' });
+    }, 4000);
+  };
+
+  // Handle title change with collision detection
+  const handleTitleChange = (newTitle: string) => {
+    if (!selectedDocument) return;
+
+    const trimmedTitle = newTitle.trim();
+    if (!trimmedTitle) {
+      setTempTitle(newTitle);
+      return;
     }
-    return '';
+
+    if (checkNameCollision(trimmedTitle, selectedDocument.id)) {
+      showCollisionNotification(`A document with the name "${trimmedTitle}" already exists. Please choose a different name.`);
+      setTempTitle(selectedDocument.name); // Reset to original name
+      return;
+    }
+
+    // Update the document name
+    setDocuments(prev =>
+      prev.map(doc =>
+        doc.id === selectedDocument.id
+          ? { ...doc, name: trimmedTitle }
+          : doc
+      )
+    );
+    setTempTitle(trimmedTitle);
   };
 
-  // Function to get display name for document
-  const getDocumentDisplayName = (doc: Document): string => {
-    const titleFromContent = extractTitleFromContent(doc.content);
-    return titleFromContent || doc.name;
-  };
-
-  // Update document name when content changes
+  // Initialize temp title when document changes
   useEffect(() => {
     if (selectedDocument) {
-      const titleFromContent = extractTitleFromContent(selectedDocument.content);
-      if (titleFromContent && titleFromContent !== selectedDocument.name) {
-        setDocuments(prev =>
-          prev.map(doc =>
-            doc.id === selectedDocument.id
-              ? { ...doc, name: titleFromContent }
-              : doc
-          )
-        );
-      }
+      setTempTitle(selectedDocument.name);
     }
-  }, [selectedDocument?.content]);
+  }, [selectedDocument?.id]);
 
   const handleQuizToolClick = async (toolId: string) => {
     if (!selectedText) {
