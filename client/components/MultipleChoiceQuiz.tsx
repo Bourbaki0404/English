@@ -1,0 +1,374 @@
+import React, { useState } from 'react';
+import { Button } from './ui/button';
+import { ArrowLeft } from 'lucide-react';
+
+interface MultipleChoiceOption {
+  text: string;
+  explanation: string;
+}
+
+interface MultipleChoiceQuestion {
+  id: string;
+  question: string;
+  options: MultipleChoiceOption[];
+  correctAnswer: number;
+  hint?: string;
+}
+
+interface MultipleChoiceQuizProps {
+  questions: MultipleChoiceQuestion[];
+  onBack: () => void;
+}
+
+export default function MultipleChoiceQuiz({ questions, onBack }: MultipleChoiceQuizProps) {
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
+  const [showFeedback, setShowFeedback] = useState(false);
+  const [answers, setAnswers] = useState<(number | null)[]>(new Array(questions.length).fill(null));
+  const [isCompleted, setIsCompleted] = useState(false);
+
+  const currentQuestion = questions[currentQuestionIndex];
+  const totalQuestions = questions.length;
+
+  const handleAnswerSelect = (optionIndex: number) => {
+    if (showFeedback) return; // Prevent changing answer after feedback is shown
+
+    setSelectedAnswer(optionIndex);
+    const newAnswers = [...answers];
+    newAnswers[currentQuestionIndex] = optionIndex;
+    setAnswers(newAnswers);
+
+    // Show immediate feedback
+    setShowFeedback(true);
+  };
+
+  const nextQuestion = () => {
+    if (currentQuestionIndex < totalQuestions - 1) {
+      setCurrentQuestionIndex(currentQuestionIndex + 1);
+      setSelectedAnswer(answers[currentQuestionIndex + 1]);
+      setShowFeedback(answers[currentQuestionIndex + 1] !== null);
+    } else {
+      // Quiz completed
+      setIsCompleted(true);
+    }
+  };
+
+  const calculateStats = () => {
+    const answered = answers.filter(answer => answer !== null);
+    const correct = answers.filter((answer, index) => answer === questions[index]?.correctAnswer);
+    const wrong = answered.filter((answer, index) => answer !== null && answer !== questions[index]?.correctAnswer);
+    const skipped = answers.filter(answer => answer === null);
+
+    return {
+      score: correct.length,
+      total: questions.length,
+      accuracy: answered.length > 0 ? Math.round((correct.length / answered.length) * 100) : 0,
+      right: correct.length,
+      wrong: wrong.length,
+      skipped: skipped.length
+    };
+  };
+
+  const prevQuestion = () => {
+    if (currentQuestionIndex > 0) {
+      setCurrentQuestionIndex(currentQuestionIndex - 1);
+      setSelectedAnswer(answers[currentQuestionIndex - 1]);
+      setShowFeedback(answers[currentQuestionIndex - 1] !== null);
+    }
+  };
+
+
+  if (!currentQuestion && !isCompleted) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-gray-100">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">No questions available</h2>
+          <Button onClick={onBack} variant="outline">
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Editor
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (isCompleted) {
+    const stats = calculateStats();
+    return (
+      <div className="h-screen bg-gray-50 flex flex-col">
+        {/* Header */}
+        <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <Button onClick={onBack} variant="ghost" size="sm">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Home
+            </Button>
+          </div>
+          <h1 className="text-xl font-bold text-gray-800">Quiz Complete</h1>
+          <div className="w-20"></div>
+        </div>
+
+        {/* Completion Content */}
+        <div className="flex-1 p-6 overflow-y-auto">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-3xl font-bold text-gray-800 mb-8">You Did It! Quiz Complete</h2>
+
+            {/* Statistics Cards */}
+            <div className="grid md:grid-cols-3 gap-4 mb-8">
+              <div className="bg-white rounded-lg p-6 shadow-sm">
+                <h3 className="text-sm font-medium text-gray-600 mb-2">Score</h3>
+                <div className="text-3xl font-bold text-gray-800">{stats.score}/{stats.total}</div>
+              </div>
+
+              <div className="bg-white rounded-lg p-6 shadow-sm">
+                <h3 className="text-sm font-medium text-gray-600 mb-2">Accuracy</h3>
+                <div className="text-3xl font-bold text-gray-800">{stats.accuracy}%</div>
+              </div>
+
+              <div className="bg-white rounded-lg p-6 shadow-sm">
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600">Right</span>
+                    <span className="font-semibold">{stats.right}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600">Wrong</span>
+                    <span className="font-semibold">{stats.wrong}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600">Skipped</span>
+                    <span className="font-semibold">{stats.skipped}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Performance Analysis */}
+            <div className="bg-white rounded-lg p-6 shadow-sm mb-8">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-800">Strengths and Growth Areas</h3>
+                    <p className="text-sm text-gray-600">Get a summary of your key strengths and discover areas where you can focus your studies.</p>
+                  </div>
+                </div>
+                <Button variant="outline" className="bg-blue-50 text-blue-600 border-blue-200">
+                  Analyze my performance
+                </Button>
+              </div>
+            </div>
+
+            {/* Keep Learning Section */}
+            <div className="mb-8">
+              <h3 className="text-xl font-bold text-gray-800 mb-4">Keep Learning</h3>
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="bg-white rounded-lg p-6 shadow-sm">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                      <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-800">Flashcards</h4>
+                      <p className="text-sm text-gray-600">Create a complete set of flashcards from all your quiz material. Good for quick review and mastering key concepts.</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-lg p-6 shadow-sm">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                      <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-800">Study guide</h4>
+                      <p className="text-sm text-gray-600">Generate a comprehensive study guide based on the materials you are studying. Good for in-depth review.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Return Button */}
+            <div className="text-center">
+              <Button onClick={onBack} className="px-8 py-3">
+                Return to Editor
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="h-screen bg-gray-50 flex flex-col">
+      {/* Header */}
+      <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+        <div className="flex items-center space-x-4">
+          <Button onClick={onBack} variant="ghost" size="sm">
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Home
+          </Button>
+        </div>
+        <h1 className="text-xl font-bold text-gray-800">Multiple Choice Quiz</h1>
+        <div className="w-20"></div>
+      </div>
+
+      {/* Progress Bar */}
+      <div className="bg-white border-b border-gray-200 px-6 py-3">
+        <div className="flex justify-between items-center mb-2">
+          <span className="text-sm font-medium text-gray-600">Question {currentQuestionIndex + 1} of {totalQuestions}</span>
+          <span className="text-sm text-gray-500">{Math.round(((currentQuestionIndex + 1) / totalQuestions) * 100)}% Complete</span>
+        </div>
+        <div className="w-full bg-gray-200 rounded-full h-2">
+          <div 
+            className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+            style={{ width: `${((currentQuestionIndex + 1) / totalQuestions) * 100}%` }}
+          ></div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1 p-6 overflow-y-auto">
+        <div className="max-w-4xl mx-auto">
+          {/* Question */}
+          <div className="bg-white rounded-lg p-8 mb-6 shadow-sm">
+            <div className="text-lg text-gray-800 leading-relaxed">
+              <span className="font-medium">{currentQuestionIndex + 1}.</span> {currentQuestion.question}
+            </div>
+          </div>
+
+          {/* Options */}
+          <div className="space-y-4 mb-6">
+            {currentQuestion.options.map((option, index) => {
+              const isSelected = selectedAnswer === index;
+              const isCorrect = index === currentQuestion.correctAnswer;
+              const isIncorrect = showFeedback && isSelected && !isCorrect;
+              const showAsCorrect = showFeedback && isCorrect;
+
+              let borderColor = 'border-gray-200';
+              let bgColor = 'bg-white';
+              let textColor = 'text-gray-800';
+
+              if (showAsCorrect) {
+                borderColor = 'border-green-300';
+                bgColor = 'bg-green-50';
+              } else if (isIncorrect) {
+                borderColor = 'border-red-300';
+                bgColor = 'bg-red-50';
+              } else if (isSelected && !showFeedback) {
+                borderColor = 'border-blue-500';
+                bgColor = 'bg-blue-50';
+              }
+
+              return (
+                <div key={index}>
+                  <div
+                    className={`rounded-lg p-4 border-2 transition-all ${
+                      !showFeedback ? 'cursor-pointer hover:shadow-md hover:border-gray-300' : ''
+                    } ${borderColor} ${bgColor}`}
+                    onClick={() => handleAnswerSelect(index)}
+                  >
+                    <div className="flex items-start">
+                      <div className="flex items-center mr-4">
+                        {showAsCorrect ? (
+                          <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                            <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                          </div>
+                        ) : isIncorrect ? (
+                          <div className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center">
+                            <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                            </svg>
+                          </div>
+                        ) : (
+                          <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                            isSelected && !showFeedback
+                              ? 'border-blue-500 bg-blue-500'
+                              : 'border-gray-300'
+                          }`}>
+                            {isSelected && !showFeedback && (
+                              <div className="w-2 h-2 bg-white rounded-full"></div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center mb-2">
+                          <span className="font-medium text-gray-700 mr-3">
+                            {String.fromCharCode(65 + index)}.
+                          </span>
+                          <span className={`${textColor} font-medium`}>
+                            {typeof option === 'string' ? option : option.text}
+                          </span>
+                        </div>
+
+                        {showFeedback && (isSelected || isCorrect) && (
+                          <div className="mt-3">
+                            {showAsCorrect && (
+                              <div className="flex items-center mb-2">
+                                <svg className="w-4 h-4 text-green-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                </svg>
+                                <span className="font-semibold text-green-600">That's right!</span>
+                              </div>
+                            )}
+                            {isIncorrect && (
+                              <div className="flex items-center mb-2">
+                                <svg className="w-4 h-4 text-red-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                                </svg>
+                                <span className="font-semibold text-red-600">Not quite!</span>
+                              </div>
+                            )}
+                            <p className="text-sm text-gray-700">
+                              {typeof option === 'string' ?
+                                (isCorrect ? 'This is the correct answer.' : 'This is not the correct answer.') :
+                                option.explanation
+                              }
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+
+          {/* Navigation */}
+          <div className="flex justify-between">
+            <Button
+              onClick={prevQuestion}
+              disabled={currentQuestionIndex === 0}
+              variant="outline"
+              className="px-8"
+            >
+              Previous
+            </Button>
+            <Button
+              onClick={nextQuestion}
+              disabled={!showFeedback}
+              className="px-8"
+            >
+              {currentQuestionIndex === totalQuestions - 1 ? 'Finish' : 'Next'}
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
