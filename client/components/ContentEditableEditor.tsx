@@ -1,8 +1,15 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from "react";
 
 interface MarkdownBlock {
   id: string;
-  type: 'bold' | 'italic' | 'link' | 'code' | 'highlight' | 'bracket' | 'header';
+  type:
+    | "bold"
+    | "italic"
+    | "link"
+    | "code"
+    | "highlight"
+    | "bracket"
+    | "header";
   start: number;
   end: number;
   rawText: string;
@@ -17,11 +24,11 @@ interface ContentEditableEditorProps {
   className?: string;
 }
 
-export default function ContentEditableEditor({ 
-  content, 
-  onChange, 
+export default function ContentEditableEditor({
+  content,
+  onChange,
   onTextSelection,
-  className = '' 
+  className = "",
 }: ContentEditableEditorProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [cursorBlockIds, setCursorBlockIds] = useState<Set<string>>(new Set());
@@ -42,7 +49,7 @@ export default function ContentEditableEditor({
     text.replace(/^(#{1,6})\s+(.+)$/gm, (match, hashes, content, offset) => {
       blocks.push({
         id: `header-${blockId++}`,
-        type: 'header',
+        type: "header",
         start: offset,
         end: offset + match.length,
         rawText: match,
@@ -56,7 +63,7 @@ export default function ContentEditableEditor({
     text.replace(/\*\*(.*?)\*\*/g, (match, group, offset) => {
       blocks.push({
         id: `bold-${blockId++}`,
-        type: 'bold',
+        type: "bold",
         start: offset,
         end: offset + match.length,
         rawText: match,
@@ -69,7 +76,7 @@ export default function ContentEditableEditor({
     text.replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, (match, group, offset) => {
       blocks.push({
         id: `italic-${blockId++}`,
-        type: 'italic',
+        type: "italic",
         start: offset,
         end: offset + match.length,
         rawText: match,
@@ -82,7 +89,7 @@ export default function ContentEditableEditor({
     text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, linkText, url, offset) => {
       blocks.push({
         id: `link-${blockId++}`,
-        type: 'link',
+        type: "link",
         start: offset,
         end: offset + match.length,
         rawText: match,
@@ -95,7 +102,7 @@ export default function ContentEditableEditor({
     text.replace(/`([^`]+)`/g, (match, group, offset) => {
       blocks.push({
         id: `code-${blockId++}`,
-        type: 'code',
+        type: "code",
         start: offset,
         end: offset + match.length,
         rawText: match,
@@ -108,7 +115,7 @@ export default function ContentEditableEditor({
     text.replace(/==(.*?)==/g, (match, group, offset) => {
       blocks.push({
         id: `highlight-${blockId++}`,
-        type: 'highlight',
+        type: "highlight",
         start: offset,
         end: offset + match.length,
         rawText: match,
@@ -120,10 +127,10 @@ export default function ContentEditableEditor({
     // Brackets [text]
     text.replace(/\[([^\]]+)\]/g, (match, group, offset) => {
       const nextChar = text[offset + match.length];
-      if (nextChar !== '(') {
+      if (nextChar !== "(") {
         blocks.push({
           id: `bracket-${blockId++}`,
-          type: 'bracket',
+          type: "bracket",
           start: offset,
           end: offset + match.length,
           rawText: match,
@@ -145,7 +152,7 @@ export default function ContentEditableEditor({
     const preCaretRange = range.cloneRange();
     preCaretRange.selectNodeContents(editorRef.current);
     preCaretRange.setEnd(range.startContainer, range.startOffset);
-    
+
     return preCaretRange.toString().length;
   }, []);
 
@@ -156,7 +163,7 @@ export default function ContentEditableEditor({
     const walker = document.createTreeWalker(
       editorRef.current,
       NodeFilter.SHOW_TEXT,
-      null
+      null,
     );
 
     let currentPos = 0;
@@ -168,10 +175,10 @@ export default function ContentEditableEditor({
         const range = document.createRange();
         const selection = window.getSelection();
         const offset = position - currentPos;
-        
+
         range.setStart(node, Math.min(offset, nodeLength));
         range.collapse(true);
-        
+
         selection?.removeAllRanges();
         selection?.addRange(range);
         break;
@@ -189,7 +196,7 @@ export default function ContentEditableEditor({
     const blocks = parseMarkdownBlocks(contentRef.current);
     const newCursorBlockIds = new Set<string>();
 
-    blocks.forEach(block => {
+    blocks.forEach((block) => {
       if (cursorPos >= block.start && cursorPos <= block.end) {
         newCursorBlockIds.add(block.id);
       }
@@ -202,7 +209,7 @@ export default function ContentEditableEditor({
   const handleInput = useCallback(() => {
     if (!editorRef.current) return;
 
-    const newContent = editorRef.current.innerText || '';
+    const newContent = editorRef.current.innerText || "";
     contentRef.current = newContent;
     onChange(newContent);
   }, [onChange]);
@@ -236,7 +243,7 @@ export default function ContentEditableEditor({
 
   // Handle escape key to exit edit mode
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === 'Escape') {
+    if (e.key === "Escape") {
       setIsEditing(false);
       editorRef.current?.blur();
     }
@@ -244,17 +251,19 @@ export default function ContentEditableEditor({
 
   // Set up selection change listener
   useEffect(() => {
-    document.addEventListener('selectionchange', handleSelectionChange);
-    return () => document.removeEventListener('selectionchange', handleSelectionChange);
+    document.addEventListener("selectionchange", handleSelectionChange);
+    return () =>
+      document.removeEventListener("selectionchange", handleSelectionChange);
   }, [handleSelectionChange]);
 
   // Render content with mixed formatting
   const renderContent = useCallback(() => {
     const blocks = parseMarkdownBlocks(content);
-    const lines = content.split('\n');
+    const lines = content.split("\n");
 
     return lines.map((line, lineIndex) => {
-      const lineStart = lines.slice(0, lineIndex).join('\n').length + (lineIndex > 0 ? 1 : 0);
+      const lineStart =
+        lines.slice(0, lineIndex).join("\n").length + (lineIndex > 0 ? 1 : 0);
       const lineEnd = lineStart + line.length;
 
       // Handle headers
@@ -262,18 +271,23 @@ export default function ContentEditableEditor({
       if (headerMatch) {
         const [, hashes, headerText] = headerMatch;
         const level = hashes.length;
-        const block = blocks.find(b => b.type === 'header' && b.start >= lineStart && b.end <= lineEnd);
+        const block = blocks.find(
+          (b) =>
+            b.type === "header" && b.start >= lineStart && b.end <= lineEnd,
+        );
         const showRaw = block && cursorBlockIds.has(block.id);
-        
-        const HeaderTag = `h${Math.min(level, 6)}` as keyof JSX.IntrinsicElements;
-        const className = {
-          1: 'text-2xl font-bold mb-4 mt-6',
-          2: 'text-xl font-semibold mb-3 mt-5',
-          3: 'text-lg font-semibold mb-2 mt-4',
-          4: 'text-base font-semibold mb-2 mt-3',
-          5: 'text-sm font-semibold mb-1 mt-2',
-          6: 'text-xs font-semibold mb-1 mt-2'
-        }[level] || 'text-base font-semibold mb-2 mt-3';
+
+        const HeaderTag =
+          `h${Math.min(level, 6)}` as keyof JSX.IntrinsicElements;
+        const className =
+          {
+            1: "text-2xl font-bold mb-4 mt-6",
+            2: "text-xl font-semibold mb-3 mt-5",
+            3: "text-lg font-semibold mb-2 mt-4",
+            4: "text-base font-semibold mb-2 mt-3",
+            5: "text-sm font-semibold mb-1 mt-2",
+            6: "text-xs font-semibold mb-1 mt-2",
+          }[level] || "text-base font-semibold mb-2 mt-3";
 
         return (
           <HeaderTag key={lineIndex} className={className}>
@@ -282,17 +296,19 @@ export default function ContentEditableEditor({
         );
       }
 
-      if (line.trim() === '') {
+      if (line.trim() === "") {
         return <div key={lineIndex} className="mb-2 min-h-[1em]"></div>;
       }
 
       // Get blocks for this line
-      const lineBlocks = blocks.filter(
-        (block) =>
-          (block.start >= lineStart && block.start < lineEnd) ||
-          (block.end > lineStart && block.end <= lineEnd) ||
-          (block.start < lineStart && block.end > lineEnd)
-      ).sort((a, b) => a.start - b.start);
+      const lineBlocks = blocks
+        .filter(
+          (block) =>
+            (block.start >= lineStart && block.start < lineEnd) ||
+            (block.end > lineStart && block.end <= lineEnd) ||
+            (block.start < lineStart && block.end > lineEnd),
+        )
+        .sort((a, b) => a.start - b.start);
 
       if (lineBlocks.length === 0) {
         return (
@@ -318,43 +334,52 @@ export default function ContentEditableEditor({
 
         // Add block
         const showRaw = cursorBlockIds.has(block.id);
-        
+
         if (showRaw) {
           elements.push(<span key={block.id}>{block.rawText}</span>);
         } else {
           let blockElement: React.ReactNode;
-          
+
           switch (block.type) {
-            case 'bold':
+            case "bold":
               blockElement = <strong key={block.id}>{block.innerText}</strong>;
               break;
-            case 'italic':
+            case "italic":
               blockElement = <em key={block.id}>{block.innerText}</em>;
               break;
-            case 'link':
+            case "link":
               blockElement = (
                 <a key={block.id} href="#" className="text-blue-600 underline">
                   {block.innerText}
                 </a>
               );
               break;
-            case 'code':
+            case "code":
               blockElement = (
-                <code key={block.id} className="bg-gray-100 px-1 py-0.5 rounded font-mono text-sm">
+                <code
+                  key={block.id}
+                  className="bg-gray-100 px-1 py-0.5 rounded font-mono text-sm"
+                >
                   {block.innerText}
                 </code>
               );
               break;
-            case 'highlight':
+            case "highlight":
               blockElement = (
-                <span key={block.id} className="bg-yellow-200 px-1 py-0.5 rounded">
+                <span
+                  key={block.id}
+                  className="bg-yellow-200 px-1 py-0.5 rounded"
+                >
                   {block.innerText}
                 </span>
               );
               break;
-            case 'bracket':
+            case "bracket":
               blockElement = (
-                <span key={block.id} className="text-purple-600 bg-gray-100 px-1 py-0.5 rounded text-sm">
+                <span
+                  key={block.id}
+                  className="text-purple-600 bg-gray-100 px-1 py-0.5 rounded text-sm"
+                >
                   [{block.innerText}]
                 </span>
               );
@@ -362,7 +387,7 @@ export default function ContentEditableEditor({
             default:
               blockElement = <span key={block.id}>{block.innerText}</span>;
           }
-          
+
           elements.push(blockElement);
         }
 
@@ -390,10 +415,10 @@ export default function ContentEditableEditor({
           ref={editorRef}
           className="prose prose-lg max-w-none cursor-text hover:bg-gray-50 rounded p-2 transition-colors outline-none"
           style={{
-            fontFamily: 'system-ui, -apple-system, sans-serif',
-            lineHeight: '1.6',
-            fontSize: '16px',
-            whiteSpace: 'pre-wrap'
+            fontFamily: "system-ui, -apple-system, sans-serif",
+            lineHeight: "1.6",
+            fontSize: "16px",
+            whiteSpace: "pre-wrap",
           }}
           contentEditable
           suppressContentEditableWarning
@@ -401,15 +426,15 @@ export default function ContentEditableEditor({
           onMouseUp={handleMouseUp}
           onBlur={handleBlur}
           onKeyDown={handleKeyDown}
-          dangerouslySetInnerHTML={{ __html: content.replace(/\n/g, '<br>') }}
+          dangerouslySetInnerHTML={{ __html: content.replace(/\n/g, "<br>") }}
         />
       ) : (
         <div
           className="prose prose-lg max-w-none cursor-text hover:bg-gray-50 rounded p-2 transition-colors"
           style={{
-            fontFamily: 'system-ui, -apple-system, sans-serif',
-            lineHeight: '1.6',
-            fontSize: '16px',
+            fontFamily: "system-ui, -apple-system, sans-serif",
+            lineHeight: "1.6",
+            fontSize: "16px",
           }}
           onClick={handleClick}
           onMouseUp={handleMouseUp}
