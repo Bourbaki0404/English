@@ -124,107 +124,23 @@ export default function HybridEditor({
   }, []);
 
   // Handle blur (stop editing)
-  const handleBlur = useCallback(
-    (e: React.FocusEvent) => {
-      // Don't blur if clicking on toolbar
-      if (
-        toolbarRef.current &&
-        toolbarRef.current.contains(e.relatedTarget as Node)
-      ) {
-        return;
-      }
+  const handleBlur = useCallback(() => {
+    setIsEditing(false);
+    if (editorRef.current) {
+      const newHtml = editorRef.current.innerHTML;
+      const newMarkdown = htmlToMarkdown(newHtml);
+      onChange(newMarkdown);
+      setHtmlContent(markdownToHtml(newMarkdown));
+    }
+  }, [htmlToMarkdown, markdownToHtml, onChange]);
 
-      // Small delay to allow toolbar interactions
-      setTimeout(() => {
-        if (!showToolbar) {
-          setIsEditing(false);
-          if (editorRef.current) {
-            const newHtml = editorRef.current.innerHTML;
-            const newMarkdown = htmlToMarkdown(newHtml);
-            onChange(newMarkdown);
-            setHtmlContent(markdownToHtml(newMarkdown));
-          }
-        }
-      }, 100);
-    },
-    [htmlToMarkdown, markdownToHtml, onChange, showToolbar],
-  );
-
-  // Handle text selection
+  // Handle text selection for callback
   const handleMouseUp = useCallback(() => {
     const sel = window.getSelection();
-    if (sel && sel.toString().trim()) {
-      const selectedTextValue = sel.toString().trim();
-      setSelectedText(selectedTextValue);
-      setSelection(sel.rangeCount > 0 ? sel.getRangeAt(0) : null);
-      setShowToolbar(true);
-      calculateToolbarPosition();
-      if (onTextSelection) {
-        onTextSelection(selectedTextValue);
-      }
-    } else {
-      setSelectedText("");
-      setSelection(null);
-      setShowToolbar(false);
+    if (sel && sel.toString().trim() && onTextSelection) {
+      onTextSelection(sel.toString().trim());
     }
-  }, [onTextSelection, calculateToolbarPosition]);
-
-  // Apply formatting to selected text
-  const applyFormatting = useCallback(
-    (type: string) => {
-      if (!selection || !selectedText) return;
-
-      const selectedRange = selection.cloneRange();
-      let newText = selectedText;
-
-      switch (type) {
-        case "bold":
-          newText = `**${selectedText}**`;
-          break;
-        case "italic":
-          newText = `*${selectedText}*`;
-          break;
-        case "highlight":
-          newText = `==${selectedText}==`;
-          break;
-        case "strikethrough":
-          newText = `~~${selectedText}~~`;
-          break;
-      }
-
-      // Replace selected text
-      selectedRange.deleteContents();
-      selectedRange.insertNode(document.createTextNode(newText));
-
-      // Update content
-      if (editorRef.current) {
-        const newHtml = editorRef.current.innerHTML;
-        const newMarkdown = htmlToMarkdown(newHtml);
-        onChange(newMarkdown);
-        setHtmlContent(markdownToHtml(newMarkdown));
-      }
-
-      // Keep focus on editor
-      if (editorRef.current) {
-        editorRef.current.focus();
-      }
-    },
-    [selection, selectedText, htmlToMarkdown, markdownToHtml, onChange],
-  );
-
-  // Handle keyboard shortcuts
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === "Escape") {
-      setShowToolbar(false);
-      setSelectedText("");
-      setSelection(null);
-    }
-  }, []);
-
-  // Prevent toolbar from losing focus when clicking buttons
-  const handleToolbarMouseDown = useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
-  }, []);
+  }, [onTextSelection]);
 
   return (
     <div className={`relative ${className}`}>
