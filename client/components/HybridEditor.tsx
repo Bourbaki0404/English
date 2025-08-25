@@ -22,13 +22,7 @@ export default function HybridEditor({
 }: HybridEditorProps) {
   const [htmlContent, setHtmlContent] = useState("");
   const [isEditing, setIsEditing] = useState(false);
-  const [selectedText, setSelectedText] = useState("");
-  const [selection, setSelection] = useState<Range | null>(null);
-  const [toolbarPosition, setToolbarPosition] = useState({ x: 0, y: 0 });
-  const [showToolbar, setShowToolbar] = useState(false);
-
   const editorRef = useRef<HTMLDivElement>(null);
-  const toolbarRef = useRef<HTMLDivElement>(null);
 
   // Convert markdown to HTML for display (only supported syntax)
   const markdownToHtml = useCallback((markdown: string) => {
