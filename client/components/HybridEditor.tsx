@@ -144,76 +144,9 @@ export default function HybridEditor({
 
   return (
     <div className={`relative ${className}`}>
-      {/* Formatting Toolbar - positioned near selected text */}
-      {isEditing && selectedText && showToolbar && (
-        <div
-          ref={toolbarRef}
-          className="absolute bg-white border border-gray-300 rounded-lg shadow-lg p-2 flex items-center space-x-2 z-50"
-          style={{
-            left: `${toolbarPosition.x}px`,
-            top: `${toolbarPosition.y}px`,
-            transform: "translateX(-50%)",
-          }}
-          onMouseDown={handleToolbarMouseDown}
-        >
-          {/* Bold */}
-          <button
-            onClick={() => applyFormatting("bold")}
-            className="p-2 hover:bg-gray-100 rounded transition-colors"
-            title="Bold (**text**)"
-          >
-            <Bold size={18} />
-          </button>
-
-          {/* Italic */}
-          <button
-            onClick={() => applyFormatting("italic")}
-            className="p-2 hover:bg-gray-100 rounded transition-colors"
-            title="Italic (*text*)"
-          >
-            <Italic size={18} />
-          </button>
-
-          {/* Strikethrough */}
-          <button
-            onClick={() => applyFormatting("strikethrough")}
-            className="p-2 hover:bg-gray-100 rounded transition-colors"
-            title="Strikethrough (~~text~~)"
-          >
-            <Strikethrough size={18} />
-          </button>
-
-          <div className="w-px h-6 bg-gray-300" />
-
-          {/* Highlight */}
-          <button
-            onClick={() => applyFormatting("highlight")}
-            className="p-2 hover:bg-gray-100 rounded transition-colors"
-            title="Highlight (==text==)"
-          >
-            <Highlighter size={18} />
-          </button>
-
-          <div className="w-px h-6 bg-gray-300" />
-
-          {/* Close */}
-          <button
-            onClick={() => {
-              setShowToolbar(false);
-              setSelectedText("");
-              setSelection(null);
-            }}
-            className="p-2 hover:bg-gray-100 rounded transition-colors text-gray-500"
-            title="Close"
-          >
-            <X size={16} />
-          </button>
-        </div>
-      )}
-
       <div
         ref={editorRef}
-        className="prose prose-lg max-w-none min-h-[600px] p-6 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 rounded-lg transition-all border border-gray-200"
+        className="prose prose-lg max-w-none min-h-[600px] p-6 focus:outline-none rounded-lg transition-all"
         style={{
           fontFamily: "system-ui, -apple-system, sans-serif",
           lineHeight: "1.7",
@@ -227,7 +160,6 @@ export default function HybridEditor({
         onFocus={handleFocus}
         onBlur={handleBlur}
         onMouseUp={handleMouseUp}
-        onKeyDown={handleKeyDown}
         data-placeholder={
           content.trim() === "" ? "Click to start writing..." : ""
         }
