@@ -1,11 +1,4 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import {
-  Bold,
-  Italic,
-  Highlighter,
-  Strikethrough,
-  X,
-} from "lucide-react";
 
 interface HybridEditorProps {
   content: string;
