@@ -2,10 +2,8 @@ import React, { useState, useRef, useEffect, useCallback } from "react";
 import {
   Bold,
   Italic,
-  Underline,
   Highlighter,
-  Palette,
-  Type,
+  Strikethrough,
   X,
 } from "lucide-react";
 
@@ -16,27 +14,6 @@ interface HybridEditorProps {
   className?: string;
 }
 
-const TEXT_COLORS = [
-  { name: "Default", value: "", class: "" },
-  { name: "Red", value: "red", class: "text-red-600" },
-  { name: "Blue", value: "blue", class: "text-blue-600" },
-  { name: "Green", value: "green", class: "text-green-600" },
-  { name: "Purple", value: "purple", class: "text-purple-600" },
-  { name: "Orange", value: "orange", class: "text-orange-600" },
-  { name: "Pink", value: "pink", class: "text-pink-600" },
-  { name: "Gray", value: "gray", class: "text-gray-600" },
-];
-
-const HIGHLIGHT_COLORS = [
-  { name: "No highlight", value: "", class: "" },
-  { name: "Yellow", value: "yellow", class: "bg-yellow-200" },
-  { name: "Green", value: "green", class: "bg-green-200" },
-  { name: "Blue", value: "blue", class: "bg-blue-200" },
-  { name: "Purple", value: "purple", class: "bg-purple-200" },
-  { name: "Pink", value: "pink", class: "bg-pink-200" },
-  { name: "Orange", value: "orange", class: "bg-orange-200" },
-];
-
 export default function HybridEditor({
   content,
   onChange,
@@ -45,8 +22,6 @@ export default function HybridEditor({
 }: HybridEditorProps) {
   const [htmlContent, setHtmlContent] = useState("");
   const [isEditing, setIsEditing] = useState(false);
-  const [showColorPicker, setShowColorPicker] = useState(false);
-  const [showHighlightPicker, setShowHighlightPicker] = useState(false);
   const [selectedText, setSelectedText] = useState("");
   const [selection, setSelection] = useState<Range | null>(null);
   const [toolbarPosition, setToolbarPosition] = useState({ x: 0, y: 0 });
@@ -55,23 +30,9 @@ export default function HybridEditor({
   const editorRef = useRef<HTMLDivElement>(null);
   const toolbarRef = useRef<HTMLDivElement>(null);
 
-  // Convert markdown to HTML for display (only closed syntax)
+  // Convert markdown to HTML for display (only supported syntax)
   const markdownToHtml = useCallback((markdown: string) => {
     let html = markdown;
-
-    // Headers (h1-h3 only, simplified)
-    html = html.replace(
-      /^#{3}\s+(.*)$/gim,
-      '<h3 class="text-xl font-semibold mb-3 mt-5">$1</h3>',
-    );
-    html = html.replace(
-      /^#{2}\s+(.*)$/gim,
-      '<h2 class="text-2xl font-semibold mb-4 mt-6">$1</h2>',
-    );
-    html = html.replace(
-      /^#{1}\s+(.*)$/gim,
-      '<h1 class="text-3xl font-bold mb-6 mt-8">$1</h1>',
-    );
 
     // Code blocks (```...```)
     html = html.replace(
@@ -88,49 +49,16 @@ export default function HybridEditor({
     // Italic (*text*)
     html = html.replace(/\*(.*?)\*/g, "<em>$1</em>");
 
-    // Underline (__text__)
-    html = html.replace(/__(.*?)__/g, '<u class="underline">$1</u>');
-
     // Strikethrough (~~text~~)
     html = html.replace(
       /~~(.*?)~~/g,
       '<del class="line-through text-gray-500">$1</del>',
     );
 
-    // Inline code (`text`)
-    html = html.replace(
-      /`([^`]+)`/g,
-      '<code class="bg-gray-100 px-1 py-0.5 rounded font-mono text-sm text-red-600">$1</code>',
-    );
-
-    // Colored text {color:text}
-    html = html.replace(
-      /\{(\w+):(.*?)\}/g,
-      '<span class="text-$1-600">$2</span>',
-    );
-
-    // Highlight with colors {highlight-color:text}
-    html = html.replace(
-      /\{highlight-(\w+):(.*?)\}/g,
-      '<span class="bg-$1-200 px-1 py-0.5 rounded">$2</span>',
-    );
-
-    // Default highlight ==text==
+    // Highlight ==text==
     html = html.replace(
       /==(.*?)==/g,
       '<mark class="bg-yellow-200 px-1 py-0.5 rounded">$1</mark>',
-    );
-
-    // Obsidian-style brackets [text] - Purple highlight like Obsidian
-    html = html.replace(
-      /\[([^\]]+)\]/g,
-      '<span class="bg-purple-100 text-purple-700 px-2 py-1 rounded font-medium border border-purple-200">$1</span>',
-    );
-
-    // Links [text](url) - processed after brackets to avoid conflicts
-    html = html.replace(
-      /<span class="bg-purple-100 text-purple-700 px-2 py-1 rounded font-medium border border-purple-200">([^<]+)<\/span>\(([^)]+)\)/g,
-      '<a href="$2" class="text-blue-600 underline hover:text-blue-800">$1</a>',
     );
 
     // Line breaks
@@ -142,11 +70,6 @@ export default function HybridEditor({
   // Convert HTML back to markdown
   const htmlToMarkdown = useCallback((html: string) => {
     let markdown = html;
-
-    // Headers
-    markdown = markdown.replace(/<h1[^>]*>(.*?)<\/h1>/gi, "# $1");
-    markdown = markdown.replace(/<h2[^>]*>(.*?)<\/h2>/gi, "## $1");
-    markdown = markdown.replace(/<h3[^>]*>(.*?)<\/h3>/gi, "### $1");
 
     // Code blocks
     markdown = markdown.replace(
@@ -166,41 +89,11 @@ export default function HybridEditor({
     // Italic
     markdown = markdown.replace(/<em[^>]*>(.*?)<\/em>/gi, "*$1*");
 
-    // Underline
-    markdown = markdown.replace(/<u[^>]*>(.*?)<\/u>/gi, "__$1__");
-
     // Strikethrough
     markdown = markdown.replace(/<del[^>]*>(.*?)<\/del>/gi, "~~$1~~");
 
-    // Inline code
-    markdown = markdown.replace(/<code[^>]*>(.*?)<\/code>/gi, "`$1`");
-
-    // Colored text
-    markdown = markdown.replace(
-      /<span class="text-(\w+)-600[^>]*>(.*?)<\/span>/gi,
-      "{$1:$2}",
-    );
-
-    // Highlight with colors
-    markdown = markdown.replace(
-      /<span class="bg-(\w+)-200[^>]*>(.*?)<\/span>/gi,
-      "{highlight-$1:$2}",
-    );
-
-    // Default highlight
+    // Highlight
     markdown = markdown.replace(/<mark[^>]*>(.*?)<\/mark>/gi, "==$1==");
-
-    // Obsidian-style brackets - restore before links
-    markdown = markdown.replace(
-      /<span class="bg-purple-100 text-purple-700[^>]*>(.*?)<\/span>/gi,
-      "[$1]",
-    );
-
-    // Links
-    markdown = markdown.replace(
-      /<a[^>]*href="([^"]*)"[^>]*>(.*?)<\/a>/gi,
-      "[$2]($1)",
-    );
 
     // Clean up
     markdown = markdown.replace(/<br\s*\/?>/gi, "\n");
@@ -235,7 +128,7 @@ export default function HybridEditor({
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node;
 
-      // Don't close if clicking inside toolbar or its dropdowns
+      // Don't close if clicking inside toolbar
       if (toolbarRef.current && toolbarRef.current.contains(target)) {
         return;
       }
@@ -252,8 +145,6 @@ export default function HybridEditor({
       setShowToolbar(false);
       setSelectedText("");
       setSelection(null);
-      setShowColorPicker(false);
-      setShowHighlightPicker(false);
     };
 
     if (showToolbar) {
@@ -327,14 +218,12 @@ export default function HybridEditor({
       setSelectedText("");
       setSelection(null);
       setShowToolbar(false);
-      setShowColorPicker(false);
-      setShowHighlightPicker(false);
     }
   }, [onTextSelection, calculateToolbarPosition]);
 
   // Apply formatting to selected text
   const applyFormatting = useCallback(
-    (type: string, value?: string) => {
+    (type: string) => {
       if (!selection || !selectedText) return;
 
       const selectedRange = selection.cloneRange();
@@ -347,16 +236,11 @@ export default function HybridEditor({
         case "italic":
           newText = `*${selectedText}*`;
           break;
-        case "underline":
-          newText = `__${selectedText}__`;
-          break;
         case "highlight":
-          newText = value
-            ? `{highlight-${value}:${selectedText}}`
-            : `==${selectedText}==`;
+          newText = `==${selectedText}==`;
           break;
-        case "color":
-          newText = value ? `{${value}:${selectedText}}` : selectedText;
+        case "strikethrough":
+          newText = `~~${selectedText}~~`;
           break;
       }
 
@@ -372,11 +256,6 @@ export default function HybridEditor({
         setHtmlContent(markdownToHtml(newMarkdown));
       }
 
-      // Don't clear selection immediately - let user continue formatting
-      // Close color/highlight pickers
-      setShowColorPicker(false);
-      setShowHighlightPicker(false);
-
       // Keep focus on editor
       if (editorRef.current) {
         editorRef.current.focus();
@@ -391,8 +270,6 @@ export default function HybridEditor({
       setShowToolbar(false);
       setSelectedText("");
       setSelection(null);
-      setShowColorPicker(false);
-      setShowHighlightPicker(false);
     }
   }, []);
 
@@ -419,7 +296,7 @@ export default function HybridEditor({
           <button
             onClick={() => applyFormatting("bold")}
             className="p-2 hover:bg-gray-100 rounded transition-colors"
-            title="Bold"
+            title="Bold (**text**)"
           >
             <Bold size={18} />
           </button>
@@ -428,79 +305,30 @@ export default function HybridEditor({
           <button
             onClick={() => applyFormatting("italic")}
             className="p-2 hover:bg-gray-100 rounded transition-colors"
-            title="Italic"
+            title="Italic (*text*)"
           >
             <Italic size={18} />
           </button>
 
-          {/* Underline */}
+          {/* Strikethrough */}
           <button
-            onClick={() => applyFormatting("underline")}
+            onClick={() => applyFormatting("strikethrough")}
             className="p-2 hover:bg-gray-100 rounded transition-colors"
-            title="Underline"
+            title="Strikethrough (~~text~~)"
           >
-            <Underline size={18} />
+            <Strikethrough size={18} />
           </button>
 
           <div className="w-px h-6 bg-gray-300" />
 
-          {/* Text Color */}
-          <div className="relative">
-            <button
-              onClick={() => {
-                setShowColorPicker(!showColorPicker);
-                setShowHighlightPicker(false);
-              }}
-              className="p-2 hover:bg-gray-100 rounded transition-colors"
-              title="Text Color"
-            >
-              <Type size={18} />
-            </button>
-
-            {showColorPicker && (
-              <div className="absolute bottom-full mb-2 left-0 bg-white border border-gray-300 rounded-lg shadow-lg p-2 grid grid-cols-4 gap-1 min-w-[200px]">
-                {TEXT_COLORS.map((color) => (
-                  <button
-                    key={color.value}
-                    onClick={() => applyFormatting("color", color.value)}
-                    className={`p-2 text-sm rounded hover:bg-gray-100 transition-colors ${color.class}`}
-                    title={color.name}
-                  >
-                    Text
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
           {/* Highlight */}
-          <div className="relative">
-            <button
-              onClick={() => {
-                setShowHighlightPicker(!showHighlightPicker);
-                setShowColorPicker(false);
-              }}
-              className="p-2 hover:bg-gray-100 rounded transition-colors"
-              title="Highlight"
-            >
-              <Highlighter size={18} />
-            </button>
-
-            {showHighlightPicker && (
-              <div className="absolute bottom-full mb-2 left-0 bg-white border border-gray-300 rounded-lg shadow-lg p-2 grid grid-cols-3 gap-1 min-w-[180px]">
-                {HIGHLIGHT_COLORS.map((color) => (
-                  <button
-                    key={color.value}
-                    onClick={() => applyFormatting("highlight", color.value)}
-                    className={`p-2 text-sm rounded hover:bg-gray-100 transition-colors ${color.class}`}
-                    title={color.name}
-                  >
-                    Highlight
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+          <button
+            onClick={() => applyFormatting("highlight")}
+            className="p-2 hover:bg-gray-100 rounded transition-colors"
+            title="Highlight (==text==)"
+          >
+            <Highlighter size={18} />
+          </button>
 
           <div className="w-px h-6 bg-gray-300" />
 
@@ -510,8 +338,6 @@ export default function HybridEditor({
               setShowToolbar(false);
               setSelectedText("");
               setSelection(null);
-              setShowColorPicker(false);
-              setShowHighlightPicker(false);
             }}
             className="p-2 hover:bg-gray-100 rounded transition-colors text-gray-500"
             title="Close"
@@ -548,10 +374,7 @@ export default function HybridEditor({
           <div className="space-y-2 text-sm">
             <div>Click to start writing...</div>
             <div className="text-xs text-gray-300">
-              Supports: Headers # ## ###, **bold**, *italic*, __underline__,
-              ~~strikethrough~~,
-              <br />
-              `code`, ==highlight==, [brackets], colored text, links, etc.
+              Supports: **bold**, *italic*, ~~strikethrough~~, ==highlight==, ```code blocks```
             </div>
           </div>
         </div>
