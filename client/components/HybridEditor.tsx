@@ -101,52 +101,6 @@ export default function HybridEditor({
     return markdown;
   }, []);
 
-  // Calculate toolbar position based on selection
-  const calculateToolbarPosition = useCallback(() => {
-    const sel = window.getSelection();
-    if (!sel || sel.rangeCount === 0 || !editorRef.current) return;
-
-    const range = sel.getRangeAt(0);
-    const rect = range.getBoundingClientRect();
-    const editorRect = editorRef.current.getBoundingClientRect();
-
-    // Position toolbar below the selection
-    const x = rect.left + rect.width / 2 - editorRect.left;
-    const y = rect.bottom - editorRect.top + 8; // 8px gap below selection
-
-    setToolbarPosition({ x, y });
-  }, []);
-
-  // Handle clicks outside toolbar to close it
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as Node;
-
-      // Don't close if clicking inside toolbar
-      if (toolbarRef.current && toolbarRef.current.contains(target)) {
-        return;
-      }
-
-      // Don't close if clicking inside editor and there's still selected text
-      if (editorRef.current && editorRef.current.contains(target)) {
-        const selection = window.getSelection();
-        if (selection && selection.toString().trim()) {
-          return;
-        }
-      }
-
-      // Close toolbar and clear selection
-      setShowToolbar(false);
-      setSelectedText("");
-      setSelection(null);
-    };
-
-    if (showToolbar) {
-      document.addEventListener("mousedown", handleClickOutside);
-      return () =>
-        document.removeEventListener("mousedown", handleClickOutside);
-    }
-  }, [showToolbar]);
 
   // Update HTML when content changes
   useEffect(() => {
