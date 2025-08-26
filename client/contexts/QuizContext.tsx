@@ -38,6 +38,7 @@ interface QuizContextType {
   currentQuiz: Quiz | null;
   setSelectedText: (text: string) => void;
   createQuiz: (type: Quiz['type'], title: string, sourceText: string, data: any[], documentId: string) => void;
+  updateQuiz: (id: string, updates: Partial<Quiz>) => void;
   getQuizzesByType: (type: Quiz['type']) => Quiz[];
   getQuizzesByDocument: (documentId: string) => Quiz[];
   getQuizzesByDocumentAndType: (documentId: string, type: Quiz['type']) => Quiz[];
