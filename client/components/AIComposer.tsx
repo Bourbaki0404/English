@@ -345,7 +345,15 @@ Return only the title, no quotes or additional text.`;
   if (!isOpen) return null;
 
   return (
-    <div className="absolute inset-0 bg-white z-50 flex flex-col">
+    <>
+      {/* Background overlay with fade-in */}
+      <div
+        className="absolute inset-0 bg-black bg-opacity-30 z-40 animate-in fade-in duration-300"
+        onClick={onClose}
+      />
+
+      {/* Right drawer taking 5/6 of screen width */}
+      <div className="absolute top-0 right-0 bottom-0 w-5/6 bg-white z-50 flex flex-col shadow-2xl animate-in slide-in-from-right-4 duration-300">
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-white">
         <div className="flex items-center space-x-2">
@@ -440,38 +448,60 @@ Return only the title, no quotes or additional text.`;
         </div>
       )}
 
-      {/* Prompt Templates Drawer */}
+      {/* Prompt Templates Drawer - Obsidian Style */}
       {showTemplates && (
-        <div className="absolute top-16 left-0 right-0 bg-white border-b border-gray-200 z-10 max-h-64 overflow-y-auto">
-          <div className="p-4">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="font-medium text-gray-900">Prompt Templates</h3>
+        <div className="absolute top-16 left-0 right-0 bg-white border-b border-gray-200 z-10 max-h-80 overflow-y-auto shadow-lg">
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-lg font-semibold text-gray-800">Prompt Templates</h2>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setIsCreatingTemplate(true)}
+                className="text-sm"
               >
-                Add Template
+                Add Prompt Template
               </Button>
             </div>
 
+            {/* How to use section */}
+            <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <p className="text-sm text-gray-700 leading-relaxed">
+                <strong>How to use:</strong> Create templates with reusable content that you can quickly insert into your chat. Type
+                <code className="mx-1 px-2 py-1 bg-gray-200 rounded text-xs">/template-name</code>
+                in the chat input to trigger template insertion. You can also drag and select text in the chat input to reveal a "Create template" button for quick template creation.
+              </p>
+            </div>
+
+            <div className="mb-4">
+              <h3 className="text-md font-medium text-gray-800 mb-3">Saved Templates</h3>
+            </div>
+
             {isCreatingTemplate && (
-              <div className="mb-4 p-3 border border-gray-200 rounded-lg bg-gray-50">
-                <input
-                  type="text"
-                  placeholder="Template name..."
-                  value={templateName}
-                  onChange={(e) => setTemplateName(e.target.value)}
-                  className="w-full mb-2 p-2 text-sm border border-gray-300 rounded"
-                />
-                <textarea
-                  placeholder="Template content..."
-                  value={templateContent}
-                  onChange={(e) => setTemplateContent(e.target.value)}
-                  className="w-full mb-2 p-2 text-sm border border-gray-300 rounded h-20 resize-none"
-                />
-                <div className="flex space-x-2">
-                  <Button size="sm" onClick={createTemplate}>
+              <div className="mb-6 p-4 border border-gray-300 rounded-lg bg-gray-50">
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                    <input
+                      type="text"
+                      placeholder="Template name..."
+                      value={templateName}
+                      onChange={(e) => setTemplateName(e.target.value)}
+                      className="w-full p-3 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Content</label>
+                    <textarea
+                      placeholder="Template content..."
+                      value={templateContent}
+                      onChange={(e) => setTemplateContent(e.target.value)}
+                      className="w-full p-3 text-sm border border-gray-300 rounded-md h-24 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                </div>
+                <div className="flex space-x-2 mt-4">
+                  <Button size="sm" onClick={createTemplate} className="px-4">
                     Save
                   </Button>
                   <Button
@@ -482,6 +512,7 @@ Return only the title, no quotes or additional text.`;
                       setTemplateName("");
                       setTemplateContent("");
                     }}
+                    className="px-4"
                   >
                     Cancel
                   </Button>
@@ -489,38 +520,56 @@ Return only the title, no quotes or additional text.`;
               </div>
             )}
 
-            {promptTemplates.length === 0 ? (
-              <p className="text-gray-500 text-sm">No templates yet</p>
-            ) : (
-              <div className="space-y-2">
-                {promptTemplates.map((template) => (
-                  <div
-                    key={template.id}
-                    className="flex items-start justify-between p-2 rounded-lg bg-gray-50 hover:bg-gray-100"
-                  >
+            {/* Templates Table */}
+            <div className="border border-gray-200 rounded-lg overflow-hidden">
+              {promptTemplates.length === 0 ? (
+                <div className="p-8 text-center">
+                  <p className="text-gray-500">No templates found</p>
+                </div>
+              ) : (
+                <div>
+                  {/* Table Header */}
+                  <div className="grid grid-cols-12 gap-4 p-3 bg-gray-50 border-b border-gray-200 text-sm font-medium text-gray-700">
+                    <div className="col-span-4">Name</div>
+                    <div className="col-span-7">Content</div>
+                    <div className="col-span-1 text-center">Actions</div>
+                  </div>
+
+                  {/* Table Rows */}
+                  {promptTemplates.map((template, index) => (
                     <div
-                      className="flex-1 cursor-pointer"
+                      key={template.id}
+                      className={`grid grid-cols-12 gap-4 p-3 hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0 cursor-pointer`}
                       onClick={() => useTemplate(template)}
                     >
-                      <div className="font-medium text-sm text-gray-900">
-                        {template.name}
+                      <div className="col-span-4">
+                        <div className="font-medium text-sm text-gray-900 truncate">
+                          {template.name}
+                        </div>
                       </div>
-                      <div className="text-xs text-gray-600 mt-1 line-clamp-2">
-                        {template.content}
+                      <div className="col-span-7">
+                        <div className="text-sm text-gray-600 line-clamp-2">
+                          {template.content}
+                        </div>
+                      </div>
+                      <div className="col-span-1 flex justify-center">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            deleteTemplate(template.id);
+                          }}
+                          className="p-1 h-6 w-6 text-red-500 hover:text-red-700"
+                        >
+                          <X className="w-3 h-3" />
+                        </Button>
                       </div>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => deleteTemplate(template.id)}
-                      className="ml-2 p-1"
-                    >
-                      <X className="w-4 h-4 text-red-500" />
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            )}
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}
@@ -557,22 +606,50 @@ Return only the title, no quotes or additional text.`;
                 </div>
               )}
 
-              <div
-                className={`max-w-[80%] p-3 rounded-lg ${
-                  message.role === "user"
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-100 text-gray-900"
-                }`}
-              >
-                <div className="whitespace-pre-wrap text-sm leading-relaxed">
-                  {message.content}
-                </div>
+              <div className="group relative">
                 <div
-                  className={`text-xs mt-2 ${
-                    message.role === "user" ? "text-blue-200" : "text-gray-500"
+                  className={`max-w-[80%] p-3 rounded-lg ${
+                    message.role === "user"
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-100 text-gray-900"
                   }`}
                 >
-                  {message.timestamp.toLocaleTimeString()}
+                  <div className="whitespace-pre-wrap text-sm leading-relaxed">
+                    {message.content}
+                  </div>
+                  <div
+                    className={`text-xs mt-2 ${
+                      message.role === "user" ? "text-blue-200" : "text-gray-500"
+                    }`}
+                  >
+                    {message.timestamp.toLocaleTimeString()}
+                  </div>
+                </div>
+
+                {/* Message Actions */}
+                <div className={`absolute top-0 ${message.role === "user" ? "left-0 -translate-x-full" : "right-0 translate-x-full"} opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center space-x-1 ml-2 mr-2`}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => copyMessage(message.content, message.id)}
+                    className="h-8 w-8 p-0 bg-white shadow-sm border border-gray-200 hover:bg-gray-50"
+                    title="Copy message"
+                  >
+                    {copiedMessageId === message.id ? (
+                      <Check className="w-3 h-3 text-green-600" />
+                    ) : (
+                      <Copy className="w-3 h-3 text-gray-600" />
+                    )}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => recallMessage(message.id)}
+                    className="h-8 w-8 p-0 bg-white shadow-sm border border-gray-200 hover:bg-gray-50"
+                    title="Recall message"
+                  >
+                    <Undo2 className="w-3 h-3 text-gray-600" />
+                  </Button>
                 </div>
               </div>
 
@@ -615,6 +692,7 @@ Return only the title, no quotes or additional text.`;
           </Button>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }
