@@ -99,6 +99,8 @@ export default function MobileEditorLayout() {
   const [titleCollisionWarning, setTitleCollisionWarning] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [previewContent, setPreviewContent] = useState("");
+  const [previewTitle, setPreviewTitle] = useState("");
+  const [isEditMode, setIsEditMode] = useState(true);
 
   const selectedDocument = documents.find(
     (doc) => doc.id === selectedDocumentId,
@@ -430,33 +432,69 @@ export default function MobileEditorLayout() {
         </h1>
 
         <div className="flex items-center space-x-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="p-2"
-            onClick={() => {
-              // If title editing with collision, revert title first
-              if (isEditingTitle && titleCollisionWarning) {
-                cancelTitleEditing();
-              }
-            }}
-          >
-            <Bookmark className="w-5 h-5 text-gray-600" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="p-2"
-            onClick={() => {
-              // If title editing with collision, revert title first
-              if (isEditingTitle && titleCollisionWarning) {
-                cancelTitleEditing();
-              }
-              setSettingsOpen(true);
-            }}
-          >
-            <MoreVertical className="w-5 h-5 text-gray-600" />
-          </Button>
+          {showPreview ? (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="p-2"
+              onClick={() => {
+                setShowPreview(false);
+                setPreviewContent("");
+                setPreviewTitle("");
+              }}
+            >
+              <ChevronLeft className="w-5 h-5 text-gray-600" />
+            </Button>
+          ) : (
+            <>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="p-2"
+                onClick={() => {
+                  // If title editing with collision, revert title first
+                  if (isEditingTitle && titleCollisionWarning) {
+                    cancelTitleEditing();
+                  }
+                  setIsEditMode(!isEditMode);
+                }}
+                title={isEditMode ? "Switch to Preview Mode" : "Switch to Edit Mode"}
+              >
+                {isEditMode ? (
+                  <span className="text-lg">✒️</span>
+                ) : (
+                  <span className="text-lg">👁️</span>
+                )}
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="p-2"
+                onClick={() => {
+                  // If title editing with collision, revert title first
+                  if (isEditingTitle && titleCollisionWarning) {
+                    cancelTitleEditing();
+                  }
+                }}
+              >
+                <Bookmark className="w-5 h-5 text-gray-600" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="p-2"
+                onClick={() => {
+                  // If title editing with collision, revert title first
+                  if (isEditingTitle && titleCollisionWarning) {
+                    cancelTitleEditing();
+                  }
+                  setSettingsOpen(true);
+                }}
+              >
+                <MoreVertical className="w-5 h-5 text-gray-600" />
+              </Button>
+            </>
+          )}
         </div>
       </div>
 
@@ -477,7 +515,7 @@ export default function MobileEditorLayout() {
               className="min-h-[calc(100vh-200px)] cursor-text"
               onMouseUp={handleTextSelection}
               onTouchEnd={handleTextSelection}
-              onDoubleClick={() => setIsEditingContent(true)}
+              onDoubleClick={() => isEditMode && setIsEditingContent(true)}
               onDragOver={(e) => {
                 e.preventDefault();
                 e.dataTransfer.dropEffect = "copy";
@@ -489,6 +527,7 @@ export default function MobileEditorLayout() {
                   try {
                     const quiz = JSON.parse(quizData);
                     setPreviewContent(quiz.sourceText);
+                    setPreviewTitle(quiz.title);
                     setShowPreview(true);
                   } catch (error) {
                     console.error("Error parsing dropped quiz data:", error);
@@ -570,25 +609,30 @@ export default function MobileEditorLayout() {
               {/* Document Content */}
               {showPreview ? (
                 <>
-                  <div className="mb-4 p-3 bg-orange-50 border border-orange-200 rounded-lg">
-                    <div className="font-medium text-orange-800 mb-2">
-                      📖 Quiz Source Preview
+                  <div className="mb-6">
+                    <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                      📖 {previewTitle || "Quiz Source Preview"}
+                    </h1>
+                    <div className="text-sm text-gray-600 mb-4">
+                      Preview of the original text used to generate this quiz
                     </div>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => {
-                        setShowPreview(false);
-                        setPreviewContent("");
-                      }}
-                    >
-                      Return to Document
-                    </Button>
                   </div>
                   {renderMobileMarkdownContent(previewContent)}
                 </>
-              ) : (
+              ) : isEditMode ? (
                 renderMobileMarkdownContent(selectedDocument.content)
+              ) : (
+                <div className="prose max-w-none">
+                  <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div className="font-medium text-blue-800 mb-1">
+                      👁️ Preview Mode
+                    </div>
+                    <div className="text-sm text-blue-600">
+                      Click the edit button (✒️) to return to editing mode
+                    </div>
+                  </div>
+                  {renderMobileMarkdownContent(selectedDocument.content)}
+                </div>
               )}
             </div>
           )
@@ -981,7 +1025,7 @@ export default function MobileEditorLayout() {
                         return (
                           <div
                             key={quiz.id}
-                            className="group p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors relative"
+                            className="group p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors relative"
                             draggable
                             onDragStart={(e) => {
                               e.dataTransfer.setData(
@@ -990,13 +1034,15 @@ export default function MobileEditorLayout() {
                               );
                               e.dataTransfer.effectAllowed = "copy";
                             }}
-                            onClick={() => {
-                              navigate(`/quiz/${quiz.type}`);
-                              setQuizDrawerOpen(false);
-                            }}
                           >
                             <div className="flex items-start justify-between">
-                              <div className="flex-1">
+                              <div
+                                className="flex-1 cursor-pointer"
+                                onClick={() => {
+                                  navigate(`/quiz/${quiz.type}`);
+                                  setQuizDrawerOpen(false);
+                                }}
+                              >
                                 <div className="flex items-center space-x-2">
                                   <span className="text-sm">
                                     {getQuizIcon(quiz.type)}
@@ -1012,8 +1058,23 @@ export default function MobileEditorLayout() {
                                   {quiz.createdAt.toLocaleDateString()}
                                 </div>
                               </div>
-                              <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                                <div className="w-4 h-4 text-gray-400">⋮⋮</div>
+                              <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="p-1 h-6 w-6"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setPreviewContent(quiz.sourceText);
+                                    setPreviewTitle(quiz.title);
+                                    setShowPreview(true);
+                                    setQuizDrawerOpen(false);
+                                  }}
+                                  title="Preview source text"
+                                >
+                                  <span className="text-xs">👁️</span>
+                                </Button>
+                                <div className="w-4 h-4 text-gray-400 cursor-grab" title="Drag to preview">⋮⋮</div>
                               </div>
                             </div>
                           </div>
