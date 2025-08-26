@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode } from "react";
 
 interface FlashCard {
   id: string;
@@ -24,7 +24,7 @@ interface WritingTask {
 
 interface Quiz {
   id: string;
-  type: 'flashcard' | 'multiple-choice' | 'short-writing';
+  type: "flashcard" | "multiple-choice" | "short-writing";
   title: string;
   sourceText: string;
   data: FlashCard[] | MultipleChoiceQuestion[] | WritingTask[];
@@ -37,11 +37,21 @@ interface QuizContextType {
   selectedText: string;
   currentQuiz: Quiz | null;
   setSelectedText: (text: string) => void;
-  createQuiz: (type: Quiz['type'], title: string, sourceText: string, data: any[], documentId: string) => void;
-  getQuizzesByType: (type: Quiz['type']) => Quiz[];
+  createQuiz: (
+    type: Quiz["type"],
+    title: string,
+    sourceText: string,
+    data: any[],
+    documentId: string,
+  ) => void;
+  updateQuiz: (id: string, updates: Partial<Quiz>) => void;
+  getQuizzesByType: (type: Quiz["type"]) => Quiz[];
   getQuizzesByDocument: (documentId: string) => Quiz[];
-  getQuizzesByDocumentAndType: (documentId: string, type: Quiz['type']) => Quiz[];
-  getLatestQuizByType: (type: Quiz['type']) => Quiz | null;
+  getQuizzesByDocumentAndType: (
+    documentId: string,
+    type: Quiz["type"],
+  ) => Quiz[];
+  getLatestQuizByType: (type: Quiz["type"]) => Quiz | null;
   deleteQuiz: (id: string) => void;
   setCurrentQuiz: (quiz: Quiz | null) => void;
 }
@@ -51,99 +61,111 @@ const QuizContext = createContext<QuizContextType | undefined>(undefined);
 // Mock data for demonstration
 const mockQuizzes: Quiz[] = [
   {
-    id: '1',
-    type: 'flashcard',
-    title: 'English 4 - Vocabulary',
-    sourceText: 'The ancient ruins attest to the skill of the builders.',
-    documentId: '3', // Associated with English 4 document
+    id: "1",
+    type: "flashcard",
+    title: "English 4 - Vocabulary",
+    sourceText: "The ancient ruins attest to the skill of the builders.",
+    documentId: "3", // Associated with English 4 document
     data: [
       {
-        id: '1',
-        question: 'What is the capital of Germany?',
-        answer: 'Berlin'
+        id: "1",
+        question: "What is the capital of Germany?",
+        answer: "Berlin",
       },
       {
-        id: '2',
+        id: "2",
         question: 'What does "attest" mean?',
-        answer: 'To provide or serve as clear evidence of'
+        answer: "To provide or serve as clear evidence of",
       },
       {
-        id: '3',
+        id: "3",
         question: 'What is the meaning of "ruins"?',
-        answer: 'The remains of a building that has been destroyed or damaged'
+        answer: "The remains of a building that has been destroyed or damaged",
       },
       {
-        id: '4',
+        id: "4",
         question: 'Define "ancient"',
-        answer: 'Belonging to the very distant past'
+        answer: "Belonging to the very distant past",
       },
       {
-        id: '5',
+        id: "5",
         question: 'What does "builders" refer to?',
-        answer: 'People who construct buildings or structures'
-      }
+        answer: "People who construct buildings or structures",
+      },
     ],
-    createdAt: new Date()
+    createdAt: new Date(),
   },
   {
-    id: '2',
-    type: 'multiple-choice',
-    title: 'Creative Writing Quiz',
-    sourceText: 'A writer describes a scene focusing on sensory details.',
-    documentId: '2', // Associated with English 3 document
+    id: "2",
+    type: "multiple-choice",
+    title: "Creative Writing Quiz",
+    sourceText: "A writer describes a scene focusing on sensory details.",
+    documentId: "2", // Associated with English 3 document
     data: [
       {
-        id: '1',
-        question: 'A writer describes a scene focusing on the smell of rain on hot asphalt, the taste of a salty pretzel, and the feel of a rough brick wall. What type of details are they primarily using?',
+        id: "1",
+        question:
+          "A writer describes a scene focusing on the smell of rain on hot asphalt, the taste of a salty pretzel, and the feel of a rough brick wall. What type of details are they primarily using?",
         options: [
           {
-            text: 'Sensory Details',
-            explanation: 'Correct. Sensory details appeal to the five senses (smell, taste, touch) as described in the passage.'
+            text: "Sensory Details",
+            explanation:
+              "Correct. Sensory details appeal to the five senses (smell, taste, touch) as described in the passage.",
           },
           {
-            text: 'Auditory Details',
-            explanation: 'Incorrect. While auditory details relate to sound, the passage focuses on smell, taste, and touch.'
+            text: "Auditory Details",
+            explanation:
+              "Incorrect. While auditory details relate to sound, the passage focuses on smell, taste, and touch.",
           },
           {
-            text: 'Plot Devices',
-            explanation: 'Incorrect. Plot devices are structural elements of storytelling, not descriptive details.'
+            text: "Plot Devices",
+            explanation:
+              "Incorrect. Plot devices are structural elements of storytelling, not descriptive details.",
           },
           {
-            text: 'Figurative Language',
-            explanation: 'Incorrect. Figurative language uses metaphors or similes, while this passage uses literal descriptions.'
-          }
+            text: "Figurative Language",
+            explanation:
+              "Incorrect. Figurative language uses metaphors or similes, while this passage uses literal descriptions.",
+          },
         ],
         correctAnswer: 0,
-        hint: 'Think about the five senses mentioned in the description.'
-      }
+        hint: "Think about the five senses mentioned in the description.",
+      },
     ],
-    createdAt: new Date()
+    createdAt: new Date(),
   },
   {
-    id: '3',
-    type: 'short-writing',
-    title: 'Writing Exercise',
-    sourceText: 'Practice descriptive writing techniques.',
-    documentId: '3', // Associated with English 4 document
+    id: "3",
+    type: "short-writing",
+    title: "Writing Exercise",
+    sourceText: "Practice descriptive writing techniques.",
+    documentId: "3", // Associated with English 4 document
     data: [
       {
-        id: '1',
-        title: 'Writing Task 1',
-        prompt: 'Describe your favorite place in the world and explain why it\'s special to you.',
+        id: "1",
+        title: "Writing Task 1",
+        prompt:
+          "Describe your favorite place in the world and explain why it's special to you.",
         maxWords: 150,
-        timeLimit: 10
-      }
+        timeLimit: 10,
+      },
     ],
-    createdAt: new Date()
-  }
+    createdAt: new Date(),
+  },
 ];
 
 export function QuizProvider({ children }: { children: ReactNode }) {
   const [quizzes, setQuizzes] = useState<Quiz[]>(mockQuizzes);
-  const [selectedText, setSelectedText] = useState<string>('');
+  const [selectedText, setSelectedText] = useState<string>("");
   const [currentQuiz, setCurrentQuiz] = useState<Quiz | null>(null);
 
-  const createQuiz = (type: Quiz['type'], title: string, sourceText: string, data: any[], documentId: string) => {
+  const createQuiz = (
+    type: Quiz["type"],
+    title: string,
+    sourceText: string,
+    data: any[],
+    documentId: string,
+  ) => {
     const newQuiz: Quiz = {
       id: Date.now().toString(),
       type,
@@ -151,47 +173,63 @@ export function QuizProvider({ children }: { children: ReactNode }) {
       sourceText,
       data,
       documentId,
-      createdAt: new Date()
+      createdAt: new Date(),
     };
-    setQuizzes(prev => [...prev, newQuiz]);
+    setQuizzes((prev) => [...prev, newQuiz]);
     setCurrentQuiz(newQuiz); // Set as current quiz for immediate use
   };
 
-  const getQuizzesByType = (type: Quiz['type']) => {
-    return quizzes.filter(quiz => quiz.type === type);
+  const updateQuiz = (id: string, updates: Partial<Quiz>) => {
+    setQuizzes((prev) =>
+      prev.map((quiz) => (quiz.id === id ? { ...quiz, ...updates } : quiz)),
+    );
+  };
+
+  const getQuizzesByType = (type: Quiz["type"]) => {
+    return quizzes.filter((quiz) => quiz.type === type);
   };
 
   const getQuizzesByDocument = (documentId: string) => {
-    return quizzes.filter(quiz => quiz.documentId === documentId).sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    return quizzes
+      .filter((quiz) => quiz.documentId === documentId)
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
   };
 
-  const getQuizzesByDocumentAndType = (documentId: string, type: Quiz['type']) => {
-    return quizzes.filter(quiz => quiz.documentId === documentId && quiz.type === type).sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  const getQuizzesByDocumentAndType = (
+    documentId: string,
+    type: Quiz["type"],
+  ) => {
+    return quizzes
+      .filter((quiz) => quiz.documentId === documentId && quiz.type === type)
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
   };
 
-  const getLatestQuizByType = (type: Quiz['type']) => {
-    const typeQuizzes = quizzes.filter(quiz => quiz.type === type);
+  const getLatestQuizByType = (type: Quiz["type"]) => {
+    const typeQuizzes = quizzes.filter((quiz) => quiz.type === type);
     return typeQuizzes.length > 0 ? typeQuizzes[typeQuizzes.length - 1] : null;
   };
 
   const deleteQuiz = (id: string) => {
-    setQuizzes(prev => prev.filter(quiz => quiz.id !== id));
+    setQuizzes((prev) => prev.filter((quiz) => quiz.id !== id));
   };
 
   return (
-    <QuizContext.Provider value={{
-      quizzes,
-      selectedText,
-      currentQuiz,
-      setSelectedText,
-      createQuiz,
-      getQuizzesByType,
-      getQuizzesByDocument,
-      getQuizzesByDocumentAndType,
-      getLatestQuizByType,
-      deleteQuiz,
-      setCurrentQuiz
-    }}>
+    <QuizContext.Provider
+      value={{
+        quizzes,
+        selectedText,
+        currentQuiz,
+        setSelectedText,
+        createQuiz,
+        updateQuiz,
+        getQuizzesByType,
+        getQuizzesByDocument,
+        getQuizzesByDocumentAndType,
+        getLatestQuizByType,
+        deleteQuiz,
+        setCurrentQuiz,
+      }}
+    >
       {children}
     </QuizContext.Provider>
   );
@@ -200,7 +238,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
 export function useQuiz() {
   const context = useContext(QuizContext);
   if (context === undefined) {
-    throw new Error('useQuiz must be used within a QuizProvider');
+    throw new Error("useQuiz must be used within a QuizProvider");
   }
   return context;
 }
