@@ -353,6 +353,23 @@ export default function MobileEditorLayout() {
               onMouseUp={handleTextSelection}
               onTouchEnd={handleTextSelection}
               onDoubleClick={() => setIsEditingContent(true)}
+              onDragOver={(e) => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'copy';
+              }}
+              onDrop={(e) => {
+                e.preventDefault();
+                const quizData = e.dataTransfer.getData('quiz');
+                if (quizData) {
+                  try {
+                    const quiz = JSON.parse(quizData);
+                    setPreviewContent(quiz.sourceText);
+                    setShowPreview(true);
+                  } catch (error) {
+                    console.error('Error parsing dropped quiz data:', error);
+                  }
+                }
+              }}
             >
               {renderMobileMarkdownContent(selectedDocument.content)}
             </div>
