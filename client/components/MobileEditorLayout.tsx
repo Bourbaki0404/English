@@ -371,7 +371,26 @@ export default function MobileEditorLayout() {
                 }
               }}
             >
-              {renderMobileMarkdownContent(selectedDocument.content)}
+              {showPreview ? (
+                <>
+                  <div className="mb-4 p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                    <div className="font-medium text-orange-800 mb-2">📖 Quiz Source Preview</div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        setShowPreview(false);
+                        setPreviewContent('');
+                      }}
+                    >
+                      Return to Document
+                    </Button>
+                  </div>
+                  {renderMobileMarkdownContent(previewContent)}
+                </>
+              ) : (
+                renderMobileMarkdownContent(selectedDocument.content)
+              )}
             </div>
           )
         ) : (
