@@ -174,7 +174,6 @@ export default function MobileEditorLayout() {
   const cancelTitleEditing = () => {
     setIsEditingTitle(false);
     setTempTitle("");
-    setShowDuplicateWarning(false);
     setTitleCollisionWarning(false);
   };
 
