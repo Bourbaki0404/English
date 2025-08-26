@@ -20,7 +20,7 @@ interface AppSettings {
   };
 }
 
-type SettingsView = 'main' | 'general' | 'llm' | 'quiz' | 'editor' | 'appearance' | 'about';
+type SettingsView = 'main' | 'general' | 'llm' | 'appearance' | 'about';
 
 interface SettingsOption {
   id: SettingsView;
