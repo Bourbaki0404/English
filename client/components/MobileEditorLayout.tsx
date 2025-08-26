@@ -96,7 +96,6 @@ export default function MobileEditorLayout() {
   const [isEditingContent, setIsEditingContent] = useState(false);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [tempTitle, setTempTitle] = useState("");
-  const [showDuplicateWarning, setShowDuplicateWarning] = useState(false);
   const [titleCollisionWarning, setTitleCollisionWarning] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [previewContent, setPreviewContent] = useState("");
