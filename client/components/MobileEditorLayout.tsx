@@ -215,16 +215,34 @@ export default function MobileEditorLayout() {
 
   const handleAddDocument = () => {
     const newId = (Math.max(...documents.map(d => parseInt(d.id))) + 1).toString();
+
+    // Generate unique title
+    let baseTitle = 'New Document';
+    let titleSuffix = '';
+    let counter = 1;
+
+    while (isTitleDuplicate(baseTitle + titleSuffix)) {
+      titleSuffix = ` ${counter}`;
+      counter++;
+    }
+
+    const uniqueTitle = baseTitle + titleSuffix;
+
     const newDocument: Document = {
       id: newId,
-      name: 'New Document',
-      content: '# New Document\n\nStart writing your content here...',
+      title: uniqueTitle,
+      content: 'Start writing your content here...',
       createdAt: new Date()
     };
 
     setDocuments(prev => [...prev, newDocument]);
     setSelectedDocumentId(newId);
     setDocumentsDrawerOpen(false);
+
+    // Start editing the title immediately for new documents
+    setTimeout(() => {
+      startEditingTitle();
+    }, 100);
   };
 
   const handleDeleteDocument = (docId: string) => {
