@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Settings, User, Bot, ChevronRight, ChevronLeft, Palette, HelpCircle, FileText, Zap, PenTool } from 'lucide-react';
+import { X, Settings, User, Bot, ChevronRight, ChevronLeft, Palette, HelpCircle } from 'lucide-react';
 import { Button } from './ui/button';
 
 interface SettingsModalProps {
