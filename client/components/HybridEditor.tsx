@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
+import { Edit3 } from "lucide-react";
 
 interface HybridEditorProps {
   content: string;
@@ -15,6 +16,7 @@ export default function HybridEditor({
 }: HybridEditorProps) {
   const [htmlContent, setHtmlContent] = useState("");
   const [isEditing, setIsEditing] = useState(false);
+  const [showRawText, setShowRawText] = useState(false);
   const editorRef = useRef<HTMLDivElement>(null);
 
   // Convert markdown to HTML for display (only supported syntax)
@@ -102,6 +104,17 @@ export default function HybridEditor({
     }
   }, [content, markdownToHtml, isEditing]);
 
+  // Toggle between raw text and preview mode
+  const toggleMode = useCallback(() => {
+    setShowRawText(!showRawText);
+    if (isEditing && editorRef.current) {
+      // Save current content before switching modes
+      const newHtml = editorRef.current.innerHTML;
+      const newMarkdown = htmlToMarkdown(newHtml);
+      onChange(newMarkdown);
+    }
+  }, [showRawText, isEditing, htmlToMarkdown, onChange]);
+
   // Handle content changes
   const handleInput = useCallback(() => {
     if (editorRef.current && isEditing) {
@@ -137,28 +150,41 @@ export default function HybridEditor({
 
   return (
     <div className={`relative ${className}`}>
-      <div
-        ref={editorRef}
-        className="prose prose-lg max-w-none min-h-[600px] p-6 focus:outline-none rounded-lg transition-all"
-        style={{
-          fontFamily: "system-ui, -apple-system, sans-serif",
-          lineHeight: "1.7",
-          fontSize: "16px",
-          width: "100%",
-        }}
-        contentEditable
-        suppressContentEditableWarning
-        dangerouslySetInnerHTML={{ __html: htmlContent }}
-        onInput={handleInput}
-        onFocus={handleFocus}
-        onBlur={handleBlur}
-        onMouseUp={handleMouseUp}
-        data-placeholder={
-          content.trim() === "" ? "Click to start writing..." : ""
-        }
-      />
+      {showRawText ? (
+        <textarea
+          value={content}
+          onChange={(e) => onChange(e.target.value)}
+          className="w-full min-h-[600px] p-6 focus:outline-none rounded-lg transition-all resize-none font-mono text-sm border-0 bg-transparent"
+          style={{
+            fontFamily: "'Fira Code', 'SF Mono', Consolas, monospace",
+            lineHeight: "1.5",
+          }}
+          placeholder="Type your markdown here..."
+        />
+      ) : (
+        <div
+          ref={editorRef}
+          className="prose prose-lg max-w-none min-h-[600px] p-6 focus:outline-none rounded-lg transition-all"
+          style={{
+            fontFamily: "system-ui, -apple-system, sans-serif",
+            lineHeight: "1.7",
+            fontSize: "16px",
+            width: "100%",
+          }}
+          contentEditable
+          suppressContentEditableWarning
+          dangerouslySetInnerHTML={{ __html: htmlContent }}
+          onInput={handleInput}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          onMouseUp={handleMouseUp}
+          data-placeholder={
+            content.trim() === "" ? "Click to start writing..." : ""
+          }
+        />
+      )}
 
-      {content.trim() === "" && (
+      {content.trim() === "" && !showRawText && (
         <div className="absolute top-6 left-6 text-gray-400 pointer-events-none">
           <div className="space-y-2 text-sm">
             <div>Click to start writing...</div>
@@ -168,6 +194,22 @@ export default function HybridEditor({
           </div>
         </div>
       )}
+
+      {/* Toggle button */}
+      <button
+        onClick={toggleMode}
+        className="absolute bottom-4 right-4 w-10 h-10 bg-white hover:bg-gray-50 border border-gray-200 rounded-full shadow-sm hover:shadow-md transition-all duration-200 flex items-center justify-center group"
+        title={showRawText ? "Switch to preview mode" : "Switch to raw text mode"}
+      >
+        <Edit3
+          size={16}
+          className={`transition-colors duration-200 ${
+            showRawText
+              ? "text-blue-600"
+              : "text-gray-500 group-hover:text-gray-700"
+          }`}
+        />
+      </button>
 
       <style jsx>{`
         [contenteditable="true"]:empty:before {
