@@ -558,19 +558,11 @@ export default function MobileEditorLayout() {
         )}
       </div>
 
-      {/* Floating Collision Warning Toast */}
+      {/* Collision Warning Banner */}
       {titleCollisionWarning && (
-        <div className="fixed left-0 right-0 z-[100] flex justify-center px-4" style={{ top: '180px' }}>
-          <div className="relative">
-            <div className="bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg max-w-sm">
-              <div className="text-center font-medium">
-                There's already a file with the same name
-              </div>
-              {/* Triangle pointer */}
-              <div className="absolute top-full left-1/2 transform -translate-x-1/2">
-                <div className="w-0 h-0 border-l-[8px] border-r-[8px] border-t-[8px] border-l-transparent border-r-transparent border-t-red-500"></div>
-              </div>
-            </div>
+        <div className="fixed left-4 right-4 z-[100]" style={{ top: '180px' }}>
+          <div className="bg-red-500 text-white px-4 py-3 rounded text-center font-medium shadow-lg">
+            There's already a file with the same name
           </div>
         </div>
       )}
