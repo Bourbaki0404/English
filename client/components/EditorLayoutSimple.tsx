@@ -700,6 +700,7 @@ export default function EditorLayoutSimple() {
                         if (draggedQuiz) {
                           setOriginalContent(selectedDocument.content);
                           setPreviewContent(draggedQuiz.sourceText || "No preview content available");
+                          setCurrentPreviewQuiz(draggedQuiz);
                           setShowPreview(true);
                         }
                       }}
