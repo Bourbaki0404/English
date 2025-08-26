@@ -390,6 +390,7 @@ export default function MobileEditorLayout() {
         return (
           <p
             key={index}
+            id={`content-line-${index}`}
             className="mb-4 leading-relaxed text-gray-800 text-base whitespace-pre-wrap"
           >
             {line}
@@ -412,6 +413,7 @@ export default function MobileEditorLayout() {
           return (
             <h2
               key={index}
+              id={`content-line-${index}`}
               className="text-xl font-semibold mb-4 mt-6 text-gray-900"
             >
               {line.substring(3)}
@@ -436,6 +438,7 @@ export default function MobileEditorLayout() {
         return (
           <p
             key={index}
+            id={`content-line-${index}`}
             className="mb-4 leading-relaxed text-gray-800 text-base"
             dangerouslySetInnerHTML={{ __html: processedLine }}
           />
@@ -879,30 +882,37 @@ export default function MobileEditorLayout() {
                           key={index}
                           className="p-3 bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors border-b last:border-b-0 last:rounded-b-lg"
                           onClick={() => {
-                            // Switch to the document
-                            handleDocumentSelect(doc.id);
+                            // Switch to the document first
+                            setSelectedDocumentId(doc.id);
+                            setSelectedText("");
+                            setSearchDrawerOpen(false);
 
-                            // Wait for document to load, then scroll to position
+                            // Wait for document to render, then scroll to position
                             setTimeout(() => {
                               const targetLineNumber = lineNumbers[index];
-                              const contentElements = document.querySelectorAll('.mb-4.leading-relaxed');
+                              const targetElement = document.getElementById(`content-line-${targetLineNumber}`);
 
-                              if (contentElements[targetLineNumber]) {
-                                contentElements[targetLineNumber].scrollIntoView({
+                              if (targetElement) {
+                                // Scroll to the element
+                                targetElement.scrollIntoView({
                                   behavior: 'smooth',
-                                  block: 'center'
+                                  block: 'center',
+                                  inline: 'nearest'
                                 });
 
                                 // Highlight the found text temporarily
-                                const element = contentElements[targetLineNumber] as HTMLElement;
-                                element.style.backgroundColor = '#fef3c7';
-                                element.style.transition = 'background-color 0.3s';
+                                targetElement.style.backgroundColor = '#fef3c7';
+                                targetElement.style.transition = 'background-color 0.3s ease';
+                                targetElement.style.transform = 'scale(1.02)';
+                                targetElement.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
 
                                 setTimeout(() => {
-                                  element.style.backgroundColor = '';
-                                }, 2000);
+                                  targetElement.style.backgroundColor = '';
+                                  targetElement.style.transform = '';
+                                  targetElement.style.boxShadow = '';
+                                }, 2500);
                               }
-                            }, 100);
+                            }, 300);
                           }}
                         >
                           <div
