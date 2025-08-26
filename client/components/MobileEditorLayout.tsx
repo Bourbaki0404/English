@@ -480,6 +480,72 @@ export default function MobileEditorLayout() {
         </>
       )}
 
+      {/* Search Drawer */}
+      {searchDrawerOpen && (
+        <>
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 z-30"
+            onClick={() => setSearchDrawerOpen(false)}
+          />
+          <div className="fixed bottom-0 left-0 right-0 bg-white rounded-t-xl z-40 max-h-[80vh] overflow-hidden">
+            <div className="flex items-center justify-between p-4 border-b border-gray-200">
+              <h2 className="text-lg font-semibold text-gray-900">Search</h2>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setSearchDrawerOpen(false)}
+              >
+                <X className="w-5 h-5" />
+              </Button>
+            </div>
+
+            <div className="p-4">
+              <input
+                type="text"
+                placeholder="Search documents..."
+                value={searchQuery}
+                onChange={(e) => handleSearch(e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                autoFocus
+              />
+            </div>
+
+            <div className="overflow-y-auto max-h-[50vh] px-4 pb-4">
+              {searchResults.length > 0 ? (
+                <div className="space-y-3">
+                  {searchResults.map(({ doc, matches }) => (
+                    <div
+                      key={doc.id}
+                      className="p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
+                      onClick={() => handleDocumentSelect(doc.id)}
+                    >
+                      <div className="font-medium text-gray-900 mb-2">{getDocumentDisplayName(doc)}</div>
+                      {matches.map((match, index) => (
+                        <div
+                          key={index}
+                          className="text-sm text-gray-600 mb-1 leading-relaxed"
+                          dangerouslySetInnerHTML={{
+                            __html: highlightSearchTerm(match.substring(0, 100) + (match.length > 100 ? '...' : ''), searchQuery)
+                          }}
+                        />
+                      ))}
+                    </div>
+                  ))}
+                </div>
+              ) : searchQuery ? (
+                <div className="text-center py-8 text-gray-500">
+                  No results found for "{searchQuery}"
+                </div>
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  Type to search through all documents
+                </div>
+              )}
+            </div>
+          </div>
+        </>
+      )}
+
       {/* Quiz Tools Drawer */}
       {quizDrawerOpen && (
         <>
