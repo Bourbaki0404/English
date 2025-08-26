@@ -560,7 +560,7 @@ export default function MobileEditorLayout() {
 
       {/* Floating Collision Warning Toast */}
       {titleCollisionWarning && (
-        <div className="fixed top-0 left-0 right-0 z-[100] flex justify-center p-4">
+        <div className="fixed left-0 right-0 z-[100] flex justify-center px-4" style={{ top: '180px' }}>
           <div className="relative">
             <div className="bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg max-w-sm">
               <div className="text-center font-medium">
