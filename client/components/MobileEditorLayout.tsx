@@ -1,25 +1,25 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { 
-  ChevronLeft, 
-  FileText, 
-  Plus, 
-  Menu, 
-  X, 
-  Settings, 
-  Loader2, 
+import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  ChevronLeft,
+  FileText,
+  Plus,
+  Menu,
+  X,
+  Settings,
+  Loader2,
   Search,
   Bookmark,
   MoreVertical,
   Home,
   Layers,
   PenTool,
-  Grid
-} from 'lucide-react';
-import { Button } from './ui/button';
-import SettingsModal, { AppSettings } from './SettingsModal';
-import { getLLMService } from '../services/llmService';
-import { useQuiz } from '../contexts/QuizContext';
+  Grid,
+} from "lucide-react";
+import { Button } from "./ui/button";
+import SettingsModal, { AppSettings } from "./SettingsModal";
+import { getLLMService } from "../services/llmService";
+import { useQuiz } from "../contexts/QuizContext";
 
 interface Document {
   id: string;
@@ -30,20 +30,20 @@ interface Document {
 
 const initialDocuments: Document[] = [
   {
-    id: '1',
-    title: 'English 2',
-    content: 'Welcome to English 2! Start writing your notes here...',
-    createdAt: new Date('2024-01-15')
+    id: "1",
+    title: "English 2",
+    content: "Welcome to English 2! Start writing your notes here...",
+    createdAt: new Date("2024-01-15"),
   },
   {
-    id: '2',
-    title: 'English 3',
-    content: 'Welcome to English 3! This is your study space.',
-    createdAt: new Date('2024-01-16')
+    id: "2",
+    title: "English 3",
+    content: "Welcome to English 3! This is your study space.",
+    createdAt: new Date("2024-01-16"),
   },
   {
-    id: '3',
-    title: 'English 4',
+    id: "3",
+    title: "English 4",
     content: `Companies often **hedge** against currency fluctuations to protect their profits [hedge is an investment that is made to reduce the risk of adverse price movements in an asset]
 
 Investors often **hedge** their bets by buying different types of assets [To reduce or protect against the risk of loss, especially in finance.]
@@ -63,43 +63,49 @@ It's illegal to **falsify** your resume by lying about your qualifications [alte
 A company conducting **due diligence** before acquiring another business to check its finances and legal liabilities. [careful, thorough, and systematic effort or research done to gather information, assess risks, or verify facts before making a decision]
 
 The company took on significant **liability** after the accident, as they had to pay for damages. [Legal or financial responsibility for something, especially for`,
-    createdAt: new Date('2024-01-17')
-  }
+    createdAt: new Date("2024-01-17"),
+  },
 ];
 
 export default function MobileEditorLayout() {
   const navigate = useNavigate();
   const [documents, setDocuments] = useState<Document[]>(initialDocuments);
-  const [selectedDocumentId, setSelectedDocumentId] = useState<string>('3');
-  const [selectedText, setSelectedText] = useState('');
+  const [selectedDocumentId, setSelectedDocumentId] = useState<string>("3");
+  const [selectedText, setSelectedText] = useState("");
   const [documentsDrawerOpen, setDocumentsDrawerOpen] = useState(false);
   const [quizDrawerOpen, setQuizDrawerOpen] = useState(false);
   const [searchDrawerOpen, setSearchDrawerOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<{doc: Document, matches: string[]}[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<
+    { doc: Document; matches: string[] }[]
+  >([]);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [isGeneratingQuiz, setIsGeneratingQuiz] = useState(false);
-  const [generatingType, setGeneratingType] = useState<string>('');
+  const [generatingType, setGeneratingType] = useState<string>("");
   const [settings, setSettings] = useState<AppSettings>({
     general: {
-      languageLevel: 'cet4'
+      languageLevel: "cet4",
     },
     llm: {
-      apiKey: 'AIzaSyCNDJgpRcdDiEVSNomjIMTW1yNWjX7K6P0',
-      provider: 'gemini',
-      model: 'gemini-2.0-flash-exp'
-    }
+      apiKey: "AIzaSyCNDJgpRcdDiEVSNomjIMTW1yNWjX7K6P0",
+      provider: "gemini",
+      model: "gemini-2.0-flash-exp",
+    },
   });
   const { createQuiz, getQuizzesByDocument, getAllQuizzes } = useQuiz();
   const [isEditingContent, setIsEditingContent] = useState(false);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
-  const [tempTitle, setTempTitle] = useState('');
+  const [tempTitle, setTempTitle] = useState("");
   const [showDuplicateWarning, setShowDuplicateWarning] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
-  const [previewContent, setPreviewContent] = useState('');
+  const [previewContent, setPreviewContent] = useState("");
 
-  const selectedDocument = documents.find(doc => doc.id === selectedDocumentId);
-  const documentQuizzes = selectedDocument ? getQuizzesByDocument(selectedDocument.id) : [];
+  const selectedDocument = documents.find(
+    (doc) => doc.id === selectedDocumentId,
+  );
+  const documentQuizzes = selectedDocument
+    ? getQuizzesByDocument(selectedDocument.id)
+    : [];
   const allQuizzes = getAllQuizzes();
 
   // Function to get display name for document
@@ -109,9 +115,9 @@ export default function MobileEditorLayout() {
 
   // Check if title already exists in other documents
   const isTitleDuplicate = (title: string, excludeId?: string): boolean => {
-    return documents.some(doc =>
-      doc.title.toLowerCase() === title.toLowerCase() &&
-      doc.id !== excludeId
+    return documents.some(
+      (doc) =>
+        doc.title.toLowerCase() === title.toLowerCase() && doc.id !== excludeId,
     );
   };
 
@@ -139,33 +145,31 @@ export default function MobileEditorLayout() {
     }
 
     // Update document title
-    setDocuments(prev =>
-      prev.map(doc =>
-        doc.id === selectedDocument.id
-          ? { ...doc, title: trimmedTitle }
-          : doc
-      )
+    setDocuments((prev) =>
+      prev.map((doc) =>
+        doc.id === selectedDocument.id ? { ...doc, title: trimmedTitle } : doc,
+      ),
     );
 
     setIsEditingTitle(false);
-    setTempTitle('');
+    setTempTitle("");
   };
 
   // Cancel title editing
   const cancelTitleEditing = () => {
     setIsEditingTitle(false);
-    setTempTitle('');
+    setTempTitle("");
     setShowDuplicateWarning(false);
   };
 
   const handleQuizToolClick = async (toolId: string) => {
     if (!selectedText) {
-      alert('Please select some text first to generate a quiz!');
+      alert("Please select some text first to generate a quiz!");
       return;
     }
 
     if (!settings.llm.apiKey) {
-      alert('Please configure your LLM API key in settings first!');
+      alert("Please configure your LLM API key in settings first!");
       setSettingsOpen(true);
       return;
     }
@@ -178,31 +182,52 @@ export default function MobileEditorLayout() {
       const llmService = getLLMService(settings);
 
       switch (toolId) {
-        case 'flashcard': {
+        case "flashcard": {
           const flashcards = await llmService.generateFlashCards(selectedText);
-          createQuiz('flashcard', `Flashcards - ${getDocumentDisplayName(selectedDocument!)}`, selectedText, flashcards, selectedDocument!.id);
-          navigate('/quiz/flashcard');
+          createQuiz(
+            "flashcard",
+            `Flashcards - ${getDocumentDisplayName(selectedDocument!)}`,
+            selectedText,
+            flashcards,
+            selectedDocument!.id,
+          );
+          navigate("/quiz/flashcard");
           break;
         }
-        case 'multiple-choice': {
-          const questions = await llmService.generateMultipleChoice(selectedText);
-          createQuiz('multiple-choice', `Multiple Choice - ${getDocumentDisplayName(selectedDocument!)}`, selectedText, questions, selectedDocument!.id);
-          navigate('/quiz/multiple-choice');
+        case "multiple-choice": {
+          const questions =
+            await llmService.generateMultipleChoice(selectedText);
+          createQuiz(
+            "multiple-choice",
+            `Multiple Choice - ${getDocumentDisplayName(selectedDocument!)}`,
+            selectedText,
+            questions,
+            selectedDocument!.id,
+          );
+          navigate("/quiz/multiple-choice");
           break;
         }
-        case 'short-writing': {
+        case "short-writing": {
           const tasks = await llmService.generateWritingTasks(selectedText);
-          createQuiz('short-writing', `Writing Tasks - ${getDocumentDisplayName(selectedDocument!)}`, selectedText, tasks, selectedDocument!.id);
-          navigate('/quiz/short-writing');
+          createQuiz(
+            "short-writing",
+            `Writing Tasks - ${getDocumentDisplayName(selectedDocument!)}`,
+            selectedText,
+            tasks,
+            selectedDocument!.id,
+          );
+          navigate("/quiz/short-writing");
           break;
         }
       }
     } catch (error) {
-      console.error('Error generating quiz:', error);
-      alert(`Failed to generate quiz: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      console.error("Error generating quiz:", error);
+      alert(
+        `Failed to generate quiz: ${error instanceof Error ? error.message : "Unknown error"}`,
+      );
     } finally {
       setIsGeneratingQuiz(false);
-      setGeneratingType('');
+      setGeneratingType("");
     }
   };
 
@@ -214,11 +239,13 @@ export default function MobileEditorLayout() {
   };
 
   const handleAddDocument = () => {
-    const newId = (Math.max(...documents.map(d => parseInt(d.id))) + 1).toString();
+    const newId = (
+      Math.max(...documents.map((d) => parseInt(d.id))) + 1
+    ).toString();
 
     // Generate unique title
-    let baseTitle = 'New Document';
-    let titleSuffix = '';
+    let baseTitle = "New Document";
+    let titleSuffix = "";
     let counter = 1;
 
     while (isTitleDuplicate(baseTitle + titleSuffix)) {
@@ -231,34 +258,34 @@ export default function MobileEditorLayout() {
     const newDocument: Document = {
       id: newId,
       title: uniqueTitle,
-      content: 'Start writing your content here...',
-      createdAt: new Date()
+      content: "Start writing your content here...",
+      createdAt: new Date(),
     };
 
-    setDocuments(prev => [...prev, newDocument]);
+    setDocuments((prev) => [...prev, newDocument]);
     setSelectedDocumentId(newId);
     setDocumentsDrawerOpen(false);
   };
 
   const handleDeleteDocument = (docId: string) => {
     if (documents.length <= 1) {
-      alert('You must have at least one document.');
+      alert("You must have at least one document.");
       return;
     }
-    
-    if (confirm('Are you sure you want to delete this document?')) {
-      setDocuments(prev => prev.filter(doc => doc.id !== docId));
-      
+
+    if (confirm("Are you sure you want to delete this document?")) {
+      setDocuments((prev) => prev.filter((doc) => doc.id !== docId));
+
       if (selectedDocumentId === docId) {
-        const remainingDocs = documents.filter(doc => doc.id !== docId);
-        setSelectedDocumentId(remainingDocs[0]?.id || '');
+        const remainingDocs = documents.filter((doc) => doc.id !== docId);
+        setSelectedDocumentId(remainingDocs[0]?.id || "");
       }
     }
   };
 
   const handleDocumentSelect = (docId: string) => {
     setSelectedDocumentId(docId);
-    setSelectedText('');
+    setSelectedText("");
     setDocumentsDrawerOpen(false);
     setSearchDrawerOpen(false);
   };
@@ -270,15 +297,18 @@ export default function MobileEditorLayout() {
       return;
     }
 
-    const results: {doc: Document, matches: string[]}[] = [];
-    documents.forEach(doc => {
+    const results: { doc: Document; matches: string[] }[] = [];
+    documents.forEach((doc) => {
       const content = doc.content.toLowerCase();
       const searchTerm = query.toLowerCase();
 
-      if (content.includes(searchTerm) || getDocumentDisplayName(doc).toLowerCase().includes(searchTerm)) {
-        const lines = doc.content.split('\n');
+      if (
+        content.includes(searchTerm) ||
+        getDocumentDisplayName(doc).toLowerCase().includes(searchTerm)
+      ) {
+        const lines = doc.content.split("\n");
         const matches = lines
-          .filter(line => line.toLowerCase().includes(searchTerm))
+          .filter((line) => line.toLowerCase().includes(searchTerm))
           .slice(0, 3); // Limit to 3 matches per document
 
         results.push({ doc, matches });
@@ -290,41 +320,54 @@ export default function MobileEditorLayout() {
 
   const highlightSearchTerm = (text: string, query: string) => {
     if (!query) return text;
-    const regex = new RegExp(`(${query})`, 'gi');
+    const regex = new RegExp(`(${query})`, "gi");
     return text.replace(regex, '<mark class="bg-yellow-300">$1</mark>');
   };
 
   const handleContentChange = (newContent: string) => {
     if (selectedDocument) {
-      setDocuments(prev => 
-        prev.map(doc => 
-          doc.id === selectedDocument.id 
+      setDocuments((prev) =>
+        prev.map((doc) =>
+          doc.id === selectedDocument.id
             ? { ...doc, content: newContent }
-            : doc
-        )
+            : doc,
+        ),
       );
     }
   };
 
   const renderMobileMarkdownContent = (content: string) => {
     return content
-      .split('\n')
+      .split("\n")
       .map((line, index) => {
         // Skip H1 headers as title is now handled separately
-        if (line.startsWith('# ')) {
+        if (line.startsWith("# ")) {
           return null;
         }
-        if (line.startsWith('## ')) {
-          return <h2 key={index} className="text-xl font-semibold mb-4 mt-6 text-gray-900">{line.substring(3)}</h2>;
+        if (line.startsWith("## ")) {
+          return (
+            <h2
+              key={index}
+              className="text-xl font-semibold mb-4 mt-6 text-gray-900"
+            >
+              {line.substring(3)}
+            </h2>
+          );
         }
-        if (line.trim() === '') {
+        if (line.trim() === "") {
           return <div key={index} className="mb-4"></div>;
         }
 
         // Handle mobile-optimized markdown formatting
         const processedLine = line
-          .replace(/\*\*(.*?)\*\*/g, '<span class="bg-yellow-200 px-1 py-0.5 rounded font-medium text-gray-900">$1</span>')
-          .replace(/\[([^\]]+)\]/g, '<span class="text-purple-600 text-sm block mt-1 leading-relaxed">[$1]</span>');
+          .replace(
+            /\*\*(.*?)\*\*/g,
+            '<span class="bg-yellow-200 px-1 py-0.5 rounded font-medium text-gray-900">$1</span>',
+          )
+          .replace(
+            /\[([^\]]+)\]/g,
+            '<span class="text-purple-600 text-sm block mt-1 leading-relaxed">[$1]</span>',
+          );
 
         return (
           <p
@@ -349,17 +392,15 @@ export default function MobileEditorLayout() {
         >
           <ChevronLeft className="w-5 h-5 text-gray-600" />
         </Button>
-        
+
         <h1 className="text-lg font-medium text-gray-900 truncate mx-4">
-          {selectedDocument ? getDocumentDisplayName(selectedDocument) : 'Documents'}
+          {selectedDocument
+            ? getDocumentDisplayName(selectedDocument)
+            : "Documents"}
         </h1>
-        
+
         <div className="flex items-center space-x-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="p-2"
-          >
+          <Button variant="ghost" size="sm" className="p-2">
             <Bookmark className="w-5 h-5 text-gray-600" />
           </Button>
           <Button
@@ -393,18 +434,18 @@ export default function MobileEditorLayout() {
               onDoubleClick={() => setIsEditingContent(true)}
               onDragOver={(e) => {
                 e.preventDefault();
-                e.dataTransfer.dropEffect = 'copy';
+                e.dataTransfer.dropEffect = "copy";
               }}
               onDrop={(e) => {
                 e.preventDefault();
-                const quizData = e.dataTransfer.getData('quiz');
+                const quizData = e.dataTransfer.getData("quiz");
                 if (quizData) {
                   try {
                     const quiz = JSON.parse(quizData);
                     setPreviewContent(quiz.sourceText);
                     setShowPreview(true);
                   } catch (error) {
-                    console.error('Error parsing dropped quiz data:', error);
+                    console.error("Error parsing dropped quiz data:", error);
                   }
                 }
               }}
@@ -417,9 +458,9 @@ export default function MobileEditorLayout() {
                   onChange={(e) => setTempTitle(e.target.value)}
                   onBlur={saveTitleChanges}
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
+                    if (e.key === "Enter") {
                       saveTitleChanges();
-                    } else if (e.key === 'Escape') {
+                    } else if (e.key === "Escape") {
                       cancelTitleEditing();
                     }
                   }}
@@ -440,13 +481,15 @@ export default function MobileEditorLayout() {
               {showPreview ? (
                 <>
                   <div className="mb-4 p-3 bg-orange-50 border border-orange-200 rounded-lg">
-                    <div className="font-medium text-orange-800 mb-2">📖 Quiz Source Preview</div>
+                    <div className="font-medium text-orange-800 mb-2">
+                      📖 Quiz Source Preview
+                    </div>
                     <Button
                       size="sm"
                       variant="outline"
                       onClick={() => {
                         setShowPreview(false);
-                        setPreviewContent('');
+                        setPreviewContent("");
                       }}
                     >
                       Return to Document
@@ -532,26 +575,34 @@ export default function MobileEditorLayout() {
                 <X className="w-5 h-5" />
               </Button>
             </div>
-            
+
             <div className="overflow-y-auto flex-1 p-4">
               <div className="space-y-2">
                 {documents.map((doc) => (
                   <div
                     key={doc.id}
                     className={`flex items-center justify-between p-4 rounded-lg cursor-pointer transition-colors ${
-                      selectedDocumentId === doc.id 
-                        ? 'bg-blue-50 border border-blue-200' 
-                        : 'bg-gray-50 hover:bg-gray-100'
+                      selectedDocumentId === doc.id
+                        ? "bg-blue-50 border border-blue-200"
+                        : "bg-gray-50 hover:bg-gray-100"
                     }`}
                     onClick={() => handleDocumentSelect(doc.id)}
                   >
                     <div className="flex items-center flex-1 min-w-0">
-                      <FileText className={`w-5 h-5 mr-3 flex-shrink-0 ${
-                        selectedDocumentId === doc.id ? 'text-blue-500' : 'text-gray-500'
-                      }`} />
+                      <FileText
+                        className={`w-5 h-5 mr-3 flex-shrink-0 ${
+                          selectedDocumentId === doc.id
+                            ? "text-blue-500"
+                            : "text-gray-500"
+                        }`}
+                      />
                       <div className="min-w-0 flex-1">
-                        <div className="font-medium text-gray-900 truncate">{getDocumentDisplayName(doc)}</div>
-                        <div className="text-sm text-gray-500">{doc.createdAt.toLocaleDateString()}</div>
+                        <div className="font-medium text-gray-900 truncate">
+                          {getDocumentDisplayName(doc)}
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          {doc.createdAt.toLocaleDateString()}
+                        </div>
                       </div>
                     </div>
                     {documents.length > 1 && (
@@ -570,7 +621,7 @@ export default function MobileEditorLayout() {
                   </div>
                 ))}
               </div>
-              
+
               <Button
                 variant="outline"
                 className="w-full mt-4"
@@ -623,13 +674,19 @@ export default function MobileEditorLayout() {
                       className="p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
                       onClick={() => handleDocumentSelect(doc.id)}
                     >
-                      <div className="font-medium text-gray-900 mb-2">{getDocumentDisplayName(doc)}</div>
+                      <div className="font-medium text-gray-900 mb-2">
+                        {getDocumentDisplayName(doc)}
+                      </div>
                       {matches.map((match, index) => (
                         <div
                           key={index}
                           className="text-sm text-gray-600 mb-1 leading-relaxed"
                           dangerouslySetInnerHTML={{
-                            __html: highlightSearchTerm(match.substring(0, 100) + (match.length > 100 ? '...' : ''), searchQuery)
+                            __html: highlightSearchTerm(
+                              match.substring(0, 100) +
+                                (match.length > 100 ? "..." : ""),
+                              searchQuery,
+                            ),
                           }}
                         />
                       ))}
@@ -653,13 +710,15 @@ export default function MobileEditorLayout() {
       {/* Quiz Tools Drawer */}
       {quizDrawerOpen && (
         <>
-          <div 
+          <div
             className="fixed inset-0 bg-black bg-opacity-50 z-30"
             onClick={() => setQuizDrawerOpen(false)}
           />
           <div className="fixed bottom-0 left-0 right-0 bg-white rounded-t-xl z-40 max-h-[80vh] overflow-hidden">
             <div className="flex items-center justify-between p-4 border-b border-gray-200">
-              <h2 className="text-lg font-semibold text-gray-900">Quiz Tools</h2>
+              <h2 className="text-lg font-semibold text-gray-900">
+                Quiz Tools
+              </h2>
               <Button
                 variant="ghost"
                 size="sm"
@@ -668,79 +727,106 @@ export default function MobileEditorLayout() {
                 <X className="w-5 h-5" />
               </Button>
             </div>
-            
+
             <div className="overflow-y-auto max-h-[60vh] p-4">
               {selectedText ? (
                 <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg mb-4">
-                  <div className="font-medium text-blue-800 mb-1">Selected text:</div>
-                  <div className="text-blue-700 text-sm">"{selectedText.substring(0, 100)}{selectedText.length > 100 ? '...' : '"'}</div>
+                  <div className="font-medium text-blue-800 mb-1">
+                    Selected text:
+                  </div>
+                  <div className="text-blue-700 text-sm">
+                    "{selectedText.substring(0, 100)}
+                    {selectedText.length > 100 ? "..." : '"'}
+                  </div>
                 </div>
               ) : (
                 <div className="p-3 bg-gray-50 border border-gray-200 rounded-lg mb-4">
-                  <div className="text-gray-600 text-sm">Select text in the document to generate quizzes</div>
+                  <div className="text-gray-600 text-sm">
+                    Select text in the document to generate quizzes
+                  </div>
                 </div>
               )}
 
               <div className="space-y-3">
-                <div 
+                <div
                   className={`p-4 rounded-lg border-2 border-blue-200 bg-blue-50 cursor-pointer hover:shadow-md transition-all ${
-                    isGeneratingQuiz && generatingType === 'flashcard' ? 'opacity-50 pointer-events-none' : ''
+                    isGeneratingQuiz && generatingType === "flashcard"
+                      ? "opacity-50 pointer-events-none"
+                      : ""
                   }`}
-                  onClick={() => handleQuizToolClick('flashcard')}
+                  onClick={() => handleQuizToolClick("flashcard")}
                 >
                   <div className="flex items-center space-x-3">
-                    {isGeneratingQuiz && generatingType === 'flashcard' ? (
+                    {isGeneratingQuiz && generatingType === "flashcard" ? (
                       <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
                     ) : (
                       <span className="text-2xl">🎴</span>
                     )}
                     <div>
                       <h3 className="font-semibold text-gray-800">
-                        {isGeneratingQuiz && generatingType === 'flashcard' ? 'Generating...' : 'Flash Cards'}
+                        {isGeneratingQuiz && generatingType === "flashcard"
+                          ? "Generating..."
+                          : "Flash Cards"}
                       </h3>
-                      <p className="text-sm text-gray-600">Create flashcards from selected text</p>
+                      <p className="text-sm text-gray-600">
+                        Create flashcards from selected text
+                      </p>
                     </div>
                   </div>
                 </div>
-                
-                <div 
+
+                <div
                   className={`p-4 rounded-lg border-2 border-green-200 bg-green-50 cursor-pointer hover:shadow-md transition-all ${
-                    isGeneratingQuiz && generatingType === 'multiple-choice' ? 'opacity-50 pointer-events-none' : ''
+                    isGeneratingQuiz && generatingType === "multiple-choice"
+                      ? "opacity-50 pointer-events-none"
+                      : ""
                   }`}
-                  onClick={() => handleQuizToolClick('multiple-choice')}
+                  onClick={() => handleQuizToolClick("multiple-choice")}
                 >
                   <div className="flex items-center space-x-3">
-                    {isGeneratingQuiz && generatingType === 'multiple-choice' ? (
+                    {isGeneratingQuiz &&
+                    generatingType === "multiple-choice" ? (
                       <Loader2 className="w-6 h-6 animate-spin text-green-600" />
                     ) : (
                       <span className="text-2xl">📝</span>
                     )}
                     <div>
                       <h3 className="font-semibold text-gray-800">
-                        {isGeneratingQuiz && generatingType === 'multiple-choice' ? 'Generating...' : 'Multiple Choice'}
+                        {isGeneratingQuiz &&
+                        generatingType === "multiple-choice"
+                          ? "Generating..."
+                          : "Multiple Choice"}
                       </h3>
-                      <p className="text-sm text-gray-600">Generate multiple choice questions</p>
+                      <p className="text-sm text-gray-600">
+                        Generate multiple choice questions
+                      </p>
                     </div>
                   </div>
                 </div>
-                
-                <div 
+
+                <div
                   className={`p-4 rounded-lg border-2 border-purple-200 bg-purple-50 cursor-pointer hover:shadow-md transition-all ${
-                    isGeneratingQuiz && generatingType === 'short-writing' ? 'opacity-50 pointer-events-none' : ''
+                    isGeneratingQuiz && generatingType === "short-writing"
+                      ? "opacity-50 pointer-events-none"
+                      : ""
                   }`}
-                  onClick={() => handleQuizToolClick('short-writing')}
+                  onClick={() => handleQuizToolClick("short-writing")}
                 >
                   <div className="flex items-center space-x-3">
-                    {isGeneratingQuiz && generatingType === 'short-writing' ? (
+                    {isGeneratingQuiz && generatingType === "short-writing" ? (
                       <Loader2 className="w-6 h-6 animate-spin text-purple-600" />
                     ) : (
                       <span className="text-2xl">✍️</span>
                     )}
                     <div>
                       <h3 className="font-semibold text-gray-800">
-                        {isGeneratingQuiz && generatingType === 'short-writing' ? 'Generating...' : 'Short Writing'}
+                        {isGeneratingQuiz && generatingType === "short-writing"
+                          ? "Generating..."
+                          : "Short Writing"}
                       </h3>
-                      <p className="text-sm text-gray-600">Create writing prompts and exercises</p>
+                      <p className="text-sm text-gray-600">
+                        Create writing prompts and exercises
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -749,28 +835,38 @@ export default function MobileEditorLayout() {
               {allQuizzes.length > 0 && (
                 <>
                   <div className="mt-6 pt-4 border-t border-gray-200">
-                    <h3 className="font-semibold text-gray-800 mb-3">All Quizzes ({allQuizzes.length})</h3>
+                    <h3 className="font-semibold text-gray-800 mb-3">
+                      All Quizzes ({allQuizzes.length})
+                    </h3>
                     <div className="space-y-2">
                       {allQuizzes.map((quiz) => {
                         const getQuizIcon = (type: string) => {
                           switch (type) {
-                            case 'flashcard': return '🎴';
-                            case 'multiple-choice': return '📝';
-                            case 'short-writing': return '✍️';
-                            default: return '📄';
+                            case "flashcard":
+                              return "🎴";
+                            case "multiple-choice":
+                              return "📝";
+                            case "short-writing":
+                              return "✍️";
+                            default:
+                              return "📄";
                           }
                         };
 
                         const getItemCount = (quiz: any) => {
                           if (Array.isArray(quiz.data)) {
                             switch (quiz.type) {
-                              case 'flashcard': return `${quiz.data.length} cards`;
-                              case 'multiple-choice': return `${quiz.data.length} questions`;
-                              case 'short-writing': return `${quiz.data.length} tasks`;
-                              default: return `${quiz.data.length} items`;
+                              case "flashcard":
+                                return `${quiz.data.length} cards`;
+                              case "multiple-choice":
+                                return `${quiz.data.length} questions`;
+                              case "short-writing":
+                                return `${quiz.data.length} tasks`;
+                              default:
+                                return `${quiz.data.length} items`;
                             }
                           }
-                          return '0 items';
+                          return "0 items";
                         };
 
                         return (
@@ -779,8 +875,11 @@ export default function MobileEditorLayout() {
                             className="group p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors relative"
                             draggable
                             onDragStart={(e) => {
-                              e.dataTransfer.setData('quiz', JSON.stringify(quiz));
-                              e.dataTransfer.effectAllowed = 'copy';
+                              e.dataTransfer.setData(
+                                "quiz",
+                                JSON.stringify(quiz),
+                              );
+                              e.dataTransfer.effectAllowed = "copy";
                             }}
                             onClick={() => {
                               navigate(`/quiz/${quiz.type}`);
@@ -790,11 +889,19 @@ export default function MobileEditorLayout() {
                             <div className="flex items-start justify-between">
                               <div className="flex-1">
                                 <div className="flex items-center space-x-2">
-                                  <span className="text-sm">{getQuizIcon(quiz.type)}</span>
-                                  <div className="text-sm font-medium text-gray-800 truncate">{quiz.title}</div>
+                                  <span className="text-sm">
+                                    {getQuizIcon(quiz.type)}
+                                  </span>
+                                  <div className="text-sm font-medium text-gray-800 truncate">
+                                    {quiz.title}
+                                  </div>
                                 </div>
-                                <div className="text-xs text-gray-500 mt-1">{getItemCount(quiz)}</div>
-                                <div className="text-xs text-gray-400">{quiz.createdAt.toLocaleDateString()}</div>
+                                <div className="text-xs text-gray-500 mt-1">
+                                  {getItemCount(quiz)}
+                                </div>
+                                <div className="text-xs text-gray-400">
+                                  {quiz.createdAt.toLocaleDateString()}
+                                </div>
                               </div>
                               <div className="opacity-0 group-hover:opacity-100 transition-opacity">
                                 <div className="w-4 h-4 text-gray-400">⋮⋮</div>
@@ -824,7 +931,9 @@ export default function MobileEditorLayout() {
       {showDuplicateWarning && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-red-500 text-white rounded-lg p-4 mx-4 max-w-sm w-full text-center shadow-lg">
-            <h3 className="font-semibold mb-2">There's already a file with the same name</h3>
+            <h3 className="font-semibold mb-2">
+              There's already a file with the same name
+            </h3>
             <Button
               variant="secondary"
               size="sm"
@@ -845,8 +954,12 @@ export default function MobileEditorLayout() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 mx-4 max-w-sm w-full text-center">
             <Loader2 className="w-8 h-8 animate-spin text-blue-600 mx-auto mb-3" />
-            <h3 className="font-semibold text-gray-800 mb-1">Generating Quiz</h3>
-            <p className="text-sm text-gray-600">Please wait while we create your {generatingType} quiz...</p>
+            <h3 className="font-semibold text-gray-800 mb-1">
+              Generating Quiz
+            </h3>
+            <p className="text-sm text-gray-600">
+              Please wait while we create your {generatingType} quiz...
+            </p>
           </div>
         </div>
       )}
