@@ -767,9 +767,16 @@ export default function EditorLayoutSimple() {
                   variant="outline"
                   className="w-full"
                   onClick={() => {
+                    // Save changes to the quiz before returning
+                    if (currentPreviewQuiz && previewContent !== currentPreviewQuiz.sourceText) {
+                      updateQuiz(currentPreviewQuiz.id, { sourceText: previewContent });
+                    }
+
+                    // Reset preview state
                     setShowPreview(false);
                     setPreviewContent("");
                     setOriginalContent("");
+                    setCurrentPreviewQuiz(null);
                   }}
                 >
                   Return to Document
