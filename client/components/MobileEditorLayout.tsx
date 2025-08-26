@@ -101,6 +101,8 @@ export default function MobileEditorLayout() {
   const [previewContent, setPreviewContent] = useState("");
   const [previewTitle, setPreviewTitle] = useState("");
   const [isEditMode, setIsEditMode] = useState(true);
+  const [showModeToast, setShowModeToast] = useState(false);
+  const [modeToastMessage, setModeToastMessage] = useState("");
 
   const selectedDocument = documents.find(
     (doc) => doc.id === selectedDocumentId,
@@ -482,7 +484,17 @@ export default function MobileEditorLayout() {
                   if (isEditingTitle && titleCollisionWarning) {
                     cancelTitleEditing();
                   }
-                  setIsEditMode(!isEditMode);
+                  const newMode = !isEditMode;
+                  setIsEditMode(newMode);
+
+                  // Show toast notification
+                  setModeToastMessage(newMode ? "✒️ Edit Mode" : "👁️ Preview Mode");
+                  setShowModeToast(true);
+
+                  // Hide toast after 1 second
+                  setTimeout(() => {
+                    setShowModeToast(false);
+                  }, 1000);
                 }}
                 title={isEditMode ? "Switch to Preview Mode" : "Switch to Edit Mode"}
               >
@@ -646,29 +658,9 @@ export default function MobileEditorLayout() {
                   {renderMobileMarkdownContent(previewContent)}
                 </>
               ) : isEditMode ? (
-                <>
-                  <div className="mb-4 p-3 bg-gray-50 border border-gray-200 rounded-lg">
-                    <div className="font-medium text-gray-800 mb-1">
-                      ✒️ Edit Mode
-                    </div>
-                    <div className="text-sm text-gray-600">
-                      Raw text without formatting. Click the preview button (👁️) to see formatted version.
-                    </div>
-                  </div>
-                  {renderPlainTextContent(selectedDocument.content)}
-                </>
+                renderPlainTextContent(selectedDocument.content)
               ) : (
-                <div className="prose max-w-none">
-                  <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                    <div className="font-medium text-blue-800 mb-1">
-                      👁️ Preview Mode
-                    </div>
-                    <div className="text-sm text-blue-600">
-                      Formatted text with highlights. Click the edit button (✒️) to see raw text.
-                    </div>
-                  </div>
-                  {renderMobileMarkdownContent(selectedDocument.content)}
-                </div>
+                renderMobileMarkdownContent(selectedDocument.content)
               )}
             </div>
           )
@@ -685,6 +677,15 @@ export default function MobileEditorLayout() {
         )}
       </div>
 
+
+      {/* Mode Switch Toast */}
+      {showModeToast && (
+        <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-[200] animate-in fade-in slide-in-from-top-2 duration-300">
+          <div className="bg-gray-900 text-white px-4 py-2 rounded-lg shadow-lg text-sm font-medium">
+            {modeToastMessage}
+          </div>
+        </div>
+      )}
 
       {/* Bottom Navigation */}
       <div className="flex items-center justify-around px-4 py-3 bg-white border-t border-gray-200 relative z-20">
