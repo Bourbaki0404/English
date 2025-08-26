@@ -843,10 +843,10 @@ export default function MobileEditorLayout() {
       {searchDrawerOpen && (
         <>
           <div
-            className="absolute inset-0 bg-black bg-opacity-50 z-30"
+            className="absolute inset-0 bg-black bg-opacity-50 z-30 animate-in fade-in duration-300"
             onClick={() => setSearchDrawerOpen(false)}
           />
-          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-xl z-40 max-h-[80vh] overflow-hidden">
+          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-xl z-40 max-h-[80vh] overflow-hidden animate-in slide-in-from-bottom-4 duration-300">
             <div className="flex items-center justify-between p-4 border-b border-gray-200">
               <h2 className="text-lg font-semibold text-gray-900">Search</h2>
               <Button
@@ -948,10 +948,10 @@ export default function MobileEditorLayout() {
       {quizDrawerOpen && (
         <>
           <div
-            className="absolute inset-0 bg-black bg-opacity-50 z-30"
+            className="absolute inset-0 bg-black bg-opacity-50 z-30 animate-in fade-in duration-300"
             onClick={() => setQuizDrawerOpen(false)}
           />
-          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-xl z-40 max-h-[80vh] overflow-hidden">
+          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-xl z-40 max-h-[80vh] overflow-hidden animate-in slide-in-from-bottom-4 duration-300">
             <div className="flex items-center justify-between p-4 border-b border-gray-200">
               <h2 className="text-lg font-semibold text-gray-900">
                 Quiz Tools
