@@ -429,7 +429,7 @@ export default function MobileEditorLayout() {
               </Button>
             </div>
             
-            <div className="overflow-y-auto max-h-[60vh] p-4">
+            <div className="overflow-y-auto flex-1 p-4">
               <div className="space-y-2">
                 {documents.map((doc) => (
                   <div
