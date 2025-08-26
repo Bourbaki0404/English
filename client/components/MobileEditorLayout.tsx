@@ -97,6 +97,7 @@ export default function MobileEditorLayout() {
 
   const selectedDocument = documents.find(doc => doc.id === selectedDocumentId);
   const documentQuizzes = selectedDocument ? getQuizzesByDocument(selectedDocument.id) : [];
+  const allQuizzes = getAllQuizzes();
 
   // Function to extract title from markdown content
   const extractTitleFromContent = (content: string): string => {
