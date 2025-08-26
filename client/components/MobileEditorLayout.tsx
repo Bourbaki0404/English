@@ -466,9 +466,16 @@ export default function MobileEditorLayout() {
               }}
             >
               {/* Document Title */}
-              <div className="mb-8">
+              <div className="mb-8 relative">
                 {isEditingTitle ? (
-                  <>
+                  <div
+                    className="text-3xl font-bold text-gray-900 cursor-text min-h-[2.5rem] relative"
+                    onClick={(e) => {
+                      // Focus the hidden input when clicking anywhere on the title area
+                      const input = e.currentTarget.querySelector('input');
+                      if (input) input.focus();
+                    }}
+                  >
                     <input
                       type="text"
                       value={tempTitle}
@@ -481,7 +488,7 @@ export default function MobileEditorLayout() {
                           cancelTitleEditing();
                         }
                       }}
-                      className="text-3xl font-bold text-gray-900 bg-transparent border-0 focus:outline-none w-full resize-none appearance-none"
+                      className="absolute inset-0 w-full h-full text-3xl font-bold text-gray-900 bg-transparent border-0 outline-0 resize-none overflow-hidden"
                       style={{
                         fontFamily: 'inherit',
                         fontSize: 'inherit',
@@ -489,17 +496,20 @@ export default function MobileEditorLayout() {
                         lineHeight: 'inherit',
                         color: 'inherit',
                         padding: '0',
-                        margin: '0'
+                        margin: '0',
+                        appearance: 'none',
+                        border: 'none',
+                        boxShadow: 'none',
+                        background: 'transparent'
                       }}
                       placeholder="Document title"
                       autoFocus
                     />
-                    {titleCollisionWarning && (
-                      <div className="text-red-500 text-sm mt-2 bg-red-50 px-3 py-2 rounded-md border border-red-200">
-                        There's already a file with the same name
-                      </div>
-                    )}
-                  </>
+                    {/* Invisible text for sizing */}
+                    <span className="invisible whitespace-pre-wrap">
+                      {tempTitle || "Document title"}
+                    </span>
+                  </div>
                 ) : (
                   <h1
                     className="text-3xl font-bold text-gray-900 cursor-pointer hover:bg-gray-50 px-2 py-1 -mx-2 rounded transition-colors"
@@ -547,6 +557,23 @@ export default function MobileEditorLayout() {
           </div>
         )}
       </div>
+
+      {/* Floating Collision Warning Toast */}
+      {titleCollisionWarning && (
+        <div className="fixed top-0 left-0 right-0 z-[100] flex justify-center p-4">
+          <div className="relative">
+            <div className="bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg max-w-sm">
+              <div className="text-center font-medium">
+                There's already a file with the same name
+              </div>
+              {/* Triangle pointer */}
+              <div className="absolute top-full left-1/2 transform -translate-x-1/2">
+                <div className="w-0 h-0 border-l-[8px] border-r-[8px] border-t-[8px] border-l-transparent border-r-transparent border-t-red-500"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Bottom Navigation */}
       <div className="flex items-center justify-around px-4 py-3 bg-white border-t border-gray-200 relative z-20">
