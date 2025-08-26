@@ -410,14 +410,14 @@ export default function MobileEditorLayout() {
         </Button>
       </div>
 
-      {/* Documents Drawer */}
+      {/* Documents Drawer - Slide from Left */}
       {documentsDrawerOpen && (
         <>
-          <div 
+          <div
             className="fixed inset-0 bg-black bg-opacity-50 z-30"
             onClick={() => setDocumentsDrawerOpen(false)}
           />
-          <div className="fixed bottom-0 left-0 right-0 bg-white rounded-t-xl z-40 max-h-[80vh] overflow-hidden">
+          <div className="fixed top-0 left-0 bottom-0 bg-white z-40 w-80 max-w-[85vw] overflow-hidden shadow-xl">
             <div className="flex items-center justify-between p-4 border-b border-gray-200">
               <h2 className="text-lg font-semibold text-gray-900">Documents</h2>
               <Button
