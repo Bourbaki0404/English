@@ -152,12 +152,12 @@ The **primeval** forest felt untouched by time, with ancient trees standing in p
     setIsEditing(true);
   }, []);
 
-  // Handle click on editor to switch to edit mode
+  // Handle click on editor - same as toggle button
   const handleEditorClick = useCallback(() => {
-    if (!isEditing && !showRawText) {
-      setIsEditing(true);
+    if (!showRawText) {
+      toggleMode();
     }
-  }, [isEditing, showRawText]);
+  }, [showRawText, toggleMode]);
 
   // Handle blur (stop editing)
   const handleBlur = useCallback(() => {
