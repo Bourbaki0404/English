@@ -689,15 +689,30 @@ export default function EditorLayoutSimple() {
                       }}
                     />
                   ) : (
-                    <HybridEditor
-                      content={selectedDocument.content}
-                      onChange={handleContentChange}
-                      onTextSelection={(text) => {
-                        setSelectedText(text);
-                        handleTextSelection();
+                    <div
+                      onDragOver={(e) => {
+                        e.preventDefault();
+                        e.dataTransfer.dropEffect = "copy";
                       }}
-                      className="min-h-[600px]"
-                    />
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        if (draggedQuiz) {
+                          setOriginalContent(selectedDocument.content);
+                          setPreviewContent(draggedQuiz.sourceText || "No preview content available");
+                          setShowPreview(true);
+                        }
+                      }}
+                    >
+                      <HybridEditor
+                        content={selectedDocument.content}
+                        onChange={handleContentChange}
+                        onTextSelection={(text) => {
+                          setSelectedText(text);
+                          handleTextSelection();
+                        }}
+                        className="min-h-[600px]"
+                      />
+                    </div>
                   )}
                 </div>
               </div>
