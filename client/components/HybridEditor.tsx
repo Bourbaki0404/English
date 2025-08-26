@@ -194,14 +194,16 @@ The **primeval** forest felt untouched by time, with ancient trees standing in p
       ) : (
         <div
           ref={editorRef}
-          className="prose prose-lg max-w-none min-h-[600px] p-6 focus:outline-none rounded-lg transition-all"
+          className={`prose prose-lg max-w-none min-h-[600px] p-6 focus:outline-none rounded-lg transition-all ${
+            !isEditing ? "cursor-pointer hover:bg-gray-50/50" : ""
+          }`}
           style={{
             fontFamily: "system-ui, -apple-system, sans-serif",
             lineHeight: "1.7",
             fontSize: "16px",
             width: "100%",
           }}
-          contentEditable
+          contentEditable={isEditing}
           suppressContentEditableWarning
           dangerouslySetInnerHTML={{ __html: htmlContent }}
           onInput={handleInput}
