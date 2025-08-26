@@ -97,6 +97,7 @@ export default function MobileEditorLayout() {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [tempTitle, setTempTitle] = useState("");
   const [showDuplicateWarning, setShowDuplicateWarning] = useState(false);
+  const [titleCollisionWarning, setTitleCollisionWarning] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [previewContent, setPreviewContent] = useState("");
 
@@ -121,11 +122,24 @@ export default function MobileEditorLayout() {
     );
   };
 
+  // Handle title input change with real-time collision detection
+  const handleTitleChange = (newTitle: string) => {
+    setTempTitle(newTitle);
+    // Check for collision in real-time while typing
+    if (newTitle.trim() && selectedDocument) {
+      const hasCollision = isTitleDuplicate(newTitle.trim(), selectedDocument.id);
+      setTitleCollisionWarning(hasCollision);
+    } else {
+      setTitleCollisionWarning(false);
+    }
+  };
+
   // Start editing title
   const startEditingTitle = () => {
     if (selectedDocument) {
       setTempTitle(selectedDocument.title);
       setIsEditingTitle(true);
+      setTitleCollisionWarning(false);
     }
   };
 
@@ -133,14 +147,15 @@ export default function MobileEditorLayout() {
   const saveTitleChanges = () => {
     if (!selectedDocument || !tempTitle.trim()) {
       setIsEditingTitle(false);
+      setTitleCollisionWarning(false);
       return;
     }
 
     const trimmedTitle = tempTitle.trim();
 
-    // Check for duplicates
+    // Check for duplicates - don't save if collision exists
     if (isTitleDuplicate(trimmedTitle, selectedDocument.id)) {
-      setShowDuplicateWarning(true);
+      // Keep editing mode active, collision warning already shown
       return;
     }
 
@@ -153,6 +168,7 @@ export default function MobileEditorLayout() {
 
     setIsEditingTitle(false);
     setTempTitle("");
+    setTitleCollisionWarning(false);
   };
 
   // Cancel title editing
@@ -160,6 +176,7 @@ export default function MobileEditorLayout() {
     setIsEditingTitle(false);
     setTempTitle("");
     setShowDuplicateWarning(false);
+    setTitleCollisionWarning(false);
   };
 
   const handleQuizToolClick = async (toolId: string) => {
@@ -451,38 +468,56 @@ export default function MobileEditorLayout() {
               }}
             >
               {/* Document Title */}
-              {isEditingTitle ? (
-                <input
-                  type="text"
-                  value={tempTitle}
-                  onChange={(e) => setTempTitle(e.target.value)}
-                  onBlur={saveTitleChanges}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      saveTitleChanges();
-                    } else if (e.key === "Escape") {
-                      cancelTitleEditing();
-                    }
-                  }}
-                  className="text-3xl font-bold text-gray-900 bg-transparent border-0 focus:outline-none mb-8 w-full"
-                  placeholder="Document title"
-                  autoFocus
-                />
-              ) : (
-                <h1
-                  className="text-3xl font-bold text-gray-900 mb-8 cursor-pointer hover:bg-gray-50 px-2 py-1 -mx-2 rounded transition-colors"
-                  onClick={startEditingTitle}
-                >
-                  {selectedDocument.title}
-                </h1>
-              )}
+              <div className="mb-8">
+                {isEditingTitle ? (
+                  <>
+                    <input
+                      type="text"
+                      value={tempTitle}
+                      onChange={(e) => handleTitleChange(e.target.value)}
+                      onBlur={saveTitleChanges}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          saveTitleChanges();
+                        } else if (e.key === "Escape") {
+                          cancelTitleEditing();
+                        }
+                      }}
+                      className="text-3xl font-bold text-gray-900 bg-transparent border-0 focus:outline-none w-full resize-none appearance-none"
+                      style={{
+                        fontFamily: 'inherit',
+                        fontSize: 'inherit',
+                        fontWeight: 'inherit',
+                        lineHeight: 'inherit',
+                        color: 'inherit',
+                        padding: '0',
+                        margin: '0'
+                      }}
+                      placeholder="Document title"
+                      autoFocus
+                    />
+                    {titleCollisionWarning && (
+                      <div className="text-red-500 text-sm mt-2 bg-red-50 px-3 py-2 rounded-md border border-red-200">
+                        There's already a file with the same name
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <h1
+                    className="text-3xl font-bold text-gray-900 cursor-pointer hover:bg-gray-50 px-2 py-1 -mx-2 rounded transition-colors"
+                    onClick={startEditingTitle}
+                  >
+                    {selectedDocument.title}
+                  </h1>
+                )}
+              </div>
 
               {/* Document Content */}
               {showPreview ? (
                 <>
                   <div className="mb-4 p-3 bg-orange-50 border border-orange-200 rounded-lg">
                     <div className="font-medium text-orange-800 mb-2">
-                      📖 Quiz Source Preview
+                      �� Quiz Source Preview
                     </div>
                     <Button
                       size="sm"
