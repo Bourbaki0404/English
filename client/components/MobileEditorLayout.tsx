@@ -574,14 +574,6 @@ export default function MobileEditorLayout() {
         )}
       </div>
 
-      {/* Collision Warning Banner */}
-      {titleCollisionWarning && (
-        <div className="fixed left-4 right-4 z-[100]" style={{ top: '180px' }}>
-          <div className="bg-red-500 text-white px-4 py-3 rounded text-center font-medium shadow-lg">
-            There's already a file with the same name
-          </div>
-        </div>
-      )}
 
       {/* Bottom Navigation */}
       <div className="flex items-center justify-around px-4 py-3 bg-white border-t border-gray-200 relative z-20">
