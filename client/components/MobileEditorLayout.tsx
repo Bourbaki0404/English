@@ -94,6 +94,8 @@ export default function MobileEditorLayout() {
   });
   const { createQuiz, getQuizzesByDocument, getAllQuizzes } = useQuiz();
   const [isEditingContent, setIsEditingContent] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+  const [previewContent, setPreviewContent] = useState('');
 
   const selectedDocument = documents.find(doc => doc.id === selectedDocumentId);
   const documentQuizzes = selectedDocument ? getQuizzesByDocument(selectedDocument.id) : [];
