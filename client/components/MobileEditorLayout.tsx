@@ -752,10 +752,10 @@ export default function MobileEditorLayout() {
       {documentsDrawerOpen && (
         <>
           <div
-            className="fixed inset-0 bg-black bg-opacity-50 z-30"
+            className="absolute inset-0 bg-black bg-opacity-50 z-30"
             onClick={() => setDocumentsDrawerOpen(false)}
           />
-          <div className="fixed top-0 left-0 bottom-0 bg-white z-40 w-80 max-w-[85vw] overflow-hidden shadow-xl">
+          <div className="absolute top-0 left-0 bottom-0 bg-white z-40 w-full overflow-hidden shadow-xl">
             <div className="flex items-center justify-between p-4 border-b border-gray-200">
               <h2 className="text-lg font-semibold text-gray-900">Documents</h2>
               <Button
@@ -830,10 +830,10 @@ export default function MobileEditorLayout() {
       {searchDrawerOpen && (
         <>
           <div
-            className="fixed inset-0 bg-black bg-opacity-50 z-30"
+            className="absolute inset-0 bg-black bg-opacity-50 z-30"
             onClick={() => setSearchDrawerOpen(false)}
           />
-          <div className="fixed bottom-0 left-0 right-0 bg-white rounded-t-xl z-40 max-h-[80vh] overflow-hidden">
+          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-xl z-40 max-h-[80vh] overflow-hidden">
             <div className="flex items-center justify-between p-4 border-b border-gray-200">
               <h2 className="text-lg font-semibold text-gray-900">Search</h2>
               <Button
@@ -902,10 +902,10 @@ export default function MobileEditorLayout() {
       {quizDrawerOpen && (
         <>
           <div
-            className="fixed inset-0 bg-black bg-opacity-50 z-30"
+            className="absolute inset-0 bg-black bg-opacity-50 z-30"
             onClick={() => setQuizDrawerOpen(false)}
           />
-          <div className="fixed bottom-0 left-0 right-0 bg-white rounded-t-xl z-40 max-h-[80vh] overflow-hidden">
+          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-xl z-40 max-h-[80vh] overflow-hidden">
             <div className="flex items-center justify-between p-4 border-b border-gray-200">
               <h2 className="text-lg font-semibold text-gray-900">
                 Quiz Tools
@@ -1128,12 +1128,18 @@ export default function MobileEditorLayout() {
       )}
 
       {/* Settings Modal */}
-      <SettingsModal
-        isOpen={settingsOpen}
-        onClose={() => setSettingsOpen(false)}
-        settings={settings}
-        onSettingsChange={setSettings}
-      />
+      {settingsOpen && (
+        <div className="absolute inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div className="w-full max-h-[80vh] overflow-hidden">
+            <SettingsModal
+              isOpen={settingsOpen}
+              onClose={() => setSettingsOpen(false)}
+              settings={settings}
+              onSettingsChange={setSettings}
+            />
+          </div>
+        </div>
+      )}
 
 
       {/* Loading Overlay */}
