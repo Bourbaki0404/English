@@ -308,6 +308,40 @@ Return only the title, no quotes or additional text.`;
     }
   };
 
+  const copyMessage = async (messageContent: string, messageId: string) => {
+    try {
+      await navigator.clipboard.writeText(messageContent);
+      setCopiedMessageId(messageId);
+      setTimeout(() => setCopiedMessageId(null), 2000);
+    } catch (error) {
+      console.error('Failed to copy message:', error);
+    }
+  };
+
+  const recallMessage = (messageId: string) => {
+    if (!currentSession) return;
+
+    const messageIndex = currentSession.messages.findIndex(msg => msg.id === messageId);
+    if (messageIndex === -1) return;
+
+    // Remove the message and all messages after it
+    const updatedMessages = currentSession.messages.slice(0, messageIndex);
+    const updatedSession = {
+      ...currentSession,
+      messages: updatedMessages,
+      updatedAt: new Date(),
+    };
+
+    setCurrentSession(updatedSession);
+
+    // Update in chat history
+    setChatHistory(prev =>
+      prev.map(session =>
+        session.id === currentSession.id ? updatedSession : session
+      )
+    );
+  };
+
   if (!isOpen) return null;
 
   return (
