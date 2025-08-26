@@ -42,6 +42,7 @@ interface QuizContextType {
   getQuizzesByDocument: (documentId: string) => Quiz[];
   getQuizzesByDocumentAndType: (documentId: string, type: Quiz['type']) => Quiz[];
   getLatestQuizByType: (type: Quiz['type']) => Quiz | null;
+  getAllQuizzes: () => Quiz[];
   deleteQuiz: (id: string) => void;
   setCurrentQuiz: (quiz: Quiz | null) => void;
 }
