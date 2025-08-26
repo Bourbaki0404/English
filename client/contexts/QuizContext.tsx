@@ -158,6 +158,12 @@ export function QuizProvider({ children }: { children: ReactNode }) {
     setCurrentQuiz(newQuiz); // Set as current quiz for immediate use
   };
 
+  const updateQuiz = (id: string, updates: Partial<Quiz>) => {
+    setQuizzes(prev => prev.map(quiz =>
+      quiz.id === id ? { ...quiz, ...updates } : quiz
+    ));
+  };
+
   const getQuizzesByType = (type: Quiz['type']) => {
     return quizzes.filter(quiz => quiz.type === type);
   };
