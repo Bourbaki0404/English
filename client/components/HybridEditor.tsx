@@ -119,10 +119,22 @@ The **primeval** forest felt untouched by time, with ancient trees standing in p
 
   // Toggle between raw text and preview mode
   const toggleMode = useCallback(() => {
-    // Always load vocabulary content when pencil is clicked
-    onChange(vocabularyContent);
-    setShowRawText(true);
-  }, [onChange, vocabularyContent]);
+    // If content is empty and we're not in raw text mode, load vocabulary content
+    if (content.trim() === "" && !showRawText) {
+      onChange(vocabularyContent);
+      setShowRawText(true);
+      return;
+    }
+
+    // Toggle between modes
+    setShowRawText(!showRawText);
+    if (isEditing && editorRef.current) {
+      // Save current content before switching modes
+      const newHtml = editorRef.current.innerHTML;
+      const newMarkdown = htmlToMarkdown(newHtml);
+      onChange(newMarkdown);
+    }
+  }, [showRawText, isEditing, htmlToMarkdown, onChange, content, vocabularyContent]);
 
   // Handle content changes
   const handleInput = useCallback(() => {
