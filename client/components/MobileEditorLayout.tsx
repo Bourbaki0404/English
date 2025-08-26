@@ -765,7 +765,7 @@ export default function MobileEditorLayout() {
       {documentsDrawerOpen && (
         <>
           <div
-            className="absolute inset-0 bg-black bg-opacity-30 z-30 transition-opacity duration-300"
+            className="absolute inset-0 bg-black bg-opacity-30 z-30 animate-in fade-in duration-400"
             onClick={() => setDocumentsDrawerOpen(false)}
           />
           <div className="absolute top-0 left-0 bottom-0 bg-white z-40 w-4/5 overflow-hidden shadow-xl drawer-slide-in">
