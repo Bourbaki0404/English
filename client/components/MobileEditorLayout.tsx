@@ -76,6 +76,9 @@ export default function MobileEditorLayout() {
   const [selectedText, setSelectedText] = useState('');
   const [documentsDrawerOpen, setDocumentsDrawerOpen] = useState(false);
   const [quizDrawerOpen, setQuizDrawerOpen] = useState(false);
+  const [searchDrawerOpen, setSearchDrawerOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<{doc: Document, matches: string[]}[]>([]);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [isGeneratingQuiz, setIsGeneratingQuiz] = useState(false);
   const [generatingType, setGeneratingType] = useState<string>('');
