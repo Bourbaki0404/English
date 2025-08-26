@@ -642,12 +642,12 @@ export default function MobileEditorLayout() {
                 </div>
               </div>
 
-              {documentQuizzes.length > 0 && (
+              {allQuizzes.length > 0 && (
                 <>
                   <div className="mt-6 pt-4 border-t border-gray-200">
-                    <h3 className="font-semibold text-gray-800 mb-3">Recent Quizzes</h3>
+                    <h3 className="font-semibold text-gray-800 mb-3">All Quizzes ({allQuizzes.length})</h3>
                     <div className="space-y-2">
-                      {documentQuizzes.slice(0, 3).map((quiz) => {
+                      {allQuizzes.map((quiz) => {
                         const getQuizIcon = (type: string) => {
                           switch (type) {
                             case 'flashcard': return '🎴';
@@ -657,20 +657,43 @@ export default function MobileEditorLayout() {
                           }
                         };
 
+                        const getItemCount = (quiz: any) => {
+                          if (Array.isArray(quiz.data)) {
+                            switch (quiz.type) {
+                              case 'flashcard': return `${quiz.data.length} cards`;
+                              case 'multiple-choice': return `${quiz.data.length} questions`;
+                              case 'short-writing': return `${quiz.data.length} tasks`;
+                              default: return `${quiz.data.length} items`;
+                            }
+                          }
+                          return '0 items';
+                        };
+
                         return (
                           <div
                             key={quiz.id}
-                            className="p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
+                            className="group p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors relative"
+                            draggable
+                            onDragStart={(e) => {
+                              e.dataTransfer.setData('quiz', JSON.stringify(quiz));
+                              e.dataTransfer.effectAllowed = 'copy';
+                            }}
                             onClick={() => {
                               navigate(`/quiz/${quiz.type}`);
                               setQuizDrawerOpen(false);
                             }}
                           >
-                            <div className="flex items-center space-x-3">
-                              <span className="text-lg">{getQuizIcon(quiz.type)}</span>
-                              <div>
-                                <div className="font-medium text-gray-800 text-sm truncate">{quiz.title}</div>
-                                <div className="text-xs text-gray-500">{quiz.createdAt.toLocaleDateString()}</div>
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <div className="flex items-center space-x-2">
+                                  <span className="text-sm">{getQuizIcon(quiz.type)}</span>
+                                  <div className="text-sm font-medium text-gray-800 truncate">{quiz.title}</div>
+                                </div>
+                                <div className="text-xs text-gray-500 mt-1">{getItemCount(quiz)}</div>
+                                <div className="text-xs text-gray-400">{quiz.createdAt.toLocaleDateString()}</div>
+                              </div>
+                              <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                                <div className="w-4 h-4 text-gray-400">⋮⋮</div>
                               </div>
                             </div>
                           </div>
