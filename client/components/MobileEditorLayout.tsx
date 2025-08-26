@@ -238,11 +238,6 @@ export default function MobileEditorLayout() {
     setDocuments(prev => [...prev, newDocument]);
     setSelectedDocumentId(newId);
     setDocumentsDrawerOpen(false);
-
-    // Start editing the title immediately for new documents
-    setTimeout(() => {
-      startEditingTitle();
-    }, 100);
   };
 
   const handleDeleteDocument = (docId: string) => {
