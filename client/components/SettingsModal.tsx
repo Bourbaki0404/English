@@ -180,82 +180,65 @@ export default function SettingsModal({ isOpen, onClose, settings, onSettingsCha
   );
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl h-[600px] flex overflow-hidden">
-        {/* Sidebar */}
-        <div className="w-64 bg-gray-50 border-r border-gray-200">
-          <div className="p-4 border-b border-gray-200">
-            <h1 className="font-semibold text-gray-800 flex items-center">
-              <Settings className="w-5 h-5 mr-2" />
-              Settings
-            </h1>
-          </div>
-          
-          <div className="p-2">
-            <div className="space-y-1">
-              <button
-                onClick={() => setActiveSection('general')}
-                className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${
-                  activeSection === 'general'
-                    ? 'bg-blue-100 text-blue-700 font-medium'
-                    : 'text-gray-700 hover:bg-gray-100'
-                }`}
-              >
-                <User className="w-4 h-4 inline mr-2" />
-                General
-              </button>
-              
-              <button
-                onClick={() => setActiveSection('llm')}
-                className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${
-                  activeSection === 'llm'
-                    ? 'bg-blue-100 text-blue-700 font-medium'
-                    : 'text-gray-700 hover:bg-gray-100'
-                }`}
-              >
-                <Bot className="w-4 h-4 inline mr-2" />
-                Configure LLM
-              </button>
-            </div>
-          </div>
-        </div>
+    <div className="bg-white rounded-t-xl w-full max-w-sm mx-auto h-full flex flex-col overflow-hidden shadow-xl">
+      {/* Header */}
+      <div className="flex items-center justify-between p-4 border-b border-gray-200">
+        <h1 className="text-lg font-semibold text-gray-800 flex items-center">
+          <Settings className="w-5 h-5 mr-2" />
+          Settings
+        </h1>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onClose}
+          className="text-gray-500 hover:text-gray-700"
+        >
+          <X className="w-5 h-5" />
+        </Button>
+      </div>
 
-        {/* Main Content */}
-        <div className="flex-1 flex flex-col">
-          {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b border-gray-200">
-            <div className="flex items-center space-x-2">
-              <h2 className="text-lg font-semibold text-gray-800">
-                {activeSection === 'general' ? 'General' : 'Configure LLM'}
-              </h2>
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onClose}
-              className="text-gray-500 hover:text-gray-700"
-            >
-              <X className="w-5 h-5" />
-            </Button>
-          </div>
+      {/* Mobile Tab Navigation */}
+      <div className="flex border-b border-gray-200 bg-gray-50">
+        <button
+          onClick={() => setActiveSection('general')}
+          className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
+            activeSection === 'general'
+              ? 'text-blue-600 border-b-2 border-blue-600 bg-white'
+              : 'text-gray-600 hover:text-gray-800'
+          }`}
+        >
+          <User className="w-4 h-4 inline mr-2" />
+          General
+        </button>
 
-          {/* Content */}
-          <div className="flex-1 overflow-y-auto">
-            {activeSection === 'general' && renderGeneralSettings()}
-            {activeSection === 'llm' && renderLLMSettings()}
-          </div>
+        <button
+          onClick={() => setActiveSection('llm')}
+          className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
+            activeSection === 'llm'
+              ? 'text-blue-600 border-b-2 border-blue-600 bg-white'
+              : 'text-gray-600 hover:text-gray-800'
+          }`}
+        >
+          <Bot className="w-4 h-4 inline mr-2" />
+          LLM Config
+        </button>
+      </div>
 
-          {/* Footer */}
-          <div className="p-4 border-t border-gray-200 bg-gray-50">
-            <div className="flex justify-end space-x-3">
-              <Button variant="outline" onClick={onClose}>
-                Cancel
-              </Button>
-              <Button onClick={onClose}>
-                Save Settings
-              </Button>
-            </div>
-          </div>
+      {/* Content */}
+      <div className="flex-1 overflow-y-auto">
+        {activeSection === 'general' && renderGeneralSettings()}
+        {activeSection === 'llm' && renderLLMSettings()}
+      </div>
+
+      {/* Footer */}
+      <div className="p-4 border-t border-gray-200 bg-gray-50">
+        <div className="flex space-x-3">
+          <Button variant="outline" onClick={onClose} className="flex-1">
+            Cancel
+          </Button>
+          <Button onClick={onClose} className="flex-1">
+            Save
+          </Button>
         </div>
       </div>
     </div>
