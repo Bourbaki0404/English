@@ -86,6 +86,7 @@ export default function EditorLayoutSimple() {
   const [showPreview, setShowPreview] = useState(false);
   const [previewContent, setPreviewContent] = useState("");
   const [originalContent, setOriginalContent] = useState("");
+  const [currentPreviewQuiz, setCurrentPreviewQuiz] = useState<any>(null);
   const [collisionNotification, setCollisionNotification] =
     useState<CollisionNotification>({ show: false, message: "" });
   const [tempTitle, setTempTitle] = useState("");
