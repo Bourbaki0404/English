@@ -757,6 +757,7 @@ export default function MobileEditorLayout() {
             if (isEditingTitle && titleCollisionWarning) {
               cancelTitleEditing();
             }
+            setMoreDrawerOpen(true);
           }}
         >
           <Grid className="w-5 h-5 text-gray-600" />
