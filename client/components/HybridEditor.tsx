@@ -98,7 +98,6 @@ export default function HybridEditor({
     return markdown;
   }, []);
 
-
   // Update HTML when content changes
   useEffect(() => {
     if (!isEditing) {
@@ -136,7 +135,14 @@ The **primeval** forest felt untouched by time, with ancient trees standing in p
       const newMarkdown = htmlToMarkdown(newHtml);
       onChange(newMarkdown);
     }
-  }, [showRawText, isEditing, htmlToMarkdown, onChange, content, vocabularyContent]);
+  }, [
+    showRawText,
+    isEditing,
+    htmlToMarkdown,
+    onChange,
+    content,
+    vocabularyContent,
+  ]);
 
   // Handle content changes
   const handleInput = useCallback(() => {
@@ -222,7 +228,8 @@ The **primeval** forest felt untouched by time, with ancient trees standing in p
           <div className="space-y-2 text-sm">
             <div>Click to start writing...</div>
             <div className="text-xs text-gray-300">
-              Supports: **bold**, *italic*, ~~strikethrough~~, ==highlight==, ```code blocks```
+              Supports: **bold**, *italic*, ~~strikethrough~~, ==highlight==,
+              ```code blocks```
             </div>
           </div>
         </div>
@@ -232,7 +239,9 @@ The **primeval** forest felt untouched by time, with ancient trees standing in p
       <button
         onClick={toggleMode}
         className="absolute bottom-4 right-4 w-14 h-14 bg-white/70 hover:bg-white/80 backdrop-blur-sm border border-gray-200/50 rounded-full shadow-sm hover:shadow-lg transition-all duration-200 flex items-center justify-center group"
-        title={showRawText ? "Switch to preview mode" : "Switch to raw text mode"}
+        title={
+          showRawText ? "Switch to preview mode" : "Switch to raw text mode"
+        }
       >
         <Edit3
           size={20}

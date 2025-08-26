@@ -699,7 +699,10 @@ export default function EditorLayoutSimple() {
                         e.preventDefault();
                         if (draggedQuiz) {
                           setOriginalContent(selectedDocument.content);
-                          setPreviewContent(draggedQuiz.sourceText || "No preview content available");
+                          setPreviewContent(
+                            draggedQuiz.sourceText ||
+                              "No preview content available",
+                          );
                           setCurrentPreviewQuiz(draggedQuiz);
                           setShowPreview(true);
                         }
@@ -768,8 +771,13 @@ export default function EditorLayoutSimple() {
                   className="w-full"
                   onClick={() => {
                     // Save changes to the quiz before returning
-                    if (currentPreviewQuiz && previewContent !== currentPreviewQuiz.sourceText) {
-                      updateQuiz(currentPreviewQuiz.id, { sourceText: previewContent });
+                    if (
+                      currentPreviewQuiz &&
+                      previewContent !== currentPreviewQuiz.sourceText
+                    ) {
+                      updateQuiz(currentPreviewQuiz.id, {
+                        sourceText: previewContent,
+                      });
                     }
 
                     // Reset preview state
@@ -942,12 +950,12 @@ export default function EditorLayoutSimple() {
                           {getItemCount(quiz)}
                         </div>
                         <div className="text-xs text-gray-400">
-                          {quiz.createdAt.toLocaleString('en-US', {
-                            year: 'numeric',
-                            month: 'numeric',
-                            day: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit'
+                          {quiz.createdAt.toLocaleString("en-US", {
+                            year: "numeric",
+                            month: "numeric",
+                            day: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
                           })}
                         </div>
                       </div>
