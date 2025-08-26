@@ -374,21 +374,12 @@ export default function MobileEditorLayout() {
           variant="ghost"
           size="sm"
           className="flex flex-col items-center space-y-1 p-2"
-          onClick={() => setDocumentsDrawerOpen(true)}
-        >
-          <Layers className="w-5 h-5 text-gray-600" />
-          <span className="text-xs text-gray-600">Docs</span>
-        </Button>
-        
-        <Button
-          variant="ghost"
-          size="sm"
-          className="flex flex-col items-center space-y-1 p-2"
+          onClick={() => setSearchDrawerOpen(true)}
         >
           <Search className="w-5 h-5 text-gray-600" />
           <span className="text-xs text-gray-600">Search</span>
         </Button>
-        
+
         <Button
           variant="ghost"
           size="sm"
@@ -398,7 +389,7 @@ export default function MobileEditorLayout() {
           <Plus className="w-5 h-5 text-gray-600" />
           <span className="text-xs text-gray-600">Add</span>
         </Button>
-        
+
         <Button
           variant="ghost"
           size="sm"
@@ -408,7 +399,7 @@ export default function MobileEditorLayout() {
           <PenTool className="w-5 h-5 text-gray-600" />
           <span className="text-xs text-gray-600">Quiz</span>
         </Button>
-        
+
         <Button
           variant="ghost"
           size="sm"
