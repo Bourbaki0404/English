@@ -192,6 +192,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
       currentQuiz,
       setSelectedText,
       createQuiz,
+      updateQuiz,
       getQuizzesByType,
       getQuizzesByDocument,
       getQuizzesByDocumentAndType,
