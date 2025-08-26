@@ -133,7 +133,10 @@ export default function MobileEditorLayout() {
     setTempTitle(newTitle);
     // Check for collision in real-time while typing
     if (newTitle.trim() && selectedDocument) {
-      const hasCollision = isTitleDuplicate(newTitle.trim(), selectedDocument.id);
+      const hasCollision = isTitleDuplicate(
+        newTitle.trim(),
+        selectedDocument.id,
+      );
       setTitleCollisionWarning(hasCollision);
     } else {
       setTitleCollisionWarning(false);
@@ -328,7 +331,11 @@ export default function MobileEditorLayout() {
       return;
     }
 
-    const results: { doc: Document; matches: string[]; lineNumbers: number[] }[] = [];
+    const results: {
+      doc: Document;
+      matches: string[];
+      lineNumbers: number[];
+    }[] = [];
     documents.forEach((doc) => {
       const content = doc.content.toLowerCase();
       const searchTerm = query.toLowerCase();
@@ -351,7 +358,7 @@ export default function MobileEditorLayout() {
         results.push({
           doc,
           matches: matches.slice(0, 3),
-          lineNumbers: lineNumbers.slice(0, 3)
+          lineNumbers: lineNumbers.slice(0, 3),
         });
       }
     });
@@ -453,826 +460,846 @@ export default function MobileEditorLayout() {
   return (
     <div className="h-screen flex justify-center bg-gray-100">
       <div className="w-full max-w-sm bg-white flex flex-col relative overflow-hidden shadow-lg">
-      {/* Top Navigation Bar */}
-      <div className="flex items-center justify-between px-4 py-3 bg-white border-b border-gray-200 relative z-20">
-        <Button
-          variant="ghost"
-          size="sm"
-          className="p-2"
-          onClick={() => {
-            // If title editing with collision, revert title first
-            if (isEditingTitle && titleCollisionWarning) {
-              cancelTitleEditing();
-            }
-            setDocumentsDrawerOpen(true);
-          }}
-        >
-          <ChevronLeft className="w-5 h-5 text-gray-600" />
-        </Button>
+        {/* Top Navigation Bar */}
+        <div className="flex items-center justify-between px-4 py-3 bg-white border-b border-gray-200 relative z-20">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="p-2"
+            onClick={() => {
+              // If title editing with collision, revert title first
+              if (isEditingTitle && titleCollisionWarning) {
+                cancelTitleEditing();
+              }
+              setDocumentsDrawerOpen(true);
+            }}
+          >
+            <ChevronLeft className="w-5 h-5 text-gray-600" />
+          </Button>
 
-        <h1 className="text-lg font-medium text-gray-900 truncate mx-4">
-          {selectedDocument
-            ? getDocumentDisplayName(selectedDocument)
-            : "Documents"}
-        </h1>
+          <h1 className="text-lg font-medium text-gray-900 truncate mx-4">
+            {selectedDocument
+              ? getDocumentDisplayName(selectedDocument)
+              : "Documents"}
+          </h1>
 
-        <div className="flex items-center space-x-2">
-          {showPreview ? (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="p-2"
-              onClick={() => {
-                setShowPreview(false);
-                setPreviewContent("");
-                setPreviewTitle("");
-              }}
-            >
-              <ChevronLeft className="w-5 h-5 text-gray-600" />
-            </Button>
-          ) : (
-            <>
+          <div className="flex items-center space-x-2">
+            {showPreview ? (
               <Button
                 variant="ghost"
                 size="sm"
                 className="p-2"
                 onClick={() => {
-                  // If title editing with collision, revert title first
-                  if (isEditingTitle && titleCollisionWarning) {
-                    cancelTitleEditing();
-                  }
-                  const newMode = !isEditMode;
-                  setIsEditMode(newMode);
+                  setShowPreview(false);
+                  setPreviewContent("");
+                  setPreviewTitle("");
+                }}
+              >
+                <ChevronLeft className="w-5 h-5 text-gray-600" />
+              </Button>
+            ) : (
+              <>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="p-2"
+                  onClick={() => {
+                    // If title editing with collision, revert title first
+                    if (isEditingTitle && titleCollisionWarning) {
+                      cancelTitleEditing();
+                    }
+                    const newMode = !isEditMode;
+                    setIsEditMode(newMode);
 
-                  // Show toast notification
-                  setModeToastMessage(newMode ? "✒️ Edit Mode" : "👁️ Preview Mode");
-                  setShowModeToast(true);
+                    // Show toast notification
+                    setModeToastMessage(
+                      newMode ? "✒️ Edit Mode" : "👁️ Preview Mode",
+                    );
+                    setShowModeToast(true);
 
-                  // Hide toast after 1 second
-                  setTimeout(() => {
-                    setShowModeToast(false);
-                  }, 1000);
-                }}
-                title={isEditMode ? "Switch to Preview Mode" : "Switch to Edit Mode"}
-              >
-                {isEditMode ? (
-                  <span className="text-lg">✒️</span>
-                ) : (
-                  <span className="text-lg">👁️</span>
-                )}
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="p-2"
-                onClick={() => {
-                  // If title editing with collision, revert title first
-                  if (isEditingTitle && titleCollisionWarning) {
-                    cancelTitleEditing();
+                    // Hide toast after 1 second
+                    setTimeout(() => {
+                      setShowModeToast(false);
+                    }, 1000);
+                  }}
+                  title={
+                    isEditMode
+                      ? "Switch to Preview Mode"
+                      : "Switch to Edit Mode"
                   }
-                }}
-              >
-                <Bookmark className="w-5 h-5 text-gray-600" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="p-2"
-                onClick={() => {
-                  // If title editing with collision, revert title first
-                  if (isEditingTitle && titleCollisionWarning) {
-                    cancelTitleEditing();
-                  }
-                  setSettingsOpen(true);
-                }}
-              >
-                <MoreVertical className="w-5 h-5 text-gray-600" />
-              </Button>
-            </>
-          )}
+                >
+                  {isEditMode ? (
+                    <span className="text-lg">✒️</span>
+                  ) : (
+                    <span className="text-lg">👁️</span>
+                  )}
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="p-2"
+                  onClick={() => {
+                    // If title editing with collision, revert title first
+                    if (isEditingTitle && titleCollisionWarning) {
+                      cancelTitleEditing();
+                    }
+                  }}
+                >
+                  <Bookmark className="w-5 h-5 text-gray-600" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="p-2"
+                  onClick={() => {
+                    // If title editing with collision, revert title first
+                    if (isEditingTitle && titleCollisionWarning) {
+                      cancelTitleEditing();
+                    }
+                    setSettingsOpen(true);
+                  }}
+                >
+                  <MoreVertical className="w-5 h-5 text-gray-600" />
+                </Button>
+              </>
+            )}
+          </div>
         </div>
-      </div>
 
-      {/* Main Content Area */}
-      <div className="flex-1 overflow-y-auto px-8 py-6 bg-white">
-        {selectedDocument ? (
-          isEditingContent ? (
-            <textarea
-              value={selectedDocument.content}
-              onChange={(e) => handleContentChange(e.target.value)}
-              onBlur={() => setIsEditingContent(false)}
-              className="w-full min-h-[calc(100vh-200px)] p-0 border-0 resize-none focus:outline-none bg-transparent text-base leading-relaxed"
-              placeholder="Start writing your document content here..."
-              autoFocus
-            />
-          ) : (
-            <div
-              className="min-h-[calc(100vh-200px)] cursor-text"
-              onMouseUp={handleTextSelection}
-              onTouchEnd={handleTextSelection}
-              onDoubleClick={() => isEditMode && setIsEditingContent(true)}
-              onDragOver={(e) => {
-                e.preventDefault();
-                e.dataTransfer.dropEffect = "copy";
-              }}
-              onDrop={(e) => {
-                e.preventDefault();
-                const quizData = e.dataTransfer.getData("quiz");
-                if (quizData) {
-                  try {
-                    const quiz = JSON.parse(quizData);
-                    setPreviewContent(quiz.sourceText);
-                    setPreviewTitle(quiz.title);
-                    setShowPreview(true);
-                  } catch (error) {
-                    console.error("Error parsing dropped quiz data:", error);
+        {/* Main Content Area */}
+        <div className="flex-1 overflow-y-auto px-8 py-6 bg-white">
+          {selectedDocument ? (
+            isEditingContent ? (
+              <textarea
+                value={selectedDocument.content}
+                onChange={(e) => handleContentChange(e.target.value)}
+                onBlur={() => setIsEditingContent(false)}
+                className="w-full min-h-[calc(100vh-200px)] p-0 border-0 resize-none focus:outline-none bg-transparent text-base leading-relaxed"
+                placeholder="Start writing your document content here..."
+                autoFocus
+              />
+            ) : (
+              <div
+                className="min-h-[calc(100vh-200px)] cursor-text"
+                onMouseUp={handleTextSelection}
+                onTouchEnd={handleTextSelection}
+                onDoubleClick={() => isEditMode && setIsEditingContent(true)}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  e.dataTransfer.dropEffect = "copy";
+                }}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  const quizData = e.dataTransfer.getData("quiz");
+                  if (quizData) {
+                    try {
+                      const quiz = JSON.parse(quizData);
+                      setPreviewContent(quiz.sourceText);
+                      setPreviewTitle(quiz.title);
+                      setShowPreview(true);
+                    } catch (error) {
+                      console.error("Error parsing dropped quiz data:", error);
+                    }
                   }
-                }
-              }}
-            >
-              {/* Document Title */}
-              <div className="mb-8 relative">
-                {isEditingTitle ? (
-                  <div
-                    className="text-3xl font-bold text-gray-900 cursor-text min-h-[2.5rem] relative"
-                    onClick={(e) => {
-                      // Focus the hidden input when clicking anywhere on the title area
-                      const input = e.currentTarget.querySelector('input');
-                      if (input) input.focus();
-                    }}
-                  >
-                    <input
-                      type="text"
-                      value={tempTitle}
-                      onChange={(e) => handleTitleChange(e.target.value)}
-                      onBlur={saveTitleChanges}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          saveTitleChanges();
-                        } else if (e.key === "Escape") {
-                          cancelTitleEditing();
-                        }
+                }}
+              >
+                {/* Document Title */}
+                <div className="mb-8 relative">
+                  {isEditingTitle ? (
+                    <div
+                      className="text-3xl font-bold text-gray-900 cursor-text min-h-[2.5rem] relative"
+                      onClick={(e) => {
+                        // Focus the hidden input when clicking anywhere on the title area
+                        const input = e.currentTarget.querySelector("input");
+                        if (input) input.focus();
                       }}
-                      className="absolute inset-0 w-full h-full text-3xl font-bold text-gray-900 bg-transparent border-0 outline-0 resize-none overflow-hidden"
-                      style={{
-                        fontFamily: 'inherit',
-                        fontSize: 'inherit',
-                        fontWeight: 'inherit',
-                        lineHeight: 'inherit',
-                        color: 'inherit',
-                        padding: '0',
-                        margin: '0',
-                        appearance: 'none',
-                        border: 'none',
-                        boxShadow: 'none',
-                        background: 'transparent'
-                      }}
-                      placeholder="Document title"
-                      autoFocus
-                    />
-                    {/* Invisible text for sizing */}
-                    <span className="invisible whitespace-pre-wrap">
-                      {tempTitle || "Document title"}
-                    </span>
-                  </div>
-                ) : (
-                  <h1
-                    className="text-3xl font-bold text-gray-900 cursor-pointer hover:bg-gray-50 px-2 py-1 -mx-2 rounded transition-colors"
-                    onClick={startEditingTitle}
-                  >
-                    {selectedDocument.title}
-                  </h1>
-                )}
+                    >
+                      <input
+                        type="text"
+                        value={tempTitle}
+                        onChange={(e) => handleTitleChange(e.target.value)}
+                        onBlur={saveTitleChanges}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            saveTitleChanges();
+                          } else if (e.key === "Escape") {
+                            cancelTitleEditing();
+                          }
+                        }}
+                        className="absolute inset-0 w-full h-full text-3xl font-bold text-gray-900 bg-transparent border-0 outline-0 resize-none overflow-hidden"
+                        style={{
+                          fontFamily: "inherit",
+                          fontSize: "inherit",
+                          fontWeight: "inherit",
+                          lineHeight: "inherit",
+                          color: "inherit",
+                          padding: "0",
+                          margin: "0",
+                          appearance: "none",
+                          border: "none",
+                          boxShadow: "none",
+                          background: "transparent",
+                        }}
+                        placeholder="Document title"
+                        autoFocus
+                      />
+                      {/* Invisible text for sizing */}
+                      <span className="invisible whitespace-pre-wrap">
+                        {tempTitle || "Document title"}
+                      </span>
+                    </div>
+                  ) : (
+                    <h1
+                      className="text-3xl font-bold text-gray-900 cursor-pointer hover:bg-gray-50 px-2 py-1 -mx-2 rounded transition-colors"
+                      onClick={startEditingTitle}
+                    >
+                      {selectedDocument.title}
+                    </h1>
+                  )}
 
-                {/* Collision Warning directly below title */}
-                {titleCollisionWarning && (
-                  <div className="absolute top-full left-0 right-0 mt-2 z-[100]">
-                    <div className="relative">
-                      {/* Triangle pointing up to title */}
-                      <div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
-                        <div className="w-0 h-0 border-l-[8px] border-r-[8px] border-b-[8px] border-l-transparent border-r-transparent border-b-red-500"></div>
-                      </div>
-                      {/* Warning banner */}
-                      <div className="bg-red-500 text-white px-4 py-3 rounded text-center font-medium shadow-lg">
-                        There's already a file with the same name
+                  {/* Collision Warning directly below title */}
+                  {titleCollisionWarning && (
+                    <div className="absolute top-full left-0 right-0 mt-2 z-[100]">
+                      <div className="relative">
+                        {/* Triangle pointing up to title */}
+                        <div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
+                          <div className="w-0 h-0 border-l-[8px] border-r-[8px] border-b-[8px] border-l-transparent border-r-transparent border-b-red-500"></div>
+                        </div>
+                        {/* Warning banner */}
+                        <div className="bg-red-500 text-white px-4 py-3 rounded text-center font-medium shadow-lg">
+                          There's already a file with the same name
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  )}
+                </div>
+
+                {/* Document Content */}
+                {showPreview ? (
+                  <>
+                    <div className="mb-6">
+                      <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                        📖 {previewTitle || "Quiz Source Preview"}
+                      </h1>
+                      <div className="text-sm text-gray-600 mb-4">
+                        Preview of the original text used to generate this quiz
+                      </div>
+                    </div>
+                    {renderMobileMarkdownContent(previewContent)}
+                  </>
+                ) : isEditMode ? (
+                  renderPlainTextContent(selectedDocument.content)
+                ) : (
+                  renderMobileMarkdownContent(selectedDocument.content)
                 )}
               </div>
-
-              {/* Document Content */}
-              {showPreview ? (
-                <>
-                  <div className="mb-6">
-                    <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                      📖 {previewTitle || "Quiz Source Preview"}
-                    </h1>
-                    <div className="text-sm text-gray-600 mb-4">
-                      Preview of the original text used to generate this quiz
-                    </div>
-                  </div>
-                  {renderMobileMarkdownContent(previewContent)}
-                </>
-              ) : isEditMode ? (
-                renderPlainTextContent(selectedDocument.content)
-              ) : (
-                renderMobileMarkdownContent(selectedDocument.content)
-              )}
+            )
+          ) : (
+            <div className="flex items-center justify-center h-full">
+              <div className="text-center">
+                <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                <p className="text-gray-500 mb-4">Select a document to start</p>
+                <Button onClick={() => setDocumentsDrawerOpen(true)}>
+                  View Documents
+                </Button>
+              </div>
             </div>
-          )
-        ) : (
-          <div className="flex items-center justify-center h-full">
-            <div className="text-center">
-              <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <p className="text-gray-500 mb-4">Select a document to start</p>
-              <Button onClick={() => setDocumentsDrawerOpen(true)}>
-                View Documents
-              </Button>
+          )}
+        </div>
+
+        {/* Mode Switch Toast */}
+        {showModeToast && (
+          <div className="absolute top-20 left-0 right-0 flex justify-center z-[200] animate-in fade-in slide-in-from-top-2 duration-300">
+            <div className="bg-gray-600 text-white px-4 py-2 rounded-lg shadow-lg text-sm font-medium">
+              {modeToastMessage}
             </div>
           </div>
         )}
-      </div>
 
+        {/* Bottom Navigation */}
+        <div className="flex items-center justify-around px-4 py-3 bg-white border-t border-gray-200 relative z-20">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="flex flex-col items-center space-y-1 p-2"
+            onClick={() => {
+              // If title editing with collision, revert title first
+              if (isEditingTitle && titleCollisionWarning) {
+                cancelTitleEditing();
+              }
+              setSearchDrawerOpen(true);
+            }}
+          >
+            <Search className="w-5 h-5 text-gray-600" />
+            <span className="text-xs text-gray-600">Search</span>
+          </Button>
 
-      {/* Mode Switch Toast */}
-      {showModeToast && (
-        <div className="absolute top-20 left-0 right-0 flex justify-center z-[200] animate-in fade-in slide-in-from-top-2 duration-300">
-          <div className="bg-gray-600 text-white px-4 py-2 rounded-lg shadow-lg text-sm font-medium">
-            {modeToastMessage}
-          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="flex flex-col items-center space-y-1 p-2"
+            onClick={handleAddDocument}
+          >
+            <Plus className="w-5 h-5 text-gray-600" />
+            <span className="text-xs text-gray-600">Add</span>
+          </Button>
+
+          <Button
+            variant="ghost"
+            size="sm"
+            className="flex flex-col items-center space-y-1 p-2"
+            onClick={() => {
+              // If title editing with collision, revert title first
+              if (isEditingTitle && titleCollisionWarning) {
+                cancelTitleEditing();
+              }
+              setQuizDrawerOpen(true);
+            }}
+          >
+            <PenTool className="w-5 h-5 text-gray-600" />
+            <span className="text-xs text-gray-600">Quiz</span>
+          </Button>
+
+          <Button
+            variant="ghost"
+            size="sm"
+            className="flex flex-col items-center space-y-1 p-2"
+            onClick={() => {
+              // If title editing with collision, revert title first
+              if (isEditingTitle && titleCollisionWarning) {
+                cancelTitleEditing();
+              }
+              setMoreDrawerOpen(true);
+            }}
+          >
+            <Grid className="w-5 h-5 text-gray-600" />
+            <span className="text-xs text-gray-600">More</span>
+          </Button>
         </div>
-      )}
 
-      {/* Bottom Navigation */}
-      <div className="flex items-center justify-around px-4 py-3 bg-white border-t border-gray-200 relative z-20">
-        <Button
-          variant="ghost"
-          size="sm"
-          className="flex flex-col items-center space-y-1 p-2"
-          onClick={() => {
-            // If title editing with collision, revert title first
-            if (isEditingTitle && titleCollisionWarning) {
-              cancelTitleEditing();
-            }
-            setSearchDrawerOpen(true);
-          }}
-        >
-          <Search className="w-5 h-5 text-gray-600" />
-          <span className="text-xs text-gray-600">Search</span>
-        </Button>
-
-        <Button
-          variant="ghost"
-          size="sm"
-          className="flex flex-col items-center space-y-1 p-2"
-          onClick={handleAddDocument}
-        >
-          <Plus className="w-5 h-5 text-gray-600" />
-          <span className="text-xs text-gray-600">Add</span>
-        </Button>
-
-        <Button
-          variant="ghost"
-          size="sm"
-          className="flex flex-col items-center space-y-1 p-2"
-          onClick={() => {
-            // If title editing with collision, revert title first
-            if (isEditingTitle && titleCollisionWarning) {
-              cancelTitleEditing();
-            }
-            setQuizDrawerOpen(true);
-          }}
-        >
-          <PenTool className="w-5 h-5 text-gray-600" />
-          <span className="text-xs text-gray-600">Quiz</span>
-        </Button>
-
-        <Button
-          variant="ghost"
-          size="sm"
-          className="flex flex-col items-center space-y-1 p-2"
-          onClick={() => {
-            // If title editing with collision, revert title first
-            if (isEditingTitle && titleCollisionWarning) {
-              cancelTitleEditing();
-            }
-            setMoreDrawerOpen(true);
-          }}
-        >
-          <Grid className="w-5 h-5 text-gray-600" />
-          <span className="text-xs text-gray-600">More</span>
-        </Button>
-      </div>
-
-      {/* Documents Drawer - Slide from Left */}
-      {documentsDrawerOpen && (
-        <>
-          <div
-            className="absolute inset-0 bg-black bg-opacity-30 z-30 animate-in fade-in duration-400"
-            onClick={() => setDocumentsDrawerOpen(false)}
-          />
-          <div className="absolute top-0 left-0 bottom-0 bg-white z-40 w-4/5 overflow-hidden shadow-xl drawer-slide-in">
-            <div className="flex items-center justify-between p-4 border-b border-gray-200">
-              <h2 className="text-lg font-semibold text-gray-900">Documents</h2>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setDocumentsDrawerOpen(false)}
-              >
-                <X className="w-5 h-5" />
-              </Button>
-            </div>
-
-            <div className="overflow-y-auto flex-1 p-4">
-              <div className="space-y-2">
-                {documents.map((doc) => (
-                  <div
-                    key={doc.id}
-                    className={`flex items-center justify-between p-4 rounded-lg cursor-pointer transition-colors ${
-                      selectedDocumentId === doc.id
-                        ? "bg-blue-50 border border-blue-200"
-                        : "bg-gray-50 hover:bg-gray-100"
-                    }`}
-                    onClick={() => handleDocumentSelect(doc.id)}
-                  >
-                    <div className="flex items-center flex-1 min-w-0">
-                      <FileText
-                        className={`w-5 h-5 mr-3 flex-shrink-0 ${
-                          selectedDocumentId === doc.id
-                            ? "text-blue-500"
-                            : "text-gray-500"
-                        }`}
-                      />
-                      <div className="min-w-0 flex-1">
-                        <div className="font-medium text-gray-900 truncate">
-                          {getDocumentDisplayName(doc)}
-                        </div>
-                        <div className="text-sm text-gray-500">
-                          {doc.createdAt.toLocaleDateString()}
-                        </div>
-                      </div>
-                    </div>
-                    {documents.length > 1 && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="ml-2 p-2"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDeleteDocument(doc.id);
-                        }}
-                      >
-                        <X className="w-4 h-4 text-red-500" />
-                      </Button>
-                    )}
-                  </div>
-                ))}
+        {/* Documents Drawer - Slide from Left */}
+        {documentsDrawerOpen && (
+          <>
+            <div
+              className="absolute inset-0 bg-black bg-opacity-30 z-30 animate-in fade-in duration-400"
+              onClick={() => setDocumentsDrawerOpen(false)}
+            />
+            <div className="absolute top-0 left-0 bottom-0 bg-white z-40 w-4/5 overflow-hidden shadow-xl drawer-slide-in">
+              <div className="flex items-center justify-between p-4 border-b border-gray-200">
+                <h2 className="text-lg font-semibold text-gray-900">
+                  Documents
+                </h2>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setDocumentsDrawerOpen(false)}
+                >
+                  <X className="w-5 h-5" />
+                </Button>
               </div>
 
-              <Button
-                variant="outline"
-                className="w-full mt-4"
-                onClick={handleAddDocument}
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Add New Document
-              </Button>
-            </div>
-          </div>
-        </>
-      )}
-
-      {/* Search Drawer */}
-      {searchDrawerOpen && (
-        <>
-          <div
-            className="absolute inset-0 bg-black bg-opacity-50 z-30 animate-in fade-in duration-300"
-            onClick={() => setSearchDrawerOpen(false)}
-          />
-          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-xl z-40 max-h-[80vh] overflow-hidden animate-in slide-in-from-bottom-4 duration-300">
-            <div className="flex items-center justify-between p-4 border-b border-gray-200">
-              <h2 className="text-lg font-semibold text-gray-900">Search</h2>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setSearchDrawerOpen(false)}
-              >
-                <X className="w-5 h-5" />
-              </Button>
-            </div>
-
-            <div className="p-4">
-              <input
-                type="text"
-                placeholder="Search documents..."
-                value={searchQuery}
-                onChange={(e) => handleSearch(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                autoFocus
-              />
-            </div>
-
-            <div className="overflow-y-auto max-h-[50vh] px-4 pb-4">
-              {searchResults.length > 0 ? (
-                <div className="space-y-3">
-                  {searchResults.map(({ doc, matches, lineNumbers }) => (
-                    <div key={doc.id}>
-                      <div className="font-medium text-gray-900 mb-2 p-3 bg-gray-100 rounded-t-lg">
-                        {getDocumentDisplayName(doc)}
+              <div className="overflow-y-auto flex-1 p-4">
+                <div className="space-y-2">
+                  {documents.map((doc) => (
+                    <div
+                      key={doc.id}
+                      className={`flex items-center justify-between p-4 rounded-lg cursor-pointer transition-colors ${
+                        selectedDocumentId === doc.id
+                          ? "bg-blue-50 border border-blue-200"
+                          : "bg-gray-50 hover:bg-gray-100"
+                      }`}
+                      onClick={() => handleDocumentSelect(doc.id)}
+                    >
+                      <div className="flex items-center flex-1 min-w-0">
+                        <FileText
+                          className={`w-5 h-5 mr-3 flex-shrink-0 ${
+                            selectedDocumentId === doc.id
+                              ? "text-blue-500"
+                              : "text-gray-500"
+                          }`}
+                        />
+                        <div className="min-w-0 flex-1">
+                          <div className="font-medium text-gray-900 truncate">
+                            {getDocumentDisplayName(doc)}
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            {doc.createdAt.toLocaleDateString()}
+                          </div>
+                        </div>
                       </div>
-                      {matches.map((match, index) => (
-                        <div
-                          key={index}
-                          className="p-3 bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors border-b last:border-b-0 last:rounded-b-lg"
-                          onClick={() => {
-                            // Switch to the document first
-                            setSelectedDocumentId(doc.id);
-                            setSelectedText("");
-                            setSearchDrawerOpen(false);
-
-                            // Wait for document to render, then scroll to position
-                            setTimeout(() => {
-                              const targetLineNumber = lineNumbers[index];
-                              const targetElement = document.getElementById(`content-line-${targetLineNumber}`);
-
-                              if (targetElement) {
-                                // Scroll to the element
-                                targetElement.scrollIntoView({
-                                  behavior: 'smooth',
-                                  block: 'center',
-                                  inline: 'nearest'
-                                });
-
-                                // Highlight the found text temporarily
-                                targetElement.style.backgroundColor = '#fef3c7';
-                                targetElement.style.transition = 'background-color 0.3s ease';
-                                targetElement.style.transform = 'scale(1.02)';
-                                targetElement.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
-
-                                setTimeout(() => {
-                                  targetElement.style.backgroundColor = '';
-                                  targetElement.style.transform = '';
-                                  targetElement.style.boxShadow = '';
-                                }, 2500);
-                              }
-                            }, 300);
+                      {documents.length > 1 && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="ml-2 p-2"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteDocument(doc.id);
                           }}
                         >
-                          <div
-                            className="text-sm text-gray-600 leading-relaxed"
-                            dangerouslySetInnerHTML={{
-                              __html: highlightSearchTerm(
-                                match.substring(0, 100) +
-                                  (match.length > 100 ? "..." : ""),
-                                searchQuery,
-                              ),
-                            }}
-                          />
-                        </div>
-                      ))}
+                          <X className="w-4 h-4 text-red-500" />
+                        </Button>
+                      )}
                     </div>
                   ))}
                 </div>
-              ) : searchQuery ? (
-                <div className="text-center py-8 text-gray-500">
-                  No results found for "{searchQuery}"
-                </div>
-              ) : (
-                <div className="text-center py-8 text-gray-500">
-                  Type to search through all documents
-                </div>
-              )}
+
+                <Button
+                  variant="outline"
+                  className="w-full mt-4"
+                  onClick={handleAddDocument}
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add New Document
+                </Button>
+              </div>
             </div>
-          </div>
-        </>
-      )}
+          </>
+        )}
 
-      {/* Quiz Tools Drawer */}
-      {quizDrawerOpen && (
-        <>
-          <div
-            className="absolute inset-0 bg-black bg-opacity-50 z-30 animate-in fade-in duration-300"
-            onClick={() => setQuizDrawerOpen(false)}
-          />
-          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-xl z-40 max-h-[80vh] overflow-hidden animate-in slide-in-from-bottom-4 duration-300">
-            <div className="flex items-center justify-between p-4 border-b border-gray-200">
-              <h2 className="text-lg font-semibold text-gray-900">
-                Quiz Tools
-              </h2>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setQuizDrawerOpen(false)}
-              >
-                <X className="w-5 h-5" />
-              </Button>
-            </div>
-
-            <div className="overflow-y-auto max-h-[60vh] p-4">
-              {selectedText ? (
-                <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg mb-4">
-                  <div className="font-medium text-blue-800 mb-1">
-                    Selected text:
-                  </div>
-                  <div className="text-blue-700 text-sm">
-                    "{selectedText.substring(0, 100)}
-                    {selectedText.length > 100 ? "..." : '"'}
-                  </div>
-                </div>
-              ) : (
-                <div className="p-3 bg-gray-50 border border-gray-200 rounded-lg mb-4">
-                  <div className="text-gray-600 text-sm">
-                    Select text in the document to generate quizzes
-                  </div>
-                </div>
-              )}
-
-              <div className="space-y-3">
-                <div
-                  className={`p-4 rounded-lg border-2 border-blue-200 bg-blue-50 cursor-pointer hover:shadow-md transition-all ${
-                    isGeneratingQuiz && generatingType === "flashcard"
-                      ? "opacity-50 pointer-events-none"
-                      : ""
-                  }`}
-                  onClick={() => handleQuizToolClick("flashcard")}
+        {/* Search Drawer */}
+        {searchDrawerOpen && (
+          <>
+            <div
+              className="absolute inset-0 bg-black bg-opacity-50 z-30 animate-in fade-in duration-300"
+              onClick={() => setSearchDrawerOpen(false)}
+            />
+            <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-xl z-40 max-h-[80vh] overflow-hidden animate-in slide-in-from-bottom-4 duration-300">
+              <div className="flex items-center justify-between p-4 border-b border-gray-200">
+                <h2 className="text-lg font-semibold text-gray-900">Search</h2>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setSearchDrawerOpen(false)}
                 >
-                  <div className="flex items-center space-x-3">
-                    {isGeneratingQuiz && generatingType === "flashcard" ? (
-                      <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
-                    ) : (
-                      <span className="text-2xl">🎴</span>
-                    )}
-                    <div>
-                      <h3 className="font-semibold text-gray-800">
-                        {isGeneratingQuiz && generatingType === "flashcard"
-                          ? "Generating..."
-                          : "Flash Cards"}
-                      </h3>
-                      <p className="text-sm text-gray-600">
-                        Create flashcards from selected text
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div
-                  className={`p-4 rounded-lg border-2 border-green-200 bg-green-50 cursor-pointer hover:shadow-md transition-all ${
-                    isGeneratingQuiz && generatingType === "multiple-choice"
-                      ? "opacity-50 pointer-events-none"
-                      : ""
-                  }`}
-                  onClick={() => handleQuizToolClick("multiple-choice")}
-                >
-                  <div className="flex items-center space-x-3">
-                    {isGeneratingQuiz &&
-                    generatingType === "multiple-choice" ? (
-                      <Loader2 className="w-6 h-6 animate-spin text-green-600" />
-                    ) : (
-                      <span className="text-2xl">📝</span>
-                    )}
-                    <div>
-                      <h3 className="font-semibold text-gray-800">
-                        {isGeneratingQuiz &&
-                        generatingType === "multiple-choice"
-                          ? "Generating..."
-                          : "Multiple Choice"}
-                      </h3>
-                      <p className="text-sm text-gray-600">
-                        Generate multiple choice questions
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div
-                  className={`p-4 rounded-lg border-2 border-purple-200 bg-purple-50 cursor-pointer hover:shadow-md transition-all ${
-                    isGeneratingQuiz && generatingType === "short-writing"
-                      ? "opacity-50 pointer-events-none"
-                      : ""
-                  }`}
-                  onClick={() => handleQuizToolClick("short-writing")}
-                >
-                  <div className="flex items-center space-x-3">
-                    {isGeneratingQuiz && generatingType === "short-writing" ? (
-                      <Loader2 className="w-6 h-6 animate-spin text-purple-600" />
-                    ) : (
-                      <span className="text-2xl">✍️</span>
-                    )}
-                    <div>
-                      <h3 className="font-semibold text-gray-800">
-                        {isGeneratingQuiz && generatingType === "short-writing"
-                          ? "Generating..."
-                          : "Short Writing"}
-                      </h3>
-                      <p className="text-sm text-gray-600">
-                        Create writing prompts and exercises
-                      </p>
-                    </div>
-                  </div>
-                </div>
+                  <X className="w-5 h-5" />
+                </Button>
               </div>
 
-              {allQuizzes.length > 0 && (
-                <>
-                  <div className="mt-6 pt-4 border-t border-gray-200">
-                    <h3 className="font-semibold text-gray-800 mb-3">
-                      All Quizzes ({allQuizzes.length})
-                    </h3>
-                    <div className="space-y-2">
-                      {allQuizzes.map((quiz) => {
-                        const getQuizIcon = (type: string) => {
-                          switch (type) {
-                            case "flashcard":
-                              return "🎴";
-                            case "multiple-choice":
-                              return "📝";
-                            case "short-writing":
-                              return "✍️";
-                            default:
-                              return "📄";
-                          }
-                        };
+              <div className="p-4">
+                <input
+                  type="text"
+                  placeholder="Search documents..."
+                  value={searchQuery}
+                  onChange={(e) => handleSearch(e.target.value)}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  autoFocus
+                />
+              </div>
 
-                        const getItemCount = (quiz: any) => {
-                          if (Array.isArray(quiz.data)) {
-                            switch (quiz.type) {
-                              case "flashcard":
-                                return `${quiz.data.length} cards`;
-                              case "multiple-choice":
-                                return `${quiz.data.length} questions`;
-                              case "short-writing":
-                                return `${quiz.data.length} tasks`;
-                              default:
-                                return `${quiz.data.length} items`;
-                            }
-                          }
-                          return "0 items";
-                        };
-
-                        return (
+              <div className="overflow-y-auto max-h-[50vh] px-4 pb-4">
+                {searchResults.length > 0 ? (
+                  <div className="space-y-3">
+                    {searchResults.map(({ doc, matches, lineNumbers }) => (
+                      <div key={doc.id}>
+                        <div className="font-medium text-gray-900 mb-2 p-3 bg-gray-100 rounded-t-lg">
+                          {getDocumentDisplayName(doc)}
+                        </div>
+                        {matches.map((match, index) => (
                           <div
-                            key={quiz.id}
-                            className="group p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors relative"
-                            draggable
-                            onDragStart={(e) => {
-                              e.dataTransfer.setData(
-                                "quiz",
-                                JSON.stringify(quiz),
-                              );
-                              e.dataTransfer.effectAllowed = "copy";
+                            key={index}
+                            className="p-3 bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors border-b last:border-b-0 last:rounded-b-lg"
+                            onClick={() => {
+                              // Switch to the document first
+                              setSelectedDocumentId(doc.id);
+                              setSelectedText("");
+                              setSearchDrawerOpen(false);
+
+                              // Wait for document to render, then scroll to position
+                              setTimeout(() => {
+                                const targetLineNumber = lineNumbers[index];
+                                const targetElement = document.getElementById(
+                                  `content-line-${targetLineNumber}`,
+                                );
+
+                                if (targetElement) {
+                                  // Scroll to the element
+                                  targetElement.scrollIntoView({
+                                    behavior: "smooth",
+                                    block: "center",
+                                    inline: "nearest",
+                                  });
+
+                                  // Highlight the found text temporarily
+                                  targetElement.style.backgroundColor =
+                                    "#fef3c7";
+                                  targetElement.style.transition =
+                                    "background-color 0.3s ease";
+                                  targetElement.style.transform = "scale(1.02)";
+                                  targetElement.style.boxShadow =
+                                    "0 2px 8px rgba(0,0,0,0.1)";
+
+                                  setTimeout(() => {
+                                    targetElement.style.backgroundColor = "";
+                                    targetElement.style.transform = "";
+                                    targetElement.style.boxShadow = "";
+                                  }, 2500);
+                                }
+                              }, 300);
                             }}
                           >
-                            <div className="flex items-start justify-between">
-                              <div
-                                className="flex-1 cursor-pointer"
-                                onClick={() => {
-                                  navigate(`/quiz/${quiz.type}`);
-                                  setQuizDrawerOpen(false);
-                                }}
-                              >
-                                <div className="flex items-center space-x-2">
-                                  <span className="text-sm">
-                                    {getQuizIcon(quiz.type)}
-                                  </span>
-                                  <div className="text-sm font-medium text-gray-800 truncate">
-                                    {quiz.title}
-                                  </div>
-                                </div>
-                                <div className="text-xs text-gray-500 mt-1">
-                                  {getItemCount(quiz)}
-                                </div>
-                                <div className="text-xs text-gray-400">
-                                  {quiz.createdAt.toLocaleDateString()}
-                                </div>
-                              </div>
-                              <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="p-1 h-6 w-6"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setPreviewContent(quiz.sourceText);
-                                    setPreviewTitle(quiz.title);
-                                    setShowPreview(true);
-                                    setQuizDrawerOpen(false);
-                                  }}
-                                  title="Preview source text"
-                                >
-                                  <span className="text-xs">👁️</span>
-                                </Button>
-                                <div className="w-4 h-4 text-gray-400 cursor-grab" title="Drag to preview">⋮⋮</div>
-                              </div>
-                            </div>
+                            <div
+                              className="text-sm text-gray-600 leading-relaxed"
+                              dangerouslySetInnerHTML={{
+                                __html: highlightSearchTerm(
+                                  match.substring(0, 100) +
+                                    (match.length > 100 ? "..." : ""),
+                                  searchQuery,
+                                ),
+                              }}
+                            />
                           </div>
-                        );
-                      })}
+                        ))}
+                      </div>
+                    ))}
+                  </div>
+                ) : searchQuery ? (
+                  <div className="text-center py-8 text-gray-500">
+                    No results found for "{searchQuery}"
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-gray-500">
+                    Type to search through all documents
+                  </div>
+                )}
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* Quiz Tools Drawer */}
+        {quizDrawerOpen && (
+          <>
+            <div
+              className="absolute inset-0 bg-black bg-opacity-50 z-30 animate-in fade-in duration-300"
+              onClick={() => setQuizDrawerOpen(false)}
+            />
+            <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-xl z-40 max-h-[80vh] overflow-hidden animate-in slide-in-from-bottom-4 duration-300">
+              <div className="flex items-center justify-between p-4 border-b border-gray-200">
+                <h2 className="text-lg font-semibold text-gray-900">
+                  Quiz Tools
+                </h2>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setQuizDrawerOpen(false)}
+                >
+                  <X className="w-5 h-5" />
+                </Button>
+              </div>
+
+              <div className="overflow-y-auto max-h-[60vh] p-4">
+                {selectedText ? (
+                  <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg mb-4">
+                    <div className="font-medium text-blue-800 mb-1">
+                      Selected text:
+                    </div>
+                    <div className="text-blue-700 text-sm">
+                      "{selectedText.substring(0, 100)}
+                      {selectedText.length > 100 ? "..." : '"'}
                     </div>
                   </div>
-                </>
-              )}
-            </div>
-          </div>
-        </>
-      )}
+                ) : (
+                  <div className="p-3 bg-gray-50 border border-gray-200 rounded-lg mb-4">
+                    <div className="text-gray-600 text-sm">
+                      Select text in the document to generate quizzes
+                    </div>
+                  </div>
+                )}
 
-      {/* More Drawer */}
-      {moreDrawerOpen && (
-        <>
-          <div
-            className="absolute inset-0 bg-black bg-opacity-50 z-30 animate-in fade-in duration-300"
-            onClick={() => setMoreDrawerOpen(false)}
-          />
-          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-xl z-40 max-h-[80vh] overflow-hidden animate-in slide-in-from-bottom-4 duration-300">
-            <div className="flex items-center justify-between p-4 border-b border-gray-200">
-              <h2 className="text-lg font-semibold text-gray-900">More</h2>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setMoreDrawerOpen(false)}
-              >
-                <X className="w-5 h-5" />
-              </Button>
-            </div>
+                <div className="space-y-3">
+                  <div
+                    className={`p-4 rounded-lg border-2 border-blue-200 bg-blue-50 cursor-pointer hover:shadow-md transition-all ${
+                      isGeneratingQuiz && generatingType === "flashcard"
+                        ? "opacity-50 pointer-events-none"
+                        : ""
+                    }`}
+                    onClick={() => handleQuizToolClick("flashcard")}
+                  >
+                    <div className="flex items-center space-x-3">
+                      {isGeneratingQuiz && generatingType === "flashcard" ? (
+                        <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
+                      ) : (
+                        <span className="text-2xl">🎴</span>
+                      )}
+                      <div>
+                        <h3 className="font-semibold text-gray-800">
+                          {isGeneratingQuiz && generatingType === "flashcard"
+                            ? "Generating..."
+                            : "Flash Cards"}
+                        </h3>
+                        <p className="text-sm text-gray-600">
+                          Create flashcards from selected text
+                        </p>
+                      </div>
+                    </div>
+                  </div>
 
-            <div className="p-4 space-y-3">
-              <div
-                className="flex items-center p-4 rounded-lg border-2 border-purple-200 bg-purple-50 cursor-pointer hover:shadow-md transition-all"
-                onClick={() => {
-                  setAiComposerOpen(true);
-                  setMoreDrawerOpen(false);
-                }}
-              >
-                <div className="flex items-center space-x-3">
-                  <span className="text-2xl">🤖</span>
-                  <div>
-                    <h3 className="font-semibold text-gray-800">AI Composer</h3>
-                    <p className="text-sm text-gray-600">
-                      Chat with AI for content creation and assistance
-                    </p>
+                  <div
+                    className={`p-4 rounded-lg border-2 border-green-200 bg-green-50 cursor-pointer hover:shadow-md transition-all ${
+                      isGeneratingQuiz && generatingType === "multiple-choice"
+                        ? "opacity-50 pointer-events-none"
+                        : ""
+                    }`}
+                    onClick={() => handleQuizToolClick("multiple-choice")}
+                  >
+                    <div className="flex items-center space-x-3">
+                      {isGeneratingQuiz &&
+                      generatingType === "multiple-choice" ? (
+                        <Loader2 className="w-6 h-6 animate-spin text-green-600" />
+                      ) : (
+                        <span className="text-2xl">📝</span>
+                      )}
+                      <div>
+                        <h3 className="font-semibold text-gray-800">
+                          {isGeneratingQuiz &&
+                          generatingType === "multiple-choice"
+                            ? "Generating..."
+                            : "Multiple Choice"}
+                        </h3>
+                        <p className="text-sm text-gray-600">
+                          Generate multiple choice questions
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div
+                    className={`p-4 rounded-lg border-2 border-purple-200 bg-purple-50 cursor-pointer hover:shadow-md transition-all ${
+                      isGeneratingQuiz && generatingType === "short-writing"
+                        ? "opacity-50 pointer-events-none"
+                        : ""
+                    }`}
+                    onClick={() => handleQuizToolClick("short-writing")}
+                  >
+                    <div className="flex items-center space-x-3">
+                      {isGeneratingQuiz &&
+                      generatingType === "short-writing" ? (
+                        <Loader2 className="w-6 h-6 animate-spin text-purple-600" />
+                      ) : (
+                        <span className="text-2xl">✍️</span>
+                      )}
+                      <div>
+                        <h3 className="font-semibold text-gray-800">
+                          {isGeneratingQuiz &&
+                          generatingType === "short-writing"
+                            ? "Generating..."
+                            : "Short Writing"}
+                        </h3>
+                        <p className="text-sm text-gray-600">
+                          Create writing prompts and exercises
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div
-                className="flex items-center p-4 rounded-lg border-2 border-gray-200 bg-gray-50 cursor-pointer hover:shadow-md transition-all"
-                onClick={() => {
-                  setSettingsOpen(true);
-                  setMoreDrawerOpen(false);
-                }}
-              >
-                <div className="flex items-center space-x-3">
-                  <span className="text-2xl">⚙️</span>
-                  <div>
-                    <h3 className="font-semibold text-gray-800">Settings</h3>
-                    <p className="text-sm text-gray-600">
-                      Configure app preferences and API settings
-                    </p>
-                  </div>
-                </div>
+                {allQuizzes.length > 0 && (
+                  <>
+                    <div className="mt-6 pt-4 border-t border-gray-200">
+                      <h3 className="font-semibold text-gray-800 mb-3">
+                        All Quizzes ({allQuizzes.length})
+                      </h3>
+                      <div className="space-y-2">
+                        {allQuizzes.map((quiz) => {
+                          const getQuizIcon = (type: string) => {
+                            switch (type) {
+                              case "flashcard":
+                                return "🎴";
+                              case "multiple-choice":
+                                return "📝";
+                              case "short-writing":
+                                return "✍️";
+                              default:
+                                return "📄";
+                            }
+                          };
+
+                          const getItemCount = (quiz: any) => {
+                            if (Array.isArray(quiz.data)) {
+                              switch (quiz.type) {
+                                case "flashcard":
+                                  return `${quiz.data.length} cards`;
+                                case "multiple-choice":
+                                  return `${quiz.data.length} questions`;
+                                case "short-writing":
+                                  return `${quiz.data.length} tasks`;
+                                default:
+                                  return `${quiz.data.length} items`;
+                              }
+                            }
+                            return "0 items";
+                          };
+
+                          return (
+                            <div
+                              key={quiz.id}
+                              className="group p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors relative"
+                              draggable
+                              onDragStart={(e) => {
+                                e.dataTransfer.setData(
+                                  "quiz",
+                                  JSON.stringify(quiz),
+                                );
+                                e.dataTransfer.effectAllowed = "copy";
+                              }}
+                            >
+                              <div className="flex items-start justify-between">
+                                <div
+                                  className="flex-1 cursor-pointer"
+                                  onClick={() => {
+                                    navigate(`/quiz/${quiz.type}`);
+                                    setQuizDrawerOpen(false);
+                                  }}
+                                >
+                                  <div className="flex items-center space-x-2">
+                                    <span className="text-sm">
+                                      {getQuizIcon(quiz.type)}
+                                    </span>
+                                    <div className="text-sm font-medium text-gray-800 truncate">
+                                      {quiz.title}
+                                    </div>
+                                  </div>
+                                  <div className="text-xs text-gray-500 mt-1">
+                                    {getItemCount(quiz)}
+                                  </div>
+                                  <div className="text-xs text-gray-400">
+                                    {quiz.createdAt.toLocaleDateString()}
+                                  </div>
+                                </div>
+                                <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="p-1 h-6 w-6"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setPreviewContent(quiz.sourceText);
+                                      setPreviewTitle(quiz.title);
+                                      setShowPreview(true);
+                                      setQuizDrawerOpen(false);
+                                    }}
+                                    title="Preview source text"
+                                  >
+                                    <span className="text-xs">👁️</span>
+                                  </Button>
+                                  <div
+                                    className="w-4 h-4 text-gray-400 cursor-grab"
+                                    title="Drag to preview"
+                                  >
+                                    ⋮⋮
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
-          </div>
-        </>
-      )}
+          </>
+        )}
 
-      {/* AI Composer */}
-      <AIComposer
-        isOpen={aiComposerOpen}
-        onClose={() => setAiComposerOpen(false)}
-        settings={settings}
-      />
-
-      {/* Settings Modal */}
-      {settingsOpen && (
-        <div className="absolute inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-          <div className="w-full max-h-[80vh] overflow-hidden">
-            <SettingsModal
-              isOpen={settingsOpen}
-              onClose={() => setSettingsOpen(false)}
-              settings={settings}
-              onSettingsChange={setSettings}
+        {/* More Drawer */}
+        {moreDrawerOpen && (
+          <>
+            <div
+              className="absolute inset-0 bg-black bg-opacity-50 z-30 animate-in fade-in duration-300"
+              onClick={() => setMoreDrawerOpen(false)}
             />
-          </div>
-        </div>
-      )}
+            <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-xl z-40 max-h-[80vh] overflow-hidden animate-in slide-in-from-bottom-4 duration-300">
+              <div className="flex items-center justify-between p-4 border-b border-gray-200">
+                <h2 className="text-lg font-semibold text-gray-900">More</h2>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setMoreDrawerOpen(false)}
+                >
+                  <X className="w-5 h-5" />
+                </Button>
+              </div>
 
+              <div className="p-4 space-y-3">
+                <div
+                  className="flex items-center p-4 rounded-lg border-2 border-purple-200 bg-purple-50 cursor-pointer hover:shadow-md transition-all"
+                  onClick={() => {
+                    setAiComposerOpen(true);
+                    setMoreDrawerOpen(false);
+                  }}
+                >
+                  <div className="flex items-center space-x-3">
+                    <span className="text-2xl">🤖</span>
+                    <div>
+                      <h3 className="font-semibold text-gray-800">
+                        AI Composer
+                      </h3>
+                      <p className="text-sm text-gray-600">
+                        Chat with AI for content creation and assistance
+                      </p>
+                    </div>
+                  </div>
+                </div>
 
-      {/* Loading Overlay */}
-      {isGeneratingQuiz && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 mx-4 max-w-sm w-full text-center">
-            <Loader2 className="w-8 h-8 animate-spin text-blue-600 mx-auto mb-3" />
-            <h3 className="font-semibold text-gray-800 mb-1">
-              Generating Quiz
-            </h3>
-            <p className="text-sm text-gray-600">
-              Please wait while we create your {generatingType} quiz...
-            </p>
+                <div
+                  className="flex items-center p-4 rounded-lg border-2 border-gray-200 bg-gray-50 cursor-pointer hover:shadow-md transition-all"
+                  onClick={() => {
+                    setSettingsOpen(true);
+                    setMoreDrawerOpen(false);
+                  }}
+                >
+                  <div className="flex items-center space-x-3">
+                    <span className="text-2xl">⚙️</span>
+                    <div>
+                      <h3 className="font-semibold text-gray-800">Settings</h3>
+                      <p className="text-sm text-gray-600">
+                        Configure app preferences and API settings
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* AI Composer */}
+        <AIComposer
+          isOpen={aiComposerOpen}
+          onClose={() => setAiComposerOpen(false)}
+          settings={settings}
+        />
+
+        {/* Settings Modal */}
+        {settingsOpen && (
+          <div className="absolute inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+            <div className="w-full max-h-[80vh] overflow-hidden">
+              <SettingsModal
+                isOpen={settingsOpen}
+                onClose={() => setSettingsOpen(false)}
+                settings={settings}
+                onSettingsChange={setSettings}
+              />
+            </div>
           </div>
-        </div>
-      )}
+        )}
+
+        {/* Loading Overlay */}
+        {isGeneratingQuiz && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 mx-4 max-w-sm w-full text-center">
+              <Loader2 className="w-8 h-8 animate-spin text-blue-600 mx-auto mb-3" />
+              <h3 className="font-semibold text-gray-800 mb-1">
+                Generating Quiz
+              </h3>
+              <p className="text-sm text-gray-600">
+                Please wait while we create your {generatingType} quiz...
+              </p>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

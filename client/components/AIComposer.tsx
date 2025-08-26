@@ -44,8 +44,14 @@ interface AIComposerProps {
   settings: AppSettings;
 }
 
-export default function AIComposer({ isOpen, onClose, settings }: AIComposerProps) {
-  const [currentSession, setCurrentSession] = useState<ChatSession | null>(null);
+export default function AIComposer({
+  isOpen,
+  onClose,
+  settings,
+}: AIComposerProps) {
+  const [currentSession, setCurrentSession] = useState<ChatSession | null>(
+    null,
+  );
   const [chatHistory, setChatHistory] = useState<ChatSession[]>([]);
   const [promptTemplates, setPromptTemplates] = useState<PromptTemplate[]>([]);
   const [inputValue, setInputValue] = useState("");
@@ -55,7 +61,7 @@ export default function AIComposer({ isOpen, onClose, settings }: AIComposerProp
   const [isCreatingTemplate, setIsCreatingTemplate] = useState(false);
   const [templateName, setTemplateName] = useState("");
   const [templateContent, setTemplateContent] = useState("");
-  
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -63,7 +69,7 @@ export default function AIComposer({ isOpen, onClose, settings }: AIComposerProp
   useEffect(() => {
     const savedHistory = localStorage.getItem("ai-composer-history");
     const savedTemplates = localStorage.getItem("ai-composer-templates");
-    
+
     if (savedHistory) {
       try {
         const parsedHistory = JSON.parse(savedHistory).map((session: any) => ({
@@ -80,13 +86,15 @@ export default function AIComposer({ isOpen, onClose, settings }: AIComposerProp
         console.error("Error loading chat history:", error);
       }
     }
-    
+
     if (savedTemplates) {
       try {
-        const parsedTemplates = JSON.parse(savedTemplates).map((template: any) => ({
-          ...template,
-          createdAt: new Date(template.createdAt),
-        }));
+        const parsedTemplates = JSON.parse(savedTemplates).map(
+          (template: any) => ({
+            ...template,
+            createdAt: new Date(template.createdAt),
+          }),
+        );
         setPromptTemplates(parsedTemplates);
       } catch (error) {
         console.error("Error loading prompt templates:", error);
@@ -100,7 +108,10 @@ export default function AIComposer({ isOpen, onClose, settings }: AIComposerProp
   }, [chatHistory]);
 
   useEffect(() => {
-    localStorage.setItem("ai-composer-templates", JSON.stringify(promptTemplates));
+    localStorage.setItem(
+      "ai-composer-templates",
+      JSON.stringify(promptTemplates),
+    );
   }, [promptTemplates]);
 
   // Scroll to bottom when messages change
@@ -115,18 +126,22 @@ export default function AIComposer({ isOpen, onClose, settings }: AIComposerProp
     }
   }, [isOpen]);
 
-  const generateSessionTitle = async (firstMessage: string): Promise<string> => {
+  const generateSessionTitle = async (
+    firstMessage: string,
+  ): Promise<string> => {
     try {
       const llmService = getLLMService(settings);
       const titlePrompt = `Generate a short, descriptive title (max 4-5 words) for a chat conversation that starts with this message: "${firstMessage.slice(0, 100)}..."
 
 Return only the title, no quotes or additional text.`;
-      
+
       const title = await llmService.chatWithAI(titlePrompt);
       return title.trim().replace(/["']/g, "").slice(0, 50);
     } catch (error) {
       console.error("Error generating title:", error);
-      return firstMessage.slice(0, 30) + (firstMessage.length > 30 ? "..." : "");
+      return (
+        firstMessage.slice(0, 30) + (firstMessage.length > 30 ? "..." : "")
+      );
     }
   };
 
@@ -197,7 +212,10 @@ Return only the title, no quotes or additional text.`;
       };
 
       // Generate title for new sessions
-      if (finalSession.title === "New Chat" && finalSession.messages.length === 2) {
+      if (
+        finalSession.title === "New Chat" &&
+        finalSession.messages.length === 2
+      ) {
         try {
           const title = await generateSessionTitle(userMessage.content);
           finalSession.title = title;
@@ -220,7 +238,7 @@ Return only the title, no quotes or additional text.`;
     } catch (error) {
       console.error("Error sending message:", error);
       alert(
-        `Failed to send message: ${error instanceof Error ? error.message : "Unknown error"}`
+        `Failed to send message: ${error instanceof Error ? error.message : "Unknown error"}`,
       );
     } finally {
       setIsLoading(false);
@@ -264,7 +282,10 @@ Return only the title, no quotes or additional text.`;
     if (!currentSession) return;
 
     const chatText = currentSession.messages
-      .map((msg) => `${msg.role === "user" ? "User" : "Assistant"}: ${msg.content}`)
+      .map(
+        (msg) =>
+          `${msg.role === "user" ? "User" : "Assistant"}: ${msg.content}`,
+      )
       .join("\n\n");
 
     const blob = new Blob([chatText], { type: "text/plain" });
@@ -475,7 +496,8 @@ Return only the title, no quotes or additional text.`;
               Welcome to AI Composer
             </h2>
             <p className="text-gray-500 mb-6 max-w-sm">
-              Start a conversation with AI to generate content, get help, or brainstorm ideas.
+              Start a conversation with AI to generate content, get help, or
+              brainstorm ideas.
             </p>
             <div className="space-y-2 text-sm text-gray-400">
               <p>💡 Use prompt templates to get started quickly</p>
@@ -496,7 +518,7 @@ Return only the title, no quotes or additional text.`;
                   <Bot className="w-4 h-4 text-purple-600" />
                 </div>
               )}
-              
+
               <div
                 className={`max-w-[80%] p-3 rounded-lg ${
                   message.role === "user"
@@ -515,7 +537,7 @@ Return only the title, no quotes or additional text.`;
                   {message.timestamp.toLocaleTimeString()}
                 </div>
               </div>
-              
+
               {message.role === "user" && (
                 <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
                   <User className="w-4 h-4 text-blue-600" />
