@@ -310,10 +310,6 @@ export default function SettingsModal({ isOpen, onClose, settings, onSettingsCha
         return renderGeneralSettings();
       case 'llm':
         return renderLLMSettings();
-      case 'quiz':
-        return renderQuizSettings();
-      case 'editor':
-        return renderEditorSettings();
       case 'appearance':
         return renderAppearanceSettings();
       case 'about':
