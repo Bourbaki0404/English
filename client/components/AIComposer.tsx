@@ -348,12 +348,12 @@ Return only the title, no quotes or additional text.`;
     <>
       {/* Background overlay with fade-in */}
       <div
-        className="absolute inset-0 bg-black bg-opacity-30 z-40 animate-in fade-in duration-300"
+        className="absolute inset-0 bg-black bg-opacity-30 z-40 transition-opacity duration-300"
         onClick={onClose}
       />
 
       {/* Right drawer taking 5/6 of screen width */}
-      <div className="absolute top-0 right-0 bottom-0 w-5/6 bg-white z-50 flex flex-col shadow-2xl animate-in slide-in-from-right-4 duration-300">
+      <div className="absolute top-0 right-0 bottom-0 w-5/6 bg-white z-50 flex flex-col shadow-2xl" style={{animation: 'slide-in-right 0.3s ease-out'}}>
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-white">
         <div className="flex items-center space-x-2">
