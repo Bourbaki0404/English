@@ -412,6 +412,34 @@ export default function MobileEditorLayout() {
                 }
               }}
             >
+              {/* Document Title */}
+              {isEditingTitle ? (
+                <input
+                  type="text"
+                  value={tempTitle}
+                  onChange={(e) => setTempTitle(e.target.value)}
+                  onBlur={saveTitleChanges}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      saveTitleChanges();
+                    } else if (e.key === 'Escape') {
+                      cancelTitleEditing();
+                    }
+                  }}
+                  className="text-3xl font-bold text-gray-900 bg-transparent border-0 focus:outline-none mb-8 w-full"
+                  placeholder="Document title"
+                  autoFocus
+                />
+              ) : (
+                <h1
+                  className="text-3xl font-bold text-gray-900 mb-8 cursor-pointer hover:bg-gray-50 px-2 py-1 -mx-2 rounded transition-colors"
+                  onClick={startEditingTitle}
+                >
+                  {selectedDocument.title}
+                </h1>
+              )}
+
+              {/* Document Content */}
               {showPreview ? (
                 <>
                   <div className="mb-4 p-3 bg-orange-50 border border-orange-200 rounded-lg">
