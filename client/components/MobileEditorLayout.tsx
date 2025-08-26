@@ -222,6 +222,38 @@ export default function MobileEditorLayout() {
     setSelectedDocumentId(docId);
     setSelectedText('');
     setDocumentsDrawerOpen(false);
+    setSearchDrawerOpen(false);
+  };
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    if (!query.trim()) {
+      setSearchResults([]);
+      return;
+    }
+
+    const results: {doc: Document, matches: string[]}[] = [];
+    documents.forEach(doc => {
+      const content = doc.content.toLowerCase();
+      const searchTerm = query.toLowerCase();
+
+      if (content.includes(searchTerm) || getDocumentDisplayName(doc).toLowerCase().includes(searchTerm)) {
+        const lines = doc.content.split('\n');
+        const matches = lines
+          .filter(line => line.toLowerCase().includes(searchTerm))
+          .slice(0, 3); // Limit to 3 matches per document
+
+        results.push({ doc, matches });
+      }
+    });
+
+    setSearchResults(results);
+  };
+
+  const highlightSearchTerm = (text: string, query: string) => {
+    if (!query) return text;
+    const regex = new RegExp(`(${query})`, 'gi');
+    return text.replace(regex, '<mark class="bg-yellow-300">$1</mark>');
   };
 
   const handleContentChange = (newContent: string) => {
