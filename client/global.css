@@ -138,4 +138,18 @@
     background: rgba(0, 0, 0, 0.2);
     border-radius: 1px;
   }
+
+  /* Drawer slide animations */
+  .drawer-slide-in {
+    animation: slide-in-left 0.3s ease-out;
+  }
+
+  @keyframes slide-in-left {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
 }
