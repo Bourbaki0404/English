@@ -1177,6 +1177,73 @@ export default function MobileEditorLayout() {
         </>
       )}
 
+      {/* More Drawer */}
+      {moreDrawerOpen && (
+        <>
+          <div
+            className="absolute inset-0 bg-black bg-opacity-50 z-30 animate-in fade-in duration-300"
+            onClick={() => setMoreDrawerOpen(false)}
+          />
+          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-xl z-40 max-h-[80vh] overflow-hidden animate-in slide-in-from-bottom-4 duration-300">
+            <div className="flex items-center justify-between p-4 border-b border-gray-200">
+              <h2 className="text-lg font-semibold text-gray-900">More</h2>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setMoreDrawerOpen(false)}
+              >
+                <X className="w-5 h-5" />
+              </Button>
+            </div>
+
+            <div className="p-4 space-y-3">
+              <div
+                className="flex items-center p-4 rounded-lg border-2 border-purple-200 bg-purple-50 cursor-pointer hover:shadow-md transition-all"
+                onClick={() => {
+                  setAiComposerOpen(true);
+                  setMoreDrawerOpen(false);
+                }}
+              >
+                <div className="flex items-center space-x-3">
+                  <span className="text-2xl">🤖</span>
+                  <div>
+                    <h3 className="font-semibold text-gray-800">AI Composer</h3>
+                    <p className="text-sm text-gray-600">
+                      Chat with AI for content creation and assistance
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div
+                className="flex items-center p-4 rounded-lg border-2 border-gray-200 bg-gray-50 cursor-pointer hover:shadow-md transition-all"
+                onClick={() => {
+                  setSettingsOpen(true);
+                  setMoreDrawerOpen(false);
+                }}
+              >
+                <div className="flex items-center space-x-3">
+                  <span className="text-2xl">⚙️</span>
+                  <div>
+                    <h3 className="font-semibold text-gray-800">Settings</h3>
+                    <p className="text-sm text-gray-600">
+                      Configure app preferences and API settings
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* AI Composer */}
+      <AIComposer
+        isOpen={aiComposerOpen}
+        onClose={() => setAiComposerOpen(false)}
+        settings={settings}
+      />
+
       {/* Settings Modal */}
       {settingsOpen && (
         <div className="absolute inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
