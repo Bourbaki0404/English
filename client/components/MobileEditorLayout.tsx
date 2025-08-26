@@ -518,6 +518,22 @@ export default function MobileEditorLayout() {
                     {selectedDocument.title}
                   </h1>
                 )}
+
+                {/* Collision Warning directly below title */}
+                {titleCollisionWarning && (
+                  <div className="absolute top-full left-0 right-0 mt-2 z-[100]">
+                    <div className="relative">
+                      {/* Triangle pointing up to title */}
+                      <div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
+                        <div className="w-0 h-0 border-l-[8px] border-r-[8px] border-b-[8px] border-l-transparent border-r-transparent border-b-red-500"></div>
+                      </div>
+                      {/* Warning banner */}
+                      <div className="bg-red-500 text-white px-4 py-3 rounded text-center font-medium shadow-lg">
+                        There's already a file with the same name
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Document Content */}
