@@ -23,7 +23,7 @@ import { useQuiz } from '../contexts/QuizContext';
 
 interface Document {
   id: string;
-  name: string;
+  title: string;
   content: string;
   createdAt: Date;
 }
@@ -31,22 +31,20 @@ interface Document {
 const initialDocuments: Document[] = [
   {
     id: '1',
-    name: 'English 2',
+    title: 'English 2',
     content: 'Welcome to English 2! Start writing your notes here...',
     createdAt: new Date('2024-01-15')
   },
   {
     id: '2',
-    name: 'English 3',
+    title: 'English 3',
     content: 'Welcome to English 3! This is your study space.',
     createdAt: new Date('2024-01-16')
   },
   {
     id: '3',
-    name: 'English 4',
-    content: `# English 4
-
-Companies often **hedge** against currency fluctuations to protect their profits [hedge is an investment that is made to reduce the risk of adverse price movements in an asset]
+    title: 'English 4',
+    content: `Companies often **hedge** against currency fluctuations to protect their profits [hedge is an investment that is made to reduce the risk of adverse price movements in an asset]
 
 Investors often **hedge** their bets by buying different types of assets [To reduce or protect against the risk of loss, especially in finance.]
 
