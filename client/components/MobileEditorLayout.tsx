@@ -362,6 +362,32 @@ export default function MobileEditorLayout() {
     }
   };
 
+  // Render plain text content for edit mode
+  const renderPlainTextContent = (content: string) => {
+    return content
+      .split("\n")
+      .map((line, index) => {
+        // Skip H1 headers as title is now handled separately
+        if (line.startsWith("# ")) {
+          return null;
+        }
+        if (line.trim() === "") {
+          return <div key={index} className="mb-4"></div>;
+        }
+
+        return (
+          <p
+            key={index}
+            className="mb-4 leading-relaxed text-gray-800 text-base whitespace-pre-wrap"
+          >
+            {line}
+          </p>
+        );
+      })
+      .filter(Boolean); // Remove null values from skipped H1 headers
+  };
+
+  // Render formatted content for preview mode
   const renderMobileMarkdownContent = (content: string) => {
     return content
       .split("\n")
@@ -620,7 +646,17 @@ export default function MobileEditorLayout() {
                   {renderMobileMarkdownContent(previewContent)}
                 </>
               ) : isEditMode ? (
-                renderMobileMarkdownContent(selectedDocument.content)
+                <>
+                  <div className="mb-4 p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                    <div className="font-medium text-gray-800 mb-1">
+                      ✒️ Edit Mode
+                    </div>
+                    <div className="text-sm text-gray-600">
+                      Raw text without formatting. Click the preview button (👁️) to see formatted version.
+                    </div>
+                  </div>
+                  {renderPlainTextContent(selectedDocument.content)}
+                </>
               ) : (
                 <div className="prose max-w-none">
                   <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
@@ -628,7 +664,7 @@ export default function MobileEditorLayout() {
                       👁️ Preview Mode
                     </div>
                     <div className="text-sm text-blue-600">
-                      Click the edit button (✒️) to return to editing mode
+                      Formatted text with highlights. Click the edit button (✒️) to see raw text.
                     </div>
                   </div>
                   {renderMobileMarkdownContent(selectedDocument.content)}
