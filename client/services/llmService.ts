@@ -242,7 +242,7 @@ Generate 3-8 flashcards depending on the text length and vocabulary richness.`;
 
   async generateWritingTasks(selectedText: string): Promise<WritingTask[]> {
     const languageLevel = this.getLanguageLevelDescription();
-    
+
     const prompt = `Generate writing tasks in JSON format based on the provided text, matching this TypeScript interface:
 
 interface WritingTask {
@@ -270,17 +270,49 @@ Generate 1-3 writing tasks that encourage creative or analytical thinking about 
 
     try {
       const response = await this.callGeminiAPI(prompt);
-      
+
       // Clean up the response to extract JSON
       const jsonMatch = response.match(/\[[\s\S]*\]/);
       if (!jsonMatch) {
         throw new Error('No valid JSON found in response');
       }
-      
+
       const writingTasks = JSON.parse(jsonMatch[0]);
       return writingTasks;
     } catch (error) {
       console.error('Error generating writing tasks:', error);
+      throw error;
+    }
+  }
+
+  async chatWithAI(message: string): Promise<string> {
+    const languageLevel = this.getLanguageLevelDescription();
+
+    const systemPrompt = `You are a helpful AI assistant designed to support ${languageLevel} English learners. Please:
+
+1. **Communication Style**:
+   - Use clear, appropriate language for ${languageLevel} proficiency
+   - Be conversational and engaging
+   - Provide helpful and accurate information
+
+2. **Content Guidelines**:
+   - Answer questions thoughtfully and thoroughly
+   - Offer examples when helpful
+   - Be supportive of learning goals
+   - Adapt your responses to the user's apparent English level
+
+3. **Response Format**:
+   - Use natural, conversational language
+   - Break down complex concepts when needed
+   - Be encouraging and positive
+
+User message: ${message}`;
+
+    try {
+      const response = await this.callGeminiAPI(systemPrompt);
+      return response.trim();
+    } catch (error) {
+      console.error('Error in chat with AI:', error);
       throw error;
     }
   }
