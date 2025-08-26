@@ -254,6 +254,11 @@ export default function MobileEditorLayout() {
   };
 
   const handleAddDocument = () => {
+    // If title editing with collision, revert title first
+    if (isEditingTitle && titleCollisionWarning) {
+      cancelTitleEditing();
+    }
+
     const newId = (
       Math.max(...documents.map((d) => parseInt(d.id))) + 1
     ).toString();
@@ -299,6 +304,10 @@ export default function MobileEditorLayout() {
   };
 
   const handleDocumentSelect = (docId: string) => {
+    // If title editing with collision, revert title first
+    if (isEditingTitle && titleCollisionWarning) {
+      cancelTitleEditing();
+    }
     setSelectedDocumentId(docId);
     setSelectedText("");
     setDocumentsDrawerOpen(false);
@@ -403,7 +412,13 @@ export default function MobileEditorLayout() {
           variant="ghost"
           size="sm"
           className="p-2"
-          onClick={() => setDocumentsDrawerOpen(true)}
+          onClick={() => {
+            // If title editing with collision, revert title first
+            if (isEditingTitle && titleCollisionWarning) {
+              cancelTitleEditing();
+            }
+            setDocumentsDrawerOpen(true);
+          }}
         >
           <ChevronLeft className="w-5 h-5 text-gray-600" />
         </Button>
@@ -415,14 +430,30 @@ export default function MobileEditorLayout() {
         </h1>
 
         <div className="flex items-center space-x-2">
-          <Button variant="ghost" size="sm" className="p-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="p-2"
+            onClick={() => {
+              // If title editing with collision, revert title first
+              if (isEditingTitle && titleCollisionWarning) {
+                cancelTitleEditing();
+              }
+            }}
+          >
             <Bookmark className="w-5 h-5 text-gray-600" />
           </Button>
           <Button
             variant="ghost"
             size="sm"
             className="p-2"
-            onClick={() => setSettingsOpen(true)}
+            onClick={() => {
+              // If title editing with collision, revert title first
+              if (isEditingTitle && titleCollisionWarning) {
+                cancelTitleEditing();
+              }
+              setSettingsOpen(true);
+            }}
           >
             <MoreVertical className="w-5 h-5 text-gray-600" />
           </Button>
@@ -430,7 +461,7 @@ export default function MobileEditorLayout() {
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 overflow-y-auto px-4 py-6 bg-white">
+      <div className="flex-1 overflow-y-auto px-8 py-6 bg-white">
         {selectedDocument ? (
           isEditingContent ? (
             <textarea
@@ -581,7 +612,13 @@ export default function MobileEditorLayout() {
           variant="ghost"
           size="sm"
           className="flex flex-col items-center space-y-1 p-2"
-          onClick={() => setSearchDrawerOpen(true)}
+          onClick={() => {
+            // If title editing with collision, revert title first
+            if (isEditingTitle && titleCollisionWarning) {
+              cancelTitleEditing();
+            }
+            setSearchDrawerOpen(true);
+          }}
         >
           <Search className="w-5 h-5 text-gray-600" />
           <span className="text-xs text-gray-600">Search</span>
@@ -601,7 +638,13 @@ export default function MobileEditorLayout() {
           variant="ghost"
           size="sm"
           className="flex flex-col items-center space-y-1 p-2"
-          onClick={() => setQuizDrawerOpen(true)}
+          onClick={() => {
+            // If title editing with collision, revert title first
+            if (isEditingTitle && titleCollisionWarning) {
+              cancelTitleEditing();
+            }
+            setQuizDrawerOpen(true);
+          }}
         >
           <PenTool className="w-5 h-5 text-gray-600" />
           <span className="text-xs text-gray-600">Quiz</span>
@@ -611,6 +654,12 @@ export default function MobileEditorLayout() {
           variant="ghost"
           size="sm"
           className="flex flex-col items-center space-y-1 p-2"
+          onClick={() => {
+            // If title editing with collision, revert title first
+            if (isEditingTitle && titleCollisionWarning) {
+              cancelTitleEditing();
+            }
+          }}
         >
           <Grid className="w-5 h-5 text-gray-600" />
           <span className="text-xs text-gray-600">More</span>
