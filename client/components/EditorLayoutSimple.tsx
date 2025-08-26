@@ -679,28 +679,15 @@ export default function EditorLayoutSimple() {
                 {/* Content Section */}
                 <div className="p-6 pt-3">
                   {showPreview ? (
-                    <div
-                      className="prose prose-lg max-w-none cursor-text hover:bg-gray-50 rounded p-2 transition-colors"
-                      style={{
-                        fontFamily: "system-ui, -apple-system, sans-serif",
-                        lineHeight: "1.6",
-                        fontSize: "16px",
+                    <HybridEditor
+                      content={previewContent}
+                      onChange={setPreviewContent}
+                      className="border-2 border-orange-200 rounded-lg"
+                      onTextSelection={(text) => {
+                        setSelectedText(text);
+                        handleTextSelection();
                       }}
-                      onDragOver={(e) => {
-                        e.preventDefault();
-                        e.dataTransfer.dropEffect = "copy";
-                      }}
-                      onDrop={(e) => {
-                        e.preventDefault();
-                        if (draggedQuiz) {
-                          setOriginalContent(selectedDocument.content);
-                          setPreviewContent(draggedQuiz.sourceText);
-                          setShowPreview(true);
-                        }
-                      }}
-                    >
-                      {renderAdvancedMarkdownContent(previewContent)}
-                    </div>
+                    />
                   ) : (
                     <HybridEditor
                       content={selectedDocument.content}
