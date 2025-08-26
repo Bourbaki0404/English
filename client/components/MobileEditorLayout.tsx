@@ -92,7 +92,7 @@ export default function MobileEditorLayout() {
       model: 'gemini-2.0-flash-exp'
     }
   });
-  const { createQuiz, getQuizzesByDocument } = useQuiz();
+  const { createQuiz, getQuizzesByDocument, getAllQuizzes } = useQuiz();
   const [isEditingContent, setIsEditingContent] = useState(false);
 
   const selectedDocument = documents.find(doc => doc.id === selectedDocumentId);
