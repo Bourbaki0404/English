@@ -54,18 +54,6 @@ const settingsOptions: SettingsOption[] = [
     description: 'API keys and AI model settings'
   },
   {
-    id: 'quiz',
-    title: 'Quiz Settings',
-    icon: <PenTool className="w-5 h-5" />,
-    description: 'Quiz generation and difficulty preferences'
-  },
-  {
-    id: 'editor',
-    title: 'Editor',
-    icon: <FileText className="w-5 h-5" />,
-    description: 'Writing and editing preferences'
-  },
-  {
     id: 'appearance',
     title: 'Appearance',
     icon: <Palette className="w-5 h-5" />,
