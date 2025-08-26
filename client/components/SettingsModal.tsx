@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Settings, User, Bot } from 'lucide-react';
+import { X, Settings, User, Bot, ChevronRight, ChevronLeft, Palette, HelpCircle, FileText, Zap, PenTool } from 'lucide-react';
 import { Button } from './ui/button';
 
 interface SettingsModalProps {
@@ -20,7 +20,14 @@ interface AppSettings {
   };
 }
 
-type SettingsSection = 'general' | 'llm';
+type SettingsView = 'main' | 'general' | 'llm' | 'quiz' | 'editor' | 'appearance' | 'about';
+
+interface SettingsOption {
+  id: SettingsView;
+  title: string;
+  icon: React.ReactNode;
+  description?: string;
+}
 
 const languageLevels = [
   { value: 'junior', label: 'Junior School' },
@@ -33,8 +40,47 @@ const languageLevels = [
   { value: 'advanced', label: 'Advanced' }
 ];
 
+const settingsOptions: SettingsOption[] = [
+  {
+    id: 'general',
+    title: 'General',
+    icon: <User className="w-5 h-5" />,
+    description: 'Language level and basic preferences'
+  },
+  {
+    id: 'llm',
+    title: 'AI Configuration',
+    icon: <Bot className="w-5 h-5" />,
+    description: 'API keys and AI model settings'
+  },
+  {
+    id: 'quiz',
+    title: 'Quiz Settings',
+    icon: <PenTool className="w-5 h-5" />,
+    description: 'Quiz generation and difficulty preferences'
+  },
+  {
+    id: 'editor',
+    title: 'Editor',
+    icon: <FileText className="w-5 h-5" />,
+    description: 'Writing and editing preferences'
+  },
+  {
+    id: 'appearance',
+    title: 'Appearance',
+    icon: <Palette className="w-5 h-5" />,
+    description: 'Theme and display settings'
+  },
+  {
+    id: 'about',
+    title: 'About',
+    icon: <HelpCircle className="w-5 h-5" />,
+    description: 'App information and help'
+  }
+];
+
 export default function SettingsModal({ isOpen, onClose, settings, onSettingsChange }: SettingsModalProps) {
-  const [activeSection, setActiveSection] = useState<SettingsSection>('general');
+  const [currentView, setCurrentView] = useState<SettingsView>('main');
 
   if (!isOpen) return null;
 
