@@ -517,7 +517,7 @@ export default function MobileEditorLayout() {
                 <>
                   <div className="mb-4 p-3 bg-orange-50 border border-orange-200 rounded-lg">
                     <div className="font-medium text-orange-800 mb-2">
-                      �� Quiz Source Preview
+                      📖 Quiz Source Preview
                     </div>
                     <Button
                       size="sm"
@@ -962,27 +962,6 @@ export default function MobileEditorLayout() {
         onSettingsChange={setSettings}
       />
 
-      {/* Duplicate Title Warning */}
-      {showDuplicateWarning && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-red-500 text-white rounded-lg p-4 mx-4 max-w-sm w-full text-center shadow-lg">
-            <h3 className="font-semibold mb-2">
-              There's already a file with the same name
-            </h3>
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => {
-                setShowDuplicateWarning(false);
-                setIsEditingTitle(true);
-              }}
-              className="bg-white text-red-500 hover:bg-gray-100"
-            >
-              Try Again
-            </Button>
-          </div>
-        </div>
-      )}
 
       {/* Loading Overlay */}
       {isGeneratingQuiz && (
