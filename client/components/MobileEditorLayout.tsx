@@ -1272,10 +1272,10 @@ export default function MobileEditorLayout() {
           settings={settings}
         />
 
-        {/* Settings Modal */}
+        {/* Settings Modal - Mobile Constrained */}
         {settingsOpen && (
-          <div className="absolute inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-            <div className="w-full max-h-[80vh] overflow-hidden">
+          <div className="absolute inset-0 bg-black bg-opacity-50 z-50 flex items-end justify-center">
+            <div className="w-full max-w-sm h-[85vh] animate-in slide-in-from-bottom-4 duration-300">
               <SettingsModal
                 isOpen={settingsOpen}
                 onClose={() => setSettingsOpen(false)}
