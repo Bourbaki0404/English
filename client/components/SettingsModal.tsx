@@ -95,10 +95,41 @@ export default function SettingsModal({ isOpen, onClose, settings, onSettingsCha
     onSettingsChange(newSettings);
   };
 
+  const getViewTitle = (view: SettingsView): string => {
+    const option = settingsOptions.find(opt => opt.id === view);
+    return option?.title || 'Settings';
+  };
+
+  const renderMainOptions = () => (
+    <div className="p-4">
+      <h2 className="text-lg font-semibold text-gray-800 mb-4">Options</h2>
+      <div className="space-y-2">
+        {settingsOptions.map((option) => (
+          <button
+            key={option.id}
+            onClick={() => setCurrentView(option.id)}
+            className="w-full flex items-center justify-between p-4 rounded-lg hover:bg-gray-50 transition-colors text-left border border-gray-100"
+          >
+            <div className="flex items-center space-x-3">
+              <div className="text-gray-600">
+                {option.icon}
+              </div>
+              <div>
+                <div className="font-medium text-gray-900">{option.title}</div>
+                {option.description && (
+                  <div className="text-sm text-gray-500">{option.description}</div>
+                )}
+              </div>
+            </div>
+            <ChevronRight className="w-5 h-5 text-gray-400" />
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+
   const renderGeneralSettings = () => (
-    <div className="p-6">
-      <h2 className="text-lg font-semibold text-gray-800 mb-6">General</h2>
-      
+    <div className="p-4">
       <div className="space-y-6">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -125,9 +156,7 @@ export default function SettingsModal({ isOpen, onClose, settings, onSettingsCha
   );
 
   const renderLLMSettings = () => (
-    <div className="p-6">
-      <h2 className="text-lg font-semibold text-gray-800 mb-6">Configure LLM</h2>
-      
+    <div className="p-4">
       <div className="space-y-6">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -221,6 +250,130 @@ export default function SettingsModal({ isOpen, onClose, settings, onSettingsCha
             </p>
           </div>
         )}
+      </div>
+    </div>
+  );
+
+  const renderQuizSettings = () => (
+    <div className="p-4">
+      <div className="space-y-6">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Default Quiz Difficulty
+          </label>
+          <p className="text-sm text-gray-500 mb-3">
+            Set the default difficulty level for generated quizzes.
+          </p>
+          <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <option>Easy</option>
+            <option>Medium</option>
+            <option>Hard</option>
+          </select>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Question Count
+          </label>
+          <p className="text-sm text-gray-500 mb-3">
+            Default number of questions to generate per quiz.
+          </p>
+          <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <option>3 questions</option>
+            <option>5 questions</option>
+            <option>8 questions</option>
+            <option>10 questions</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderEditorSettings = () => (
+    <div className="p-4">
+      <div className="space-y-6">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Default Mode
+          </label>
+          <p className="text-sm text-gray-500 mb-3">
+            Choose whether to start in edit mode or preview mode.
+          </p>
+          <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <option>Preview Mode</option>
+            <option>Edit Mode</option>
+          </select>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Auto-save
+          </label>
+          <p className="text-sm text-gray-500 mb-3">
+            Automatically save changes while typing.
+          </p>
+          <div className="flex items-center space-x-3">
+            <input type="checkbox" defaultChecked className="rounded" />
+            <span className="text-sm text-gray-700">Enable auto-save</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderAppearanceSettings = () => (
+    <div className="p-4">
+      <div className="space-y-6">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Theme
+          </label>
+          <p className="text-sm text-gray-500 mb-3">
+            Choose your preferred theme.
+          </p>
+          <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <option>Light</option>
+            <option>Dark</option>
+            <option>Auto (System)</option>
+          </select>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Font Size
+          </label>
+          <p className="text-sm text-gray-500 mb-3">
+            Adjust the reading font size.
+          </p>
+          <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <option>Small</option>
+            <option>Medium</option>
+            <option>Large</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderAboutSettings = () => (
+    <div className="p-4">
+      <div className="space-y-6">
+        <div className="text-center">
+          <div className="text-4xl mb-4">📚</div>
+          <h3 className="text-lg font-semibold text-gray-800 mb-2">English Learning App</h3>
+          <p className="text-sm text-gray-500 mb-4">Version 1.0.0</p>
+        </div>
+        <div className="space-y-4">
+          <div className="p-4 bg-blue-50 border border-blue-200 rounded-md">
+            <h4 className="text-sm font-medium text-blue-800 mb-2">Need Help?</h4>
+            <p className="text-sm text-blue-700">
+              Visit our help center for tutorials and support.
+            </p>
+          </div>
+          <div className="p-4 bg-green-50 border border-green-200 rounded-md">
+            <h4 className="text-sm font-medium text-green-800 mb-2">Feedback</h4>
+            <p className="text-sm text-green-700">
+              We'd love to hear your thoughts and suggestions!
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
