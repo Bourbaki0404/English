@@ -315,8 +315,9 @@ export default function MobileEditorLayout() {
     return content
       .split('\n')
       .map((line, index) => {
+        // Skip H1 headers as title is now handled separately
         if (line.startsWith('# ')) {
-          return <h1 key={index} className="text-2xl font-bold mb-6 mt-8 text-gray-900">{line.substring(2)}</h1>;
+          return null;
         }
         if (line.startsWith('## ')) {
           return <h2 key={index} className="text-xl font-semibold mb-4 mt-6 text-gray-900">{line.substring(3)}</h2>;
@@ -337,7 +338,8 @@ export default function MobileEditorLayout() {
             dangerouslySetInnerHTML={{ __html: processedLine }}
           />
         );
-      });
+      })
+      .filter(Boolean); // Remove null values from skipped H1 headers
   };
 
   return (
