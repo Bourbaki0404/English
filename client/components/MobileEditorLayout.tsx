@@ -102,39 +102,61 @@ export default function MobileEditorLayout() {
   const documentQuizzes = selectedDocument ? getQuizzesByDocument(selectedDocument.id) : [];
   const allQuizzes = getAllQuizzes();
 
-  // Function to extract title from markdown content
-  const extractTitleFromContent = (content: string): string => {
-    const lines = content.split('\n');
-    for (const line of lines) {
-      const trimmed = line.trim();
-      if (trimmed.startsWith('# ')) {
-        return trimmed.substring(2).trim();
-      }
-    }
-    return '';
-  };
-
   // Function to get display name for document
   const getDocumentDisplayName = (doc: Document): string => {
-    const titleFromContent = extractTitleFromContent(doc.content);
-    return titleFromContent || doc.name;
+    return doc.title;
   };
 
-  // Update document name when content changes
-  useEffect(() => {
+  // Check if title already exists in other documents
+  const isTitleDuplicate = (title: string, excludeId?: string): boolean => {
+    return documents.some(doc =>
+      doc.title.toLowerCase() === title.toLowerCase() &&
+      doc.id !== excludeId
+    );
+  };
+
+  // Start editing title
+  const startEditingTitle = () => {
     if (selectedDocument) {
-      const titleFromContent = extractTitleFromContent(selectedDocument.content);
-      if (titleFromContent && titleFromContent !== selectedDocument.name) {
-        setDocuments(prev =>
-          prev.map(doc =>
-            doc.id === selectedDocument.id
-              ? { ...doc, name: titleFromContent }
-              : doc
-          )
-        );
-      }
+      setTempTitle(selectedDocument.title);
+      setIsEditingTitle(true);
     }
-  }, [selectedDocument?.content]);
+  };
+
+  // Save title changes
+  const saveTitleChanges = () => {
+    if (!selectedDocument || !tempTitle.trim()) {
+      setIsEditingTitle(false);
+      return;
+    }
+
+    const trimmedTitle = tempTitle.trim();
+
+    // Check for duplicates
+    if (isTitleDuplicate(trimmedTitle, selectedDocument.id)) {
+      setShowDuplicateWarning(true);
+      return;
+    }
+
+    // Update document title
+    setDocuments(prev =>
+      prev.map(doc =>
+        doc.id === selectedDocument.id
+          ? { ...doc, title: trimmedTitle }
+          : doc
+      )
+    );
+
+    setIsEditingTitle(false);
+    setTempTitle('');
+  };
+
+  // Cancel title editing
+  const cancelTitleEditing = () => {
+    setIsEditingTitle(false);
+    setTempTitle('');
+    setShowDuplicateWarning(false);
+  };
 
   const handleQuizToolClick = async (toolId: string) => {
     if (!selectedText) {
