@@ -194,6 +194,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
       getQuizzesByDocument,
       getQuizzesByDocumentAndType,
       getLatestQuizByType,
+      getAllQuizzes,
       deleteQuiz,
       setCurrentQuiz
     }}>
