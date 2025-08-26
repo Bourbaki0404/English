@@ -435,7 +435,8 @@ export default function MobileEditorLayout() {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-white relative overflow-hidden">
+    <div className="h-screen flex justify-center bg-gray-100">
+      <div className="w-full max-w-sm bg-white flex flex-col relative overflow-hidden shadow-lg">
       {/* Top Navigation Bar */}
       <div className="flex items-center justify-between px-4 py-3 bg-white border-b border-gray-200 relative z-20">
         <Button
@@ -680,7 +681,7 @@ export default function MobileEditorLayout() {
 
       {/* Mode Switch Toast */}
       {showModeToast && (
-        <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-[200] animate-in fade-in slide-in-from-top-2 duration-300">
+        <div className="absolute top-20 left-0 right-0 flex justify-center z-[200] animate-in fade-in slide-in-from-top-2 duration-300">
           <div className="bg-gray-600 text-white px-4 py-2 rounded-lg shadow-lg text-sm font-medium">
             {modeToastMessage}
           </div>
@@ -1149,6 +1150,7 @@ export default function MobileEditorLayout() {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }
