@@ -84,12 +84,14 @@ export default function HybridEditor({
     // Highlight
     markdown = markdown.replace(/<mark[^>]*>(.*?)<\/mark>/gi, "==$1==");
 
-    // Clean up
-    markdown = markdown.replace(/<br\s*\/?>/gi, "\n");
+    // Clean up - handle br tags with any attributes (including data-loc)
+    markdown = markdown.replace(/<br[^>]*\/?>/gi, "\n");
     markdown = markdown.replace(/<div[^>]*>/gi, "\n");
     markdown = markdown.replace(/<\/div>/gi, "");
     markdown = markdown.replace(/<p[^>]*>/gi, "");
     markdown = markdown.replace(/<\/p>/gi, "\n");
+    // Remove any remaining HTML tags and attributes
+    markdown = markdown.replace(/<[^>]*>/g, "");
     markdown = markdown.replace(/\n\n+/g, "\n\n");
     markdown = markdown.trim();
 
