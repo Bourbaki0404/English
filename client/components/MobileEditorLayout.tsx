@@ -92,6 +92,9 @@ export default function MobileEditorLayout() {
   });
   const { createQuiz, getQuizzesByDocument, getAllQuizzes } = useQuiz();
   const [isEditingContent, setIsEditingContent] = useState(false);
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [tempTitle, setTempTitle] = useState('');
+  const [showDuplicateWarning, setShowDuplicateWarning] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [previewContent, setPreviewContent] = useState('');
 
