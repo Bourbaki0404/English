@@ -1,4 +1,4 @@
-import { AppSettings } from '../components/SettingsModal';
+import { AppSettings } from "../components/SettingsModal";
 
 interface MultipleChoiceOption {
   text: string;
@@ -38,63 +38,71 @@ class LLMService {
 
   private async callGeminiAPI(prompt: string): Promise<string> {
     if (!this.settings.llm.apiKey) {
-      throw new Error('API key not configured');
+      throw new Error("API key not configured");
     }
 
     const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${this.settings.llm.model}:generateContent?key=${this.settings.llm.apiKey}`;
 
     const requestBody = {
-      contents: [{
-        parts: [{
-          text: prompt
-        }]
-      }],
+      contents: [
+        {
+          parts: [
+            {
+              text: prompt,
+            },
+          ],
+        },
+      ],
       generationConfig: {
         temperature: 0.7,
         topK: 40,
         topP: 0.95,
         maxOutputTokens: 2048,
-      }
+      },
     };
 
-    console.log('Making Gemini API request:', {
-      url: apiUrl.replace(this.settings.llm.apiKey, 'API_KEY_HIDDEN'),
+    console.log("Making Gemini API request:", {
+      url: apiUrl.replace(this.settings.llm.apiKey, "API_KEY_HIDDEN"),
       model: this.settings.llm.model,
-      promptLength: prompt.length
+      promptLength: prompt.length,
     });
 
     try {
       const response = await fetch(apiUrl, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(requestBody)
+        body: JSON.stringify(requestBody),
       });
 
-      console.log('Gemini API response status:', response.status, response.statusText);
+      console.log(
+        "Gemini API response status:",
+        response.status,
+        response.statusText,
+      );
 
       if (!response.ok) {
         let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
-        let errorDetails = '';
+        let errorDetails = "";
 
         try {
           // Read as text first to avoid "body stream already read" error
           const responseText = await response.text();
-          console.error('Raw error response:', responseText);
+          console.error("Raw error response:", responseText);
 
           // Try to parse as JSON
           try {
             const errorData = JSON.parse(responseText);
-            console.error('Parsed error response:', errorData);
+            console.error("Parsed error response:", errorData);
             errorMessage = errorData.error?.message || errorMessage;
             errorDetails = JSON.stringify(errorData, null, 2);
           } catch (jsonError) {
-            console.error('Response is not valid JSON:', jsonError);
+            console.error("Response is not valid JSON:", jsonError);
             errorDetails = responseText;
           }
         } catch (readError) {
-          console.error('Failed to read error response:', readError);
+          console.error("Failed to read error response:", readError);
           errorDetails = `Failed to read response: ${readError.message}`;
         }
 
@@ -102,25 +110,32 @@ class LLMService {
       }
 
       const data = await response.json();
-      console.log('Gemini API successful response structure:', {
+      console.log("Gemini API successful response structure:", {
         hasCandidates: !!data.candidates,
         candidatesLength: data.candidates?.length,
-        firstCandidateStructure: data.candidates?.[0] ? Object.keys(data.candidates[0]) : 'none'
+        firstCandidateStructure: data.candidates?.[0]
+          ? Object.keys(data.candidates[0])
+          : "none",
       });
 
       const content = data.candidates?.[0]?.content?.parts?.[0]?.text;
 
       if (!content) {
-        console.error('No content in API response:', JSON.stringify(data, null, 2));
-        throw new Error('No content received from API');
+        console.error(
+          "No content in API response:",
+          JSON.stringify(data, null, 2),
+        );
+        throw new Error("No content received from API");
       }
 
-      console.log('Generated content length:', content.length);
+      console.log("Generated content length:", content.length);
       return content;
     } catch (error) {
-      console.error('Gemini API call failed:', error);
-      if (error instanceof TypeError && error.message.includes('fetch')) {
-        throw new Error('Network error: Unable to connect to Gemini API. Please check your internet connection.');
+      console.error("Gemini API call failed:", error);
+      if (error instanceof TypeError && error.message.includes("fetch")) {
+        throw new Error(
+          "Network error: Unable to connect to Gemini API. Please check your internet connection.",
+        );
       }
       throw error;
     }
@@ -128,22 +143,27 @@ class LLMService {
 
   private getLanguageLevelDescription(): string {
     const levelMap = {
-      'junior': 'junior high school level',
-      'high': 'high school level',
-      'cet4': 'CET-4 level (intermediate)',
-      'cet6': 'CET-6 level (upper-intermediate)',
-      'ielts': 'IELTS level (advanced)',
-      'toefl': 'TOEFL level (advanced)',
-      'sat': 'SAT level (advanced)',
-      'advanced': 'advanced/native level'
+      junior: "junior high school level",
+      high: "high school level",
+      cet4: "CET-4 level (intermediate)",
+      cet6: "CET-6 level (upper-intermediate)",
+      ielts: "IELTS level (advanced)",
+      toefl: "TOEFL level (advanced)",
+      sat: "SAT level (advanced)",
+      advanced: "advanced/native level",
     };
-    
-    return levelMap[this.settings.general.languageLevel as keyof typeof levelMap] || 'intermediate level';
+
+    return (
+      levelMap[this.settings.general.languageLevel as keyof typeof levelMap] ||
+      "intermediate level"
+    );
   }
 
-  async generateMultipleChoice(selectedText: string): Promise<MultipleChoiceQuiz[]> {
+  async generateMultipleChoice(
+    selectedText: string,
+  ): Promise<MultipleChoiceQuiz[]> {
     const languageLevel = this.getLanguageLevelDescription();
-    
+
     const prompt = `Generate a multiple-choice quiz in JSON format based on the provided text, matching these TypeScript interfaces:
 
 interface MultipleChoiceOption {
@@ -184,24 +204,24 @@ Generate 1-3 questions based on the complexity and length of the text.`;
 
     try {
       const response = await this.callGeminiAPI(prompt);
-      
+
       // Clean up the response to extract JSON
       const jsonMatch = response.match(/\[[\s\S]*\]/);
       if (!jsonMatch) {
-        throw new Error('No valid JSON found in response');
+        throw new Error("No valid JSON found in response");
       }
-      
+
       const quizData = JSON.parse(jsonMatch[0]);
       return quizData;
     } catch (error) {
-      console.error('Error generating multiple choice quiz:', error);
+      console.error("Error generating multiple choice quiz:", error);
       throw error;
     }
   }
 
   async generateFlashCards(selectedText: string): Promise<FlashCard[]> {
     const languageLevel = this.getLanguageLevelDescription();
-    
+
     const prompt = `Generate flashcards in JSON format based on the provided text, matching this TypeScript interface:
 
 interface FlashCard {
@@ -225,24 +245,24 @@ Generate 3-8 flashcards depending on the text length and vocabulary richness.`;
 
     try {
       const response = await this.callGeminiAPI(prompt);
-      
+
       // Clean up the response to extract JSON
       const jsonMatch = response.match(/\[[\s\S]*\]/);
       if (!jsonMatch) {
-        throw new Error('No valid JSON found in response');
+        throw new Error("No valid JSON found in response");
       }
-      
+
       const flashcards = JSON.parse(jsonMatch[0]);
       return flashcards;
     } catch (error) {
-      console.error('Error generating flashcards:', error);
+      console.error("Error generating flashcards:", error);
       throw error;
     }
   }
 
   async generateWritingTasks(selectedText: string): Promise<WritingTask[]> {
     const languageLevel = this.getLanguageLevelDescription();
-    
+
     const prompt = `Generate writing tasks in JSON format based on the provided text, matching this TypeScript interface:
 
 interface WritingTask {
@@ -270,17 +290,49 @@ Generate 1-3 writing tasks that encourage creative or analytical thinking about 
 
     try {
       const response = await this.callGeminiAPI(prompt);
-      
+
       // Clean up the response to extract JSON
       const jsonMatch = response.match(/\[[\s\S]*\]/);
       if (!jsonMatch) {
-        throw new Error('No valid JSON found in response');
+        throw new Error("No valid JSON found in response");
       }
-      
+
       const writingTasks = JSON.parse(jsonMatch[0]);
       return writingTasks;
     } catch (error) {
-      console.error('Error generating writing tasks:', error);
+      console.error("Error generating writing tasks:", error);
+      throw error;
+    }
+  }
+
+  async chatWithAI(message: string): Promise<string> {
+    const languageLevel = this.getLanguageLevelDescription();
+
+    const systemPrompt = `You are a helpful AI assistant designed to support ${languageLevel} English learners. Please:
+
+1. **Communication Style**:
+   - Use clear, appropriate language for ${languageLevel} proficiency
+   - Be conversational and engaging
+   - Provide helpful and accurate information
+
+2. **Content Guidelines**:
+   - Answer questions thoughtfully and thoroughly
+   - Offer examples when helpful
+   - Be supportive of learning goals
+   - Adapt your responses to the user's apparent English level
+
+3. **Response Format**:
+   - Use natural, conversational language
+   - Break down complex concepts when needed
+   - Be encouraging and positive
+
+User message: ${message}`;
+
+    try {
+      const response = await this.callGeminiAPI(systemPrompt);
+      return response.trim();
+    } catch (error) {
+      console.error("Error in chat with AI:", error);
       throw error;
     }
   }

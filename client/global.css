@@ -102,5 +102,56 @@
 
   body {
     @apply bg-background text-foreground;
+    /* Mobile optimizations */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    touch-action: manipulation;
+    overscroll-behavior: none;
+  }
+
+  /* Mobile touch improvements */
+  @media (hover: none) and (pointer: coarse) {
+    button:hover {
+      background-color: initial;
+    }
+  }
+
+  /* Prevent zoom on input focus on iOS */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  textarea,
+  select {
+    font-size: 16px;
+  }
+
+  /* Custom scrollbars for mobile */
+  ::-webkit-scrollbar {
+    width: 2px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 1px;
+  }
+
+  /* Drawer slide animations */
+  .drawer-slide-in {
+    animation: slide-in-left 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  @keyframes slide-in-left {
+    0% {
+      transform: translateX(-100%);
+      opacity: 0.8;
+    }
+    100% {
+      transform: translateX(0);
+      opacity: 1;
+    }
   }
 }
