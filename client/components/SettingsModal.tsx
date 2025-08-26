@@ -378,14 +378,47 @@ export default function SettingsModal({ isOpen, onClose, settings, onSettingsCha
     </div>
   );
 
+  const renderCurrentView = () => {
+    switch (currentView) {
+      case 'main':
+        return renderMainOptions();
+      case 'general':
+        return renderGeneralSettings();
+      case 'llm':
+        return renderLLMSettings();
+      case 'quiz':
+        return renderQuizSettings();
+      case 'editor':
+        return renderEditorSettings();
+      case 'appearance':
+        return renderAppearanceSettings();
+      case 'about':
+        return renderAboutSettings();
+      default:
+        return renderMainOptions();
+    }
+  };
+
   return (
     <div className="bg-white rounded-t-xl w-full max-w-sm mx-auto h-full flex flex-col overflow-hidden shadow-xl">
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-gray-200">
-        <h1 className="text-lg font-semibold text-gray-800 flex items-center">
-          <Settings className="w-5 h-5 mr-2" />
-          Settings
-        </h1>
+        <div className="flex items-center">
+          {currentView !== 'main' && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setCurrentView('main')}
+              className="text-gray-500 hover:text-gray-700 mr-2 p-1"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </Button>
+          )}
+          <h1 className="text-lg font-semibold text-gray-800 flex items-center">
+            {currentView === 'main' && <Settings className="w-5 h-5 mr-2" />}
+            {currentView === 'main' ? 'Settings' : getViewTitle(currentView)}
+          </h1>
+        </div>
         <Button
           variant="ghost"
           size="sm"
@@ -396,50 +429,24 @@ export default function SettingsModal({ isOpen, onClose, settings, onSettingsCha
         </Button>
       </div>
 
-      {/* Mobile Tab Navigation */}
-      <div className="flex border-b border-gray-200 bg-gray-50">
-        <button
-          onClick={() => setActiveSection('general')}
-          className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
-            activeSection === 'general'
-              ? 'text-blue-600 border-b-2 border-blue-600 bg-white'
-              : 'text-gray-600 hover:text-gray-800'
-          }`}
-        >
-          <User className="w-4 h-4 inline mr-2" />
-          General
-        </button>
-
-        <button
-          onClick={() => setActiveSection('llm')}
-          className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
-            activeSection === 'llm'
-              ? 'text-blue-600 border-b-2 border-blue-600 bg-white'
-              : 'text-gray-600 hover:text-gray-800'
-          }`}
-        >
-          <Bot className="w-4 h-4 inline mr-2" />
-          LLM Config
-        </button>
-      </div>
-
       {/* Content */}
       <div className="flex-1 overflow-y-auto">
-        {activeSection === 'general' && renderGeneralSettings()}
-        {activeSection === 'llm' && renderLLMSettings()}
+        {renderCurrentView()}
       </div>
 
-      {/* Footer */}
-      <div className="p-4 border-t border-gray-200 bg-gray-50">
-        <div className="flex space-x-3">
-          <Button variant="outline" onClick={onClose} className="flex-1">
-            Cancel
-          </Button>
-          <Button onClick={onClose} className="flex-1">
-            Save
-          </Button>
+      {/* Footer - Only show save/cancel on secondary views */}
+      {currentView !== 'main' && currentView !== 'about' && (
+        <div className="p-4 border-t border-gray-200 bg-gray-50">
+          <div className="flex space-x-3">
+            <Button variant="outline" onClick={() => setCurrentView('main')} className="flex-1">
+              Cancel
+            </Button>
+            <Button onClick={() => setCurrentView('main')} className="flex-1">
+              Save
+            </Button>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
