@@ -353,35 +353,9 @@ export default function MobileEditorLayout() {
           <ChevronLeft className="w-5 h-5 text-gray-600" />
         </Button>
         
-        {selectedDocument ? (
-          isEditingTitle ? (
-            <input
-              type="text"
-              value={tempTitle}
-              onChange={(e) => setTempTitle(e.target.value)}
-              onBlur={saveTitleChanges}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  saveTitleChanges();
-                } else if (e.key === 'Escape') {
-                  cancelTitleEditing();
-                }
-              }}
-              className="text-lg font-medium text-gray-900 bg-transparent border-0 focus:outline-none mx-4 flex-1 text-center"
-              placeholder="Document title"
-              autoFocus
-            />
-          ) : (
-            <h1
-              className="text-lg font-medium text-gray-900 truncate mx-4 cursor-pointer hover:bg-gray-100 px-2 py-1 rounded transition-colors"
-              onClick={startEditingTitle}
-            >
-              {getDocumentDisplayName(selectedDocument)}
-            </h1>
-          )
-        ) : (
-          <h1 className="text-lg font-medium text-gray-900 truncate mx-4">Documents</h1>
-        )}
+        <h1 className="text-lg font-medium text-gray-900 truncate mx-4">
+          {selectedDocument ? getDocumentDisplayName(selectedDocument) : 'Documents'}
+        </h1>
         
         <div className="flex items-center space-x-2">
           <Button
