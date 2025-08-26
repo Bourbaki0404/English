@@ -77,7 +77,7 @@ export default function MobileEditorLayout() {
   const [searchDrawerOpen, setSearchDrawerOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<
-    { doc: Document; matches: string[] }[]
+    { doc: Document; matches: string[]; lineNumbers: number[] }[]
   >([]);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [isGeneratingQuiz, setIsGeneratingQuiz] = useState(false);
@@ -100,7 +100,7 @@ export default function MobileEditorLayout() {
   const [showPreview, setShowPreview] = useState(false);
   const [previewContent, setPreviewContent] = useState("");
   const [previewTitle, setPreviewTitle] = useState("");
-  const [isEditMode, setIsEditMode] = useState(true);
+  const [isEditMode, setIsEditMode] = useState(false);
   const [showModeToast, setShowModeToast] = useState(false);
   const [modeToastMessage, setModeToastMessage] = useState("");
 
@@ -325,7 +325,7 @@ export default function MobileEditorLayout() {
       return;
     }
 
-    const results: { doc: Document; matches: string[] }[] = [];
+    const results: { doc: Document; matches: string[]; lineNumbers: number[] }[] = [];
     documents.forEach((doc) => {
       const content = doc.content.toLowerCase();
       const searchTerm = query.toLowerCase();
@@ -335,11 +335,21 @@ export default function MobileEditorLayout() {
         getDocumentDisplayName(doc).toLowerCase().includes(searchTerm)
       ) {
         const lines = doc.content.split("\n");
-        const matches = lines
-          .filter((line) => line.toLowerCase().includes(searchTerm))
-          .slice(0, 3); // Limit to 3 matches per document
+        const matches: string[] = [];
+        const lineNumbers: number[] = [];
 
-        results.push({ doc, matches });
+        lines.forEach((line, index) => {
+          if (line.toLowerCase().includes(searchTerm)) {
+            matches.push(line);
+            lineNumbers.push(index);
+          }
+        });
+
+        results.push({
+          doc,
+          matches: matches.slice(0, 3),
+          lineNumbers: lineNumbers.slice(0, 3)
+        });
       }
     });
 
@@ -752,10 +762,10 @@ export default function MobileEditorLayout() {
       {documentsDrawerOpen && (
         <>
           <div
-            className="absolute inset-0 bg-black bg-opacity-50 z-30"
+            className="absolute inset-0 bg-black bg-opacity-30 z-30 transition-opacity duration-300"
             onClick={() => setDocumentsDrawerOpen(false)}
           />
-          <div className="absolute top-0 left-0 bottom-0 bg-white z-40 w-full overflow-hidden shadow-xl">
+          <div className="absolute top-0 left-0 bottom-0 bg-white z-40 w-4/5 overflow-hidden shadow-xl transform transition-transform duration-300 ease-out">
             <div className="flex items-center justify-between p-4 border-b border-gray-200">
               <h2 className="text-lg font-semibold text-gray-900">Documents</h2>
               <Button
@@ -859,27 +869,53 @@ export default function MobileEditorLayout() {
             <div className="overflow-y-auto max-h-[50vh] px-4 pb-4">
               {searchResults.length > 0 ? (
                 <div className="space-y-3">
-                  {searchResults.map(({ doc, matches }) => (
-                    <div
-                      key={doc.id}
-                      className="p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
-                      onClick={() => handleDocumentSelect(doc.id)}
-                    >
-                      <div className="font-medium text-gray-900 mb-2">
+                  {searchResults.map(({ doc, matches, lineNumbers }) => (
+                    <div key={doc.id}>
+                      <div className="font-medium text-gray-900 mb-2 p-3 bg-gray-100 rounded-t-lg">
                         {getDocumentDisplayName(doc)}
                       </div>
                       {matches.map((match, index) => (
                         <div
                           key={index}
-                          className="text-sm text-gray-600 mb-1 leading-relaxed"
-                          dangerouslySetInnerHTML={{
-                            __html: highlightSearchTerm(
-                              match.substring(0, 100) +
-                                (match.length > 100 ? "..." : ""),
-                              searchQuery,
-                            ),
+                          className="p-3 bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors border-b last:border-b-0 last:rounded-b-lg"
+                          onClick={() => {
+                            // Switch to the document
+                            handleDocumentSelect(doc.id);
+
+                            // Wait for document to load, then scroll to position
+                            setTimeout(() => {
+                              const targetLineNumber = lineNumbers[index];
+                              const contentElements = document.querySelectorAll('.mb-4.leading-relaxed');
+
+                              if (contentElements[targetLineNumber]) {
+                                contentElements[targetLineNumber].scrollIntoView({
+                                  behavior: 'smooth',
+                                  block: 'center'
+                                });
+
+                                // Highlight the found text temporarily
+                                const element = contentElements[targetLineNumber] as HTMLElement;
+                                element.style.backgroundColor = '#fef3c7';
+                                element.style.transition = 'background-color 0.3s';
+
+                                setTimeout(() => {
+                                  element.style.backgroundColor = '';
+                                }, 2000);
+                              }
+                            }, 100);
                           }}
-                        />
+                        >
+                          <div
+                            className="text-sm text-gray-600 leading-relaxed"
+                            dangerouslySetInnerHTML={{
+                              __html: highlightSearchTerm(
+                                match.substring(0, 100) +
+                                  (match.length > 100 ? "..." : ""),
+                                searchQuery,
+                              ),
+                            }}
+                          />
+                        </div>
                       ))}
                     </div>
                   ))}
