@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { Button } from "./ui/button";
 import SettingsModal, { AppSettings } from "./SettingsModal";
+import AIComposer from "./AIComposer";
 import { getLLMService } from "../services/llmService";
 import { useQuiz } from "../contexts/QuizContext";
 
