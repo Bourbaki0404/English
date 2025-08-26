@@ -11,6 +11,9 @@ import {
   Bot,
   User,
   Loader2,
+  Copy,
+  Undo2,
+  Check,
 } from "lucide-react";
 import { Button } from "./ui/button";
 import { AppSettings } from "./SettingsModal";
