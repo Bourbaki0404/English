@@ -660,7 +660,7 @@ export default function EditorLayoutSimple() {
             {selectedDocument ? (
               <div>
                 {/* Title Section */}
-                <div className="sticky top-0 bg-white z-10 p-6 pb-3">
+                <div className="p-6 pb-3">
                   <input
                     type="text"
                     value={tempTitle}
@@ -931,7 +931,13 @@ export default function EditorLayoutSimple() {
                           {getItemCount(quiz)}
                         </div>
                         <div className="text-xs text-gray-400">
-                          {quiz.createdAt.toLocaleDateString()}
+                          {quiz.createdAt.toLocaleString('en-US', {
+                            year: 'numeric',
+                            month: 'numeric',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
                         </div>
                       </div>
                       <div className="opacity-0 group-hover:opacity-100 transition-opacity">
