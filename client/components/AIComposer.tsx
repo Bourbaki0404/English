@@ -779,8 +779,8 @@ Please use the information from the provided document(s) to give a comprehensive
               </p>
               <div className="space-y-2 text-sm text-gray-400">
                 <p>💡 Use prompt templates to get started quickly</p>
-                <p>���� Your chat history is automatically saved</p>
-                <p>��� Export conversations as text files</p>
+                <p>📚 Your chat history is automatically saved</p>
+                <p>📄 Export conversations as text files</p>
               </div>
             </div>
           ) : (
