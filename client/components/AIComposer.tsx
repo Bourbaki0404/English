@@ -918,7 +918,7 @@ Please use the information from the provided document(s) to give a comprehensive
 
                   {/* Context Selector Dropdown */}
                   {showContextSelector && (
-                    <div className="absolute top-full left-0 mt-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+                    <div className="absolute bottom-full left-0 mb-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
                       <div className="p-3 border-b border-gray-100">
                         <div className="text-sm font-medium text-gray-900">
                           Add Context
