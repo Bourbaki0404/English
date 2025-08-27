@@ -44,6 +44,193 @@ class LLMService {
     this.settings = settings;
   }
 
+  private async callGeminiAPIWithHistory(currentMessage: string, conversationHistory: Message[]): Promise<string> {
+    if (!this.settings.llm.apiKey) {
+      throw new Error("API key not configured");
+    }
+
+    const languageLevel = this.getLanguageLevelDescription();
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${this.settings.llm.model}:generateContent?key=${this.settings.llm.apiKey}`;
+
+    // Convert conversation history to Gemini API format
+    const contents = [];
+
+    // Add system prompt as the first user message
+    contents.push({
+      role: "user",
+      parts: [{
+        text: `You are a helpful AI assistant designed to support ${languageLevel} English learners. Please:
+
+1. **Communication Style**:
+   - Use clear, appropriate language for ${languageLevel} proficiency
+   - Be conversational and engaging
+   - Provide helpful and accurate information
+
+2. **Content Guidelines**:
+   - Answer questions thoughtfully and thoroughly
+   - Offer examples when helpful
+   - Be supportive of learning goals
+   - Adapt your responses to the user's apparent English level
+
+3. **Response Format**:
+   - Use natural, conversational language
+   - Break down complex concepts when needed
+   - Be encouraging and positive
+
+Please respond to the following conversation:`
+      }]
+    });
+
+    // Add a basic acknowledgment from the model
+    contents.push({
+      role: "model",
+      parts: [{
+        text: "I understand. I'm here to help you as an English learning assistant. Please feel free to ask me anything!"
+      }]
+    });
+
+    // Add conversation history
+    for (const msg of conversationHistory) {
+      contents.push({
+        role: msg.role === "assistant" ? "model" : "user",
+        parts: [{ text: msg.content }]
+      });
+    }
+
+    // Add current message
+    contents.push({
+      role: "user",
+      parts: [{ text: currentMessage }]
+    });
+
+    const requestBody = {
+      contents: contents,
+      generationConfig: {
+        temperature: 0.7,
+        topK: 40,
+        topP: 0.95,
+        maxOutputTokens: 2048,
+      },
+    };
+
+    console.log("Making Gemini API request with conversation history:", {
+      url: apiUrl.replace(this.settings.llm.apiKey, "API_KEY_HIDDEN"),
+      model: this.settings.llm.model,
+      conversationLength: conversationHistory.length,
+      currentMessage: currentMessage.substring(0, 100),
+    });
+
+    try {
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      // Store response metadata immediately
+      const responseStatus = response.status;
+      const responseStatusText = response.statusText;
+      const responseOk = response.ok;
+
+      console.log("Gemini API response status:", responseStatus, responseStatusText);
+
+      // Handle response reading with proper error handling
+      let data: any;
+      let responseText: string = "";
+
+      if (!response.bodyUsed) {
+        try {
+          responseText = await response.text();
+          console.log("Response text length:", responseText.length);
+        } catch (readError) {
+          console.error("Failed to read response body:", readError);
+          responseText = "";
+        }
+      } else {
+        console.warn("Response body was already consumed");
+        responseText = "";
+      }
+
+      // Parse response text
+      if (responseText.trim()) {
+        try {
+          data = JSON.parse(responseText);
+          console.log("Successfully parsed response as JSON");
+        } catch (jsonError) {
+          console.log("Response is not valid JSON, treating as text");
+          data = { error: responseText };
+        }
+      } else {
+        data = {
+          error: responseOk
+            ? "No content received from API"
+            : `HTTP ${responseStatus}: ${responseStatusText}`,
+        };
+      }
+
+      // Handle error responses (same error handling as original method)
+      if (!responseOk) {
+        console.error("Error response data:", JSON.stringify(data, null, 2));
+
+        let errorMessage = `HTTP ${responseStatus}: ${responseStatusText}`;
+
+        try {
+          if (data?.error?.message) {
+            errorMessage = data.error.message;
+          } else if (data?.error?.errors?.[0]?.message) {
+            errorMessage = data.error.errors[0].message;
+          } else if (data?.error && typeof data.error === "string") {
+            errorMessage = data.error;
+          } else if (data?.message) {
+            errorMessage = data.message;
+          } else if (typeof data === "string") {
+            errorMessage = data;
+          } else if (data?.error && typeof data.error === "object") {
+            errorMessage = JSON.stringify(data.error);
+          }
+        } catch (parseError) {
+          console.warn("Error parsing error message:", parseError);
+          errorMessage = `HTTP ${responseStatus}: ${responseStatusText}`;
+        }
+
+        // Handle specific HTTP status codes
+        if (responseStatus === 429) {
+          throw new Error("Rate limit exceeded. Please wait a few minutes before trying again.");
+        }
+        if (responseStatus === 400) {
+          throw new Error("Bad request. Please check your input and try again.");
+        }
+        if (responseStatus === 401 || responseStatus === 403) {
+          throw new Error("Invalid API key. Please check your API key in settings and try again.");
+        }
+        if (responseStatus === 503) {
+          throw new Error("Service temporarily unavailable. Please try again in a few minutes.");
+        }
+
+        throw new Error(`API Error: ${errorMessage}`);
+      }
+
+      // Handle successful response
+      const content = data.candidates?.[0]?.content?.parts?.[0]?.text;
+
+      if (!content) {
+        console.error("No content in API response:", JSON.stringify(data, null, 2));
+        throw new Error("No content received from API");
+      }
+
+      console.log("Generated content length:", content.length);
+      return content;
+    } catch (error) {
+      console.error("Gemini API call with history failed:", error);
+      if (error instanceof TypeError && error.message.includes("fetch")) {
+        throw new Error("Network error: Unable to connect to Gemini API. Please check your internet connection.");
+      }
+      throw error;
+    }
+  }
+
   private async callGeminiAPI(prompt: string): Promise<string> {
     if (!this.settings.llm.apiKey) {
       throw new Error("API key not configured");
