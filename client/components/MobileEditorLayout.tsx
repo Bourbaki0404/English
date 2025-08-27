@@ -1334,14 +1334,14 @@ export default function MobileEditorLayout() {
                   </div>
                 </div>
 
-                {allQuizzes.length > 0 && (
+                {documentQuizzes.length > 0 && (
                   <>
                     <div className="mt-6 pt-4 border-t border-gray-200">
                       <h3 className="font-semibold text-gray-800 mb-3">
-                        All Quizzes ({allQuizzes.length})
+                        Document Quizzes ({documentQuizzes.length})
                       </h3>
                       <div className="space-y-2">
-                        {allQuizzes.map((quiz) => {
+                        {documentQuizzes.map((quiz) => {
                           const getQuizIcon = (type: string) => {
                             switch (type) {
                               case "flashcard":
