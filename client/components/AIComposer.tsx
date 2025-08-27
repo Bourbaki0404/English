@@ -368,16 +368,16 @@ Return only the title, no quotes or additional text.`;
     <>
       {/* Background overlay with fade-in/out */}
       <div
-        className={`fixed inset-0 bg-black transition-all duration-300 ${
+        className={`absolute inset-0 bg-black transition-all duration-300 ${
           isClosing ? 'bg-opacity-0' : 'bg-opacity-30'
         }`}
         style={{ zIndex: 999 }}
         onClick={handleClose}
       />
 
-      {/* Right drawer taking most of screen width */}
+      {/* Right drawer taking most of screen width within app container */}
       <div
-        className="fixed top-0 right-0 bottom-0 w-11/12 bg-white flex flex-col shadow-2xl"
+        className="absolute top-0 right-0 bottom-0 w-5/6 bg-white flex flex-col shadow-2xl"
         style={{
           zIndex: 1000,
           willChange: 'transform, opacity',
