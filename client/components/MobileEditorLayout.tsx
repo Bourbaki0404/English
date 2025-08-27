@@ -341,102 +341,35 @@ export default function MobileEditorLayout() {
   };
 
   const openDocumentsDrawer = () => {
-    // Clear any existing timeout
-    if (timeoutRefs.current.documents) {
-      clearTimeout(timeoutRefs.current.documents);
-      timeoutRefs.current.documents = undefined;
-    }
-
-    setDocumentsDrawerState('opening');
-    // Small delay to trigger opening animation
-    requestAnimationFrame(() => {
-      setDocumentsDrawerState('open');
-    });
+    setDocumentsDrawerOpen(true);
   };
 
   const closeDocumentsDrawer = () => {
-    // Clear any existing timeout
-    if (timeoutRefs.current.documents) {
-      clearTimeout(timeoutRefs.current.documents);
-    }
-
-    setDocumentsDrawerState('closing');
-    timeoutRefs.current.documents = setTimeout(() => {
-      setDocumentsDrawerState('closed');
-      timeoutRefs.current.documents = undefined;
-    }, 300);
+    setDocumentsDrawerOpen(false);
   };
 
   const openSearchDrawer = () => {
-    if (timeoutRefs.current.search) {
-      clearTimeout(timeoutRefs.current.search);
-      timeoutRefs.current.search = undefined;
-    }
-
-    setSearchDrawerState('opening');
-    requestAnimationFrame(() => {
-      setSearchDrawerState('open');
-    });
+    setSearchDrawerOpen(true);
   };
 
   const closeSearchDrawer = () => {
-    if (timeoutRefs.current.search) {
-      clearTimeout(timeoutRefs.current.search);
-    }
-
-    setSearchDrawerState('closing');
-    timeoutRefs.current.search = setTimeout(() => {
-      setSearchDrawerState('closed');
-      timeoutRefs.current.search = undefined;
-    }, 300);
+    setSearchDrawerOpen(false);
   };
 
   const openQuizDrawer = () => {
-    if (timeoutRefs.current.quiz) {
-      clearTimeout(timeoutRefs.current.quiz);
-      timeoutRefs.current.quiz = undefined;
-    }
-
-    setQuizDrawerState('opening');
-    requestAnimationFrame(() => {
-      setQuizDrawerState('open');
-    });
+    setQuizDrawerOpen(true);
   };
 
   const closeQuizDrawer = () => {
-    if (timeoutRefs.current.quiz) {
-      clearTimeout(timeoutRefs.current.quiz);
-    }
-
-    setQuizDrawerState('closing');
-    timeoutRefs.current.quiz = setTimeout(() => {
-      setQuizDrawerState('closed');
-      timeoutRefs.current.quiz = undefined;
-    }, 300);
+    setQuizDrawerOpen(false);
   };
 
   const openMoreDrawer = () => {
-    if (timeoutRefs.current.more) {
-      clearTimeout(timeoutRefs.current.more);
-      timeoutRefs.current.more = undefined;
-    }
-
-    setMoreDrawerState('opening');
-    requestAnimationFrame(() => {
-      setMoreDrawerState('open');
-    });
+    setMoreDrawerOpen(true);
   };
 
   const closeMoreDrawer = () => {
-    if (timeoutRefs.current.more) {
-      clearTimeout(timeoutRefs.current.more);
-    }
-
-    setMoreDrawerState('closing');
-    timeoutRefs.current.more = setTimeout(() => {
-      setMoreDrawerState('closed');
-      timeoutRefs.current.more = undefined;
-    }, 300);
+    setMoreDrawerOpen(false);
   };
 
   const handleSearch = (query: string) => {
