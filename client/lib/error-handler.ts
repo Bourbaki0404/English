@@ -38,8 +38,8 @@ export class ErrorHandler {
       // Network connectivity issues
       if (message.includes("network error") || message.includes("unable to connect")) {
         return {
-          title: "Network Connection Error",
-          description: "Unable to connect to the server. Please check your internet connection and try again.",
+          title: "Connection Error",
+          description: "Check your internet connection and try again.",
           variant: "destructive"
         };
       }
@@ -47,8 +47,8 @@ export class ErrorHandler {
       // API key issues
       if (message.includes("api key")) {
         return {
-          title: "API Configuration Error",
-          description: "API key is missing or invalid. Please check your settings and try again.",
+          title: "API Key Required",
+          description: "Check your API key in settings.",
           variant: "destructive"
         };
       }
@@ -56,8 +56,8 @@ export class ErrorHandler {
       // Gemini API specific errors
       if (message.includes("user location is not supported")) {
         return {
-          title: "Service Not Available",
-          description: "The AI service is not available in your region. Please try using a VPN or contact support.",
+          title: "Region Restricted",
+          description: "AI service not available in your region. Try using a VPN.",
           variant: "destructive"
         };
       }
@@ -66,10 +66,10 @@ export class ErrorHandler {
       if (message.includes("http")) {
         const statusMatch = message.match(/http (\d+)/i);
         const status = statusMatch ? statusMatch[1] : "unknown";
-        
+
         return {
           title: "Server Error",
-          description: `The server returned an error (${status}). Please try again later.`,
+          description: `Server error (${status}). Try again later.`,
           variant: "destructive"
         };
       }
@@ -77,8 +77,8 @@ export class ErrorHandler {
       // Rate limiting
       if (message.includes("rate limit") || message.includes("quota")) {
         return {
-          title: "Rate Limit Exceeded",
-          description: "Too many requests. Please wait a moment before trying again.",
+          title: "Too Many Requests",
+          description: "Wait a moment before trying again.",
           variant: "destructive"
         };
       }
@@ -87,7 +87,7 @@ export class ErrorHandler {
       if (message.includes("timeout")) {
         return {
           title: "Request Timeout",
-          description: "The request took too long. Please try again.",
+          description: "Request took too long. Try again.",
           variant: "destructive"
         };
       }
@@ -95,8 +95,8 @@ export class ErrorHandler {
       // JSON parsing errors
       if (message.includes("json") || message.includes("parse")) {
         return {
-          title: "Data Processing Error",
-          description: "Unable to process the server response. Please try again.",
+          title: "Data Error",
+          description: "Unable to process response. Try again.",
           variant: "destructive"
         };
       }
@@ -113,7 +113,7 @@ export class ErrorHandler {
     if (error instanceof TypeError && error.message.includes("fetch")) {
       return {
         title: "Connection Error",
-        description: "Unable to connect to the server. Please check your internet connection.",
+        description: "Check your internet connection.",
         variant: "destructive"
       };
     }
@@ -129,8 +129,8 @@ export class ErrorHandler {
 
     // Fallback for unknown error types
     return {
-      title: "Unexpected Error",
-      description: "An unexpected error occurred. Please try again.",
+      title: "Error",
+      description: "Something went wrong. Try again.",
       variant: "destructive"
     };
   }
