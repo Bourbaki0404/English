@@ -79,7 +79,7 @@ export default function EditorLayoutSimple() {
       model: "gemini-2.0-flash-exp",
     },
   });
-  const { createQuiz, getQuizzesByDocument } = useQuiz();
+  const { createQuiz, getQuizzesByDocument, setCurrentDocumentId } = useQuiz();
   const [draggedQuiz, setDraggedQuiz] = useState<any>(null);
   const [showPreview, setShowPreview] = useState(false);
   const [previewContent, setPreviewContent] = useState("");
