@@ -155,6 +155,21 @@ export default function AIComposer({
     }
   }, [typingMessageId]);
 
+  // Close context selector on outside click
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (showContextSelector) {
+        const target = event.target as Element;
+        if (!target.closest('.context-selector-container')) {
+          setShowContextSelector(false);
+        }
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showContextSelector]);
+
   // Focus input when component opens
   useEffect(() => {
     if (isOpen && inputRef.current) {
