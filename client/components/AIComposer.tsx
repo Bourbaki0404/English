@@ -757,9 +757,18 @@ Return only the title, no quotes or additional text.`;
                       </pre>
                     ) : (
                       <div className="prose prose-sm max-w-none">
-                        <div className="whitespace-pre-wrap text-sm leading-relaxed text-gray-800">
-                          {message.content}
-                        </div>
+                        {message.role === "assistant" && typingMessageId === message.id ? (
+                          <TypingEffect
+                            text={message.content}
+                            speed={20}
+                            onComplete={() => setTypingMessageId(null)}
+                            className="text-sm leading-relaxed text-gray-800"
+                          />
+                        ) : (
+                          <div className="whitespace-pre-wrap text-sm leading-relaxed text-gray-800">
+                            {message.content}
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
