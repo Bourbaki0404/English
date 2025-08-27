@@ -352,6 +352,51 @@ ${contextSections}
 Please acknowledge that you've received these documents and are ready to help me with questions about them.`;
   };
 
+  // Check if a message is a system context message
+  const isSystemContextMessage = (message: Message): boolean => {
+    return message.content.includes("I'm sharing some documents") ||
+           message.content.includes("[Context Update]") ||
+           (message.role === "assistant" &&
+            message.content.includes("I've reviewed the provided documents"));
+  };
+
+  // Generate summary for collapsed system messages
+  const getSystemMessageSummary = (message: Message): string => {
+    if (message.content.includes("I'm sharing some documents")) {
+      const docCount = selectedContextDocuments.length;
+      return `📄 Shared ${docCount} document${docCount > 1 ? 's' : ''} for context`;
+    }
+    if (message.content.includes("[Context Update]")) {
+      if (message.content.includes("New Documents Added")) {
+        return "📄 Added new documents to conversation";
+      }
+      if (message.content.includes("Updated Documents")) {
+        return "📝 Updated document content";
+      }
+      if (message.content.includes("Documents Removed")) {
+        return "🗑️ Removed documents from conversation";
+      }
+      return "📄 Updated document context";
+    }
+    if (message.role === "assistant" && message.content.includes("I've reviewed")) {
+      return "✅ AI acknowledged document context";
+    }
+    return "🔧 System message";
+  };
+
+  // Toggle message collapse state
+  const toggleMessageCollapse = (messageId: string) => {
+    setCollapsedMessages(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(messageId)) {
+        newSet.delete(messageId);
+      } else {
+        newSet.add(messageId);
+      }
+      return newSet;
+    });
+  };
+
   const sendMessage = async () => {
     if (!inputValue.trim() || isLoading) return;
     if (!settings.llm.apiKey) {
