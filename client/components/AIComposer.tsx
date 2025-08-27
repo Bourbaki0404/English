@@ -609,15 +609,13 @@ Please acknowledge that you've received these documents and are ready to help me
 
   const toggleMessageView = (messageId: string) => {
     setMessageViewMode((prev) => {
-      const currentMode = prev[messageId] || "formatted";
-      let nextMode: "formatted" | "raw" | "preview";
+      const currentMode = prev[messageId] || "preview";
+      let nextMode: "raw" | "preview";
 
-      if (currentMode === "formatted") {
-        nextMode = "preview";
-      } else if (currentMode === "preview") {
+      if (currentMode === "preview") {
         nextMode = "raw";
       } else {
-        nextMode = "formatted";
+        nextMode = "preview";
       }
 
       return {
