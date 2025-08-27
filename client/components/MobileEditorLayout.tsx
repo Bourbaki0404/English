@@ -1087,14 +1087,14 @@ export default function MobileEditorLayout() {
         )}
 
         {/* Quiz Tools Drawer */}
-        {(quizDrawerOpen || quizDrawerClosing) && (
+        {quizDrawerState !== 'closed' && (
           <>
             <div
               className="absolute inset-0 bg-black bg-opacity-50 z-30 animate-in fade-in duration-300"
               onClick={closeQuizDrawer}
             />
             <div className={`absolute bottom-0 left-0 right-0 bg-white rounded-t-xl z-40 max-h-[80vh] overflow-hidden ${
-              quizDrawerClosing ? 'drawer-slide-down' : 'drawer-slide-up'
+              quizDrawerState === 'closing' ? 'drawer-slide-down' : 'drawer-slide-up'
             }`}>
               <div className="flex items-center justify-between p-4 border-b border-gray-200">
                 <h2 className="text-lg font-semibold text-gray-900">
