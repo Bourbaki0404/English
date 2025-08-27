@@ -1053,7 +1053,7 @@ export default function MobileEditorLayout() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => setQuizDrawerOpen(false)}
+                  onClick={closeQuizDrawer}
                 >
                   <X className="w-5 h-5" />
                 </Button>
