@@ -706,7 +706,7 @@ Please acknowledge that you've received these documents and are ready to help me
     <>
       {/* Background overlay */}
       <div
-        className="absolute inset-0 bg-black bg-opacity-30 animate-in fade-in duration-300"
+        className="absolute inset-0 bg-black bg-opacity-30"
         style={{
           zIndex: 999,
           maxWidth: "100%", // Stay within parent container
@@ -717,7 +717,7 @@ Please acknowledge that you've received these documents and are ready to help me
 
       {/* Right drawer contained within app bounds */}
       <div
-        className="absolute top-0 right-0 bottom-0 w-5/6 bg-white flex flex-col shadow-2xl animate-in slide-in-from-right duration-300"
+        className="absolute top-0 right-0 bottom-0 w-5/6 bg-white flex flex-col shadow-2xl"
         style={{
           zIndex: 1000,
           maxWidth: "calc(100% - 20px)", // Ensure it stays within bounds
@@ -817,12 +817,12 @@ Please acknowledge that you've received these documents and are ready to help me
           <>
             {/* Modal Backdrop */}
             <div
-              className="absolute inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 animate-in fade-in duration-200"
+              className="absolute inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
               onClick={() => setShowTemplates(false)}
             >
               {/* Modal Content */}
               <div
-                className="bg-white rounded-lg shadow-xl max-w-lg w-full max-h-[80vh] overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+                className="bg-white rounded-lg shadow-xl max-w-lg w-full max-h-[80vh] overflow-hidden"
                 onClick={(e) => e.stopPropagation()}
               >
                 {/* Modal Header */}
