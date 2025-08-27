@@ -106,6 +106,15 @@ export default function MobileEditorLayout() {
     },
   });
   const { createQuiz, getQuizzesByDocument, getAllQuizzes } = useQuiz();
+
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      Object.values(timeoutRefs.current).forEach(timeout => {
+        if (timeout) clearTimeout(timeout);
+      });
+    };
+  }, []);
   const [isEditingContent, setIsEditingContent] = useState(false);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [tempTitle, setTempTitle] = useState("");
@@ -1232,7 +1241,7 @@ export default function MobileEditorLayout() {
                               case "short-writing":
                                 return "✍️";
                               default:
-                                return "📄";
+                                return "��";
                             }
                           };
 
