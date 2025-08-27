@@ -16,6 +16,7 @@ import SettingsModal, { AppSettings } from "./SettingsModal";
 import { getLLMService } from "../services/llmService";
 import { useQuiz } from "../contexts/QuizContext";
 import { ErrorHandler } from "@/lib/error-handler";
+import { formatQuizDate } from "@/lib/date-utils";
 
 interface Document {
   id: string;
