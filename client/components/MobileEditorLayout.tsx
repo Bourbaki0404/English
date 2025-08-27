@@ -212,7 +212,7 @@ export default function MobileEditorLayout() {
 
     setIsGeneratingQuiz(true);
     setGeneratingType(toolId);
-    setQuizDrawerOpen(false);
+    closeQuizDrawer();
 
     try {
       const llmService = getLLMService(settings);
