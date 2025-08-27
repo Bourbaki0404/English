@@ -312,9 +312,13 @@ Return only the title, no quotes or additional text.`;
 
   const handleClose = () => {
     setIsClosing(true);
+    // Wait for animation to complete before calling onClose
     setTimeout(() => {
-      setIsClosing(false);
       onClose();
+      // Reset closing state after component is unmounted and remounted
+      setTimeout(() => {
+        setIsClosing(false);
+      }, 50);
     }, 300);
   };
 
