@@ -929,7 +929,7 @@ export default function MobileEditorLayout() {
           <>
             <div
               className="absolute inset-0 bg-black bg-opacity-50 z-30 animate-in fade-in duration-300"
-              onClick={() => setSearchDrawerOpen(false)}
+              onClick={closeSearchDrawer}
             />
             <div className={`absolute bottom-0 left-0 right-0 bg-white rounded-t-xl z-40 max-h-[80vh] overflow-hidden ${
               searchDrawerClosing ? 'drawer-slide-down' : 'drawer-slide-up'
