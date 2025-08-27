@@ -334,22 +334,8 @@ Return only the title, no quotes or additional text.`;
       return;
     }
 
-    // Craft prompt with document context
-    let promptWithContext = inputValue.trim();
-
-    if (selectedContextDocuments.length > 0) {
-      const contextSections = selectedContextDocuments
-        .map((doc) => `### Document: ${doc.title}\n\n${doc.content}\n\n---\n`)
-        .join("\n");
-
-      promptWithContext = `Based on the following document(s), please answer this question or request:
-
-${contextSections}
-
-**User Request:** ${inputValue.trim()}
-
-Please use the information from the provided document(s) to give a comprehensive and accurate response.`;
-    }
+    // Check if document context needs updating
+    const contextNeedsUpdate = checkIfContextNeedsUpdate();
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -359,26 +345,50 @@ Please use the information from the provided document(s) to give a comprehensive
     };
 
     let session = currentSession;
+    let messages = session ? [...session.messages] : [];
+
+    // Handle new session with initial context
     if (!session) {
-      // Create new session
-      session = {
-        id: Date.now().toString(),
-        title: "New Chat",
-        messages: [],
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
+      session = createNewSession();
+
+      // If this is a new conversation and we have documents, inject them at the start
+      if (selectedContextDocuments.length > 0) {
+        const contextMessage: Message = {
+          id: (Date.now() - 2).toString(),
+          role: "user",
+          content: createInitialContextMessage(),
+          timestamp: new Date(),
+        };
+
+        const ackMessage: Message = {
+          id: (Date.now() - 1).toString(),
+          role: "assistant",
+          content: "I've reviewed the provided documents and I'm ready to help you with questions about them.",
+          timestamp: new Date(),
+        };
+
+        messages = [contextMessage, ackMessage];
+      }
+    } else if (contextNeedsUpdate) {
+      // Add context update message for existing conversation
+      const contextUpdateMessage = createContextUpdateMessage();
+      if (contextUpdateMessage) {
+        messages.push(contextUpdateMessage);
+      }
     }
+
+    // Add current user message
+    messages.push(userMessage);
 
     const updatedSession = {
       ...session,
-      messages: [...session.messages, userMessage],
+      messages,
       updatedAt: new Date(),
     };
 
     setCurrentSession(updatedSession);
     setInputValue("");
-    setSelectedContextDocuments([]); // Clear selected context after sending
+    updateSessionContext(); // Update context tracking
     setShowContextSelector(false);
     setIsLoading(true);
 
