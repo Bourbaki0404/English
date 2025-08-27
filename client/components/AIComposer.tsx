@@ -85,7 +85,9 @@ export default function AIComposer({
   }>({});
   const [typingMessageId, setTypingMessageId] = useState<string | null>(null);
   const [showContextSelector, setShowContextSelector] = useState(false);
-  const [selectedContextDocuments, setSelectedContextDocuments] = useState<Document[]>([]);
+  const [selectedContextDocuments, setSelectedContextDocuments] = useState<
+    Document[]
+  >([]);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -160,14 +162,14 @@ export default function AIComposer({
     const handleClickOutside = (event: MouseEvent) => {
       if (showContextSelector) {
         const target = event.target as Element;
-        if (!target.closest('.context-selector-container')) {
+        if (!target.closest(".context-selector-container")) {
           setShowContextSelector(false);
         }
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [showContextSelector]);
 
   // Focus input when component opens
@@ -223,9 +225,9 @@ Return only the title, no quotes or additional text.`;
     let promptWithContext = inputValue.trim();
 
     if (selectedContextDocuments.length > 0) {
-      const contextSections = selectedContextDocuments.map(doc =>
-        `### Document: ${doc.title}\n\n${doc.content}\n\n---\n`
-      ).join('\n');
+      const contextSections = selectedContextDocuments
+        .map((doc) => `### Document: ${doc.title}\n\n${doc.content}\n\n---\n`)
+        .join("\n");
 
       promptWithContext = `Based on the following document(s), please answer this question or request:
 
@@ -270,7 +272,10 @@ Please use the information from the provided document(s) to give a comprehensive
     try {
       const llmService = getLLMService(settings);
       // Pass conversation history for multi-turn conversation, but use promptWithContext for the actual AI call
-      const response = await llmService.chatWithAI(promptWithContext, updatedSession.messages.slice(0, -1));
+      const response = await llmService.chatWithAI(
+        promptWithContext,
+        updatedSession.messages.slice(0, -1),
+      );
 
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -870,7 +875,8 @@ Please use the information from the provided document(s) to give a comprehensive
                       </pre>
                     ) : (
                       <div className="prose prose-sm max-w-none">
-                        {message.role === "assistant" && typingMessageId === message.id ? (
+                        {message.role === "assistant" &&
+                        typingMessageId === message.id ? (
                           <TypingEffect
                             text={message.content}
                             speed={8}
@@ -906,9 +912,11 @@ Please use the information from the provided document(s) to give a comprehensive
                     <FileText className="w-3 h-3" />
                     <span>{doc.title}</span>
                     <button
-                      onClick={() => setSelectedContextDocuments(prev =>
-                        prev.filter(d => d.id !== doc.id)
-                      )}
+                      onClick={() =>
+                        setSelectedContextDocuments((prev) =>
+                          prev.filter((d) => d.id !== doc.id),
+                        )
+                      }
                       className="text-blue-600 hover:text-blue-800"
                     >
                       <X className="w-3 h-3" />
@@ -935,31 +943,44 @@ Please use the information from the provided document(s) to give a comprehensive
                 {showContextSelector && (
                   <div className="absolute bottom-full left-0 mb-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
                     <div className="p-3 border-b border-gray-100">
-                      <div className="text-sm font-medium text-gray-900">Add Context</div>
-                      <div className="text-xs text-gray-500 mt-1">Select documents to include in your prompt</div>
+                      <div className="text-sm font-medium text-gray-900">
+                        Add Context
+                      </div>
+                      <div className="text-xs text-gray-500 mt-1">
+                        Select documents to include in your prompt
+                      </div>
                     </div>
                     <div className="max-h-40 overflow-y-auto">
                       {documents.map((doc) => {
-                        const isSelected = selectedContextDocuments.some(d => d.id === doc.id);
+                        const isSelected = selectedContextDocuments.some(
+                          (d) => d.id === doc.id,
+                        );
                         return (
                           <button
                             key={doc.id}
                             onClick={() => {
                               if (isSelected) {
-                                setSelectedContextDocuments(prev =>
-                                  prev.filter(d => d.id !== doc.id)
+                                setSelectedContextDocuments((prev) =>
+                                  prev.filter((d) => d.id !== doc.id),
                                 );
                               } else {
-                                setSelectedContextDocuments(prev => [...prev, doc]);
+                                setSelectedContextDocuments((prev) => [
+                                  ...prev,
+                                  doc,
+                                ]);
                               }
                             }}
                             className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 flex items-center gap-2 ${
-                              isSelected ? 'bg-blue-50 text-blue-800' : 'text-gray-700'
+                              isSelected
+                                ? "bg-blue-50 text-blue-800"
+                                : "text-gray-700"
                             }`}
                           >
                             <FileText className="w-4 h-4 flex-shrink-0" />
                             <div className="flex-1 min-w-0">
-                              <div className="truncate font-medium">{doc.title}</div>
+                              <div className="truncate font-medium">
+                                {doc.title}
+                              </div>
                               <div className="text-xs text-gray-500 truncate">
                                 {doc.content.substring(0, 50)}...
                               </div>
