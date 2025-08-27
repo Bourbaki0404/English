@@ -1,6 +1,13 @@
 import { AppSettings } from "../components/SettingsModal";
 import { ErrorHandler } from "@/lib/error-handler";
 
+interface Message {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  timestamp: Date;
+}
+
 interface MultipleChoiceOption {
   text: string;
   explanation: string;
