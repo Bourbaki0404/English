@@ -413,7 +413,10 @@ Return only the title, no quotes or additional text.`;
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setShowTemplates(!showTemplates)}
+            onClick={() => {
+              setShowTemplates(!showTemplates);
+              setShowHistory(false);
+            }}
             className="text-sm"
             title="Prompt Templates"
           >
