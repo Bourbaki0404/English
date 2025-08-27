@@ -553,7 +553,7 @@ export default function MobileEditorLayout() {
         const processedLine = line
           .replace(
             /\*\*(.*?)\*\*/g,
-            '<span class="bg-yellow-200 px-1 py-0.5 rounded font-medium text-gray-900">$1</span>',
+            '<strong class="font-bold text-gray-900">$1</strong>',
           )
           .replace(
             /==(.*?)==/g,
