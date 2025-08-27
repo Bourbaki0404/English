@@ -96,7 +96,7 @@ export default function AIComposer({
   const [templateContent, setTemplateContent] = useState("");
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
   const [messageViewMode, setMessageViewMode] = useState<{
-    [key: string]: "formatted" | "raw";
+    [key: string]: "formatted" | "raw" | "preview";
   }>({});
   const [typingMessageId, setTypingMessageId] = useState<string | null>(null);
   const [showContextSelector, setShowContextSelector] = useState(false);
