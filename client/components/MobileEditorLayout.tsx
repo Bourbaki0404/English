@@ -121,6 +121,11 @@ export default function MobileEditorLayout() {
     : [];
   const allQuizzes = getAllQuizzes();
 
+  // Sync selectedDocumentId to QuizContext
+  useEffect(() => {
+    setCurrentDocumentId(selectedDocumentId);
+  }, [selectedDocumentId, setCurrentDocumentId]);
+
   // Function to get display name for document
   const getDocumentDisplayName = (doc: Document): string => {
     return doc.title;
