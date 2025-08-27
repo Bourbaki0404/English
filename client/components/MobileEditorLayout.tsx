@@ -467,8 +467,7 @@ export default function MobileEditorLayout() {
   return (
     <div className="h-screen flex justify-center bg-gray-100">
       <div
-        className="w-full max-w-sm bg-white flex flex-col relative shadow-lg"
-        style={{ overflow: aiComposerOpen ? "visible" : "hidden" }}
+        className="w-full max-w-sm bg-white flex flex-col relative shadow-lg overflow-hidden"
       >
         {/* Top Navigation Bar */}
         <div className="flex items-center justify-between px-4 py-3 bg-white border-b border-gray-200 relative z-20">
@@ -1197,7 +1196,7 @@ export default function MobileEditorLayout() {
                                     className="w-4 h-4 text-gray-400 cursor-grab"
                                     title="Drag to preview"
                                   >
-                                    ⋮⋮
+                                    ⋮���
                                   </div>
                                 </div>
                               </div>

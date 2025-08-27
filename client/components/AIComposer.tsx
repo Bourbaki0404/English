@@ -5,7 +5,6 @@ import {
   Plus,
   RotateCcw,
   MessageSquare,
-  Download,
   Upload,
   Sparkles,
   Bot,
@@ -290,24 +289,6 @@ Return only the title, no quotes or additional text.`;
     setPromptTemplates(promptTemplates.filter((t) => t.id !== id));
   };
 
-  const exportChatHistory = () => {
-    if (!currentSession) return;
-
-    const chatText = currentSession.messages
-      .map(
-        (msg) =>
-          `${msg.role === "user" ? "User" : "Assistant"}: ${msg.content}`,
-      )
-      .join("\n\n");
-
-    const blob = new Blob([chatText], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${currentSession.title}.txt`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
 
   const deleteChatSession = (sessionId: string) => {
     setChatHistory(chatHistory.filter((s) => s.id !== sessionId));
@@ -380,7 +361,7 @@ Return only the title, no quotes or additional text.`;
         onClick={handleClose}
       />
 
-      {/* Right drawer taking most of screen width within app container */}
+      {/* Right drawer contained within app bounds */}
       <div
         className="absolute top-0 right-0 bottom-0 w-5/6 bg-white flex flex-col shadow-2xl"
         style={{
@@ -389,6 +370,7 @@ Return only the title, no quotes or additional text.`;
           animation: isClosing
             ? "fade-shrink-out 0.35s ease-out"
             : "fade-expand-in 0.35s ease-out",
+          maxWidth: "calc(100% - 20px)", // Ensure it stays within bounds
         }}
       >
         {/* Header */}
@@ -431,17 +413,6 @@ Return only the title, no quotes or additional text.`;
             >
               <MessageSquare className="w-4 h-4" />
             </Button>
-            {currentSession && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={exportChatHistory}
-                className="text-sm"
-                title="Export Chat"
-              >
-                <Download className="w-4 h-4" />
-              </Button>
-            )}
             <Button variant="ghost" size="sm" onClick={handleClose}>
               <X className="w-5 h-5" />
             </Button>
