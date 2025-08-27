@@ -312,7 +312,7 @@ Return only the title, no quotes or additional text.`;
     try {
       await navigator.clipboard.writeText(messageContent);
       setCopiedMessageId(messageId);
-      setTimeout(() => setCopiedMessageId(null), 2000);
+      // 让用户手动看到复制状态，不自动清除
     } catch (error) {
       console.error("Failed to copy message:", error);
     }
