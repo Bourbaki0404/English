@@ -190,12 +190,18 @@ export default function MobileEditorLayout() {
 
   const handleQuizToolClick = async (toolId: string) => {
     if (!selectedText) {
-      ErrorHandler.showWarning("No Text Selected", "Please select some text first to generate a quiz!");
+      ErrorHandler.showWarning(
+        "No Text Selected",
+        "Please select some text first to generate a quiz!",
+      );
       return;
     }
 
     if (!settings.llm.apiKey) {
-      ErrorHandler.showWarning("API Key Required", "Please configure your LLM API key in settings first!");
+      ErrorHandler.showWarning(
+        "API Key Required",
+        "Please configure your LLM API key in settings first!",
+      );
       setSettingsOpen(true);
       return;
     }
@@ -297,7 +303,10 @@ export default function MobileEditorLayout() {
 
   const handleDeleteDocument = (docId: string) => {
     if (documents.length <= 1) {
-      ErrorHandler.showWarning("Cannot Delete Document", "You must have at least one document.");
+      ErrorHandler.showWarning(
+        "Cannot Delete Document",
+        "You must have at least one document.",
+      );
       return;
     }
 

@@ -16,7 +16,7 @@ export class ErrorHandler {
    */
   static handle(error: unknown, context?: string): void {
     const errorDetails = this.parseError(error, context);
-    
+
     toast({
       title: errorDetails.title,
       description: errorDetails.description,
@@ -36,11 +36,14 @@ export class ErrorHandler {
       const message = error.message.toLowerCase();
 
       // Network connectivity issues
-      if (message.includes("network error") || message.includes("unable to connect")) {
+      if (
+        message.includes("network error") ||
+        message.includes("unable to connect")
+      ) {
         return {
           title: "Connection Error",
           description: "Check your internet connection and try again.",
-          variant: "destructive"
+          variant: "destructive",
         };
       }
 
@@ -49,7 +52,7 @@ export class ErrorHandler {
         return {
           title: "API Key Required",
           description: "Check your API key in settings.",
-          variant: "destructive"
+          variant: "destructive",
         };
       }
 
@@ -57,8 +60,9 @@ export class ErrorHandler {
       if (message.includes("user location is not supported")) {
         return {
           title: "Region Restricted",
-          description: "AI service not available in your region. Try using a VPN.",
-          variant: "destructive"
+          description:
+            "AI service not available in your region. Try using a VPN.",
+          variant: "destructive",
         };
       }
 
@@ -70,7 +74,7 @@ export class ErrorHandler {
         return {
           title: "Server Error",
           description: `Server error (${status}). Try again later.`,
-          variant: "destructive"
+          variant: "destructive",
         };
       }
 
@@ -79,7 +83,7 @@ export class ErrorHandler {
         return {
           title: "Too Many Requests",
           description: "Wait a moment before trying again.",
-          variant: "destructive"
+          variant: "destructive",
         };
       }
 
@@ -88,7 +92,7 @@ export class ErrorHandler {
         return {
           title: "Request Timeout",
           description: "Request took too long. Try again.",
-          variant: "destructive"
+          variant: "destructive",
         };
       }
 
@@ -97,7 +101,7 @@ export class ErrorHandler {
         return {
           title: "Data Error",
           description: "Unable to process response. Try again.",
-          variant: "destructive"
+          variant: "destructive",
         };
       }
 
@@ -105,7 +109,7 @@ export class ErrorHandler {
       return {
         title: context ? `${context} Error` : "Error",
         description: error.message,
-        variant: "destructive"
+        variant: "destructive",
       };
     }
 
@@ -114,7 +118,7 @@ export class ErrorHandler {
       return {
         title: "Connection Error",
         description: "Check your internet connection.",
-        variant: "destructive"
+        variant: "destructive",
       };
     }
 
@@ -123,7 +127,7 @@ export class ErrorHandler {
       return {
         title: context ? `${context} Error` : "Error",
         description: error,
-        variant: "destructive"
+        variant: "destructive",
       };
     }
 
@@ -131,7 +135,7 @@ export class ErrorHandler {
     return {
       title: "Error",
       description: "Something went wrong. Try again.",
-      variant: "destructive"
+      variant: "destructive",
     };
   }
 
@@ -141,20 +145,23 @@ export class ErrorHandler {
   static handleNetworkError(error: unknown, context?: string): void {
     const errorDetails: ErrorDetails = {
       title: "🚨 Network Error",
-      description: "Unable to connect to the AI service. Please check your internet connection and try again.",
-      variant: "destructive"
+      description:
+        "Unable to connect to the AI service. Please check your internet connection and try again.",
+      variant: "destructive",
     };
 
     // If it's a specific API error, provide more details
     if (error instanceof Error) {
       const message = error.message.toLowerCase();
-      
+
       if (message.includes("user location is not supported")) {
         errorDetails.title = "Service Unavailable";
-        errorDetails.description = "The AI service is not available in your region. Consider using a VPN or contact support for assistance.";
+        errorDetails.description =
+          "The AI service is not available in your region. Consider using a VPN or contact support for assistance.";
       } else if (message.includes("api key")) {
         errorDetails.title = "Configuration Error";
-        errorDetails.description = "Please check your API key in the settings and try again.";
+        errorDetails.description =
+          "Please check your API key in the settings and try again.";
       }
     }
 
@@ -171,16 +178,21 @@ export class ErrorHandler {
     const errorDetails: ErrorDetails = {
       title: `🚨 ${contextName} Error`,
       description: "Unable to process your request. Please try again.",
-      variant: "destructive"
+      variant: "destructive",
     };
 
     if (error instanceof Error) {
       const message = error.message.toLowerCase();
-      
+
       if (message.includes("rate limit") || message.includes("quota")) {
-        errorDetails.description = "Rate limit exceeded. Please wait a moment before trying again.";
-      } else if (message.includes("unauthorized") || message.includes("forbidden")) {
-        errorDetails.description = "Authentication failed. Please check your API credentials.";
+        errorDetails.description =
+          "Rate limit exceeded. Please wait a moment before trying again.";
+      } else if (
+        message.includes("unauthorized") ||
+        message.includes("forbidden")
+      ) {
+        errorDetails.description =
+          "Authentication failed. Please check your API credentials.";
       } else if (message.includes("not found")) {
         errorDetails.description = "The requested resource was not found.";
       } else {

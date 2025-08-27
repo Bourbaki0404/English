@@ -173,7 +173,10 @@ Return only the title, no quotes or additional text.`;
   const sendMessage = async () => {
     if (!inputValue.trim() || isLoading) return;
     if (!settings.llm.apiKey) {
-      ErrorHandler.showWarning("API Key Required", "Please configure your API key in settings first!");
+      ErrorHandler.showWarning(
+        "API Key Required",
+        "Please configure your API key in settings first!",
+      );
       return;
     }
 
