@@ -1266,11 +1266,13 @@ export default function MobileEditorLayout() {
         )}
 
         {/* AI Composer */}
-        <AIComposer
-          isOpen={aiComposerOpen}
-          onClose={() => setAiComposerOpen(false)}
-          settings={settings}
-        />
+        {aiComposerOpen && (
+          <AIComposer
+            isOpen={aiComposerOpen}
+            onClose={() => setAiComposerOpen(false)}
+            settings={settings}
+          />
+        )}
 
         {/* Settings Modal - Mobile Constrained */}
         {settingsOpen && (
