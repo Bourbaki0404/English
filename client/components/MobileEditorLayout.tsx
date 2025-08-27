@@ -75,6 +75,13 @@ export default function MobileEditorLayout() {
   const [selectedDocumentId, setSelectedDocumentId] = useState<string>("3");
   const [selectedText, setSelectedText] = useState("");
   const [selectedDisplayText, setSelectedDisplayText] = useState("");
+  const [selectionRange, setSelectionRange] = useState<{
+    startContainer: Node | null;
+    endContainer: Node | null;
+    startOffset: number;
+    endOffset: number;
+  } | null>(null);
+  const [tempUnformattedContent, setTempUnformattedContent] = useState<string | null>(null);
   // 简单的抽屉状态管理
   const [documentsDrawerOpen, setDocumentsDrawerOpen] = useState(false);
   const [quizDrawerOpen, setQuizDrawerOpen] = useState(false);
@@ -336,7 +343,7 @@ export default function MobileEditorLayout() {
 
           // Extract the segment with markdown formatting preserved
           const candidate = line
-            .substring(Math.max(0, originalStartPos - 1), originalEndPos)
+            .substring(Math.max(0, originalStartPos), originalEndPos)
             .trim();
 
           // Check if this candidate is better than our current best match
@@ -351,10 +358,102 @@ export default function MobileEditorLayout() {
     return bestMatch;
   };
 
+  const applyTemporaryFormattingRemoval = (selection: Selection, originalText: string) => {
+    if (!selection.rangeCount || !showPreview) return;
+
+    try {
+      const range = selection.getRangeAt(0);
+      const selectedElements = getSelectedElements(range);
+
+      // Store original content before modification
+      if (tempUnformattedContent === null) {
+        const originalContent = selectedElements.map(el => el.innerHTML).join('');
+        setTempUnformattedContent(originalContent);
+      }
+
+      // Remove formatting from selected elements
+      selectedElements.forEach(element => {
+        if (element.nodeType === Node.ELEMENT_NODE) {
+          const htmlElement = element as HTMLElement;
+          // Create a clean text version without HTML tags
+          const textContent = htmlElement.textContent || '';
+          // Replace the HTML content with plain text
+          htmlElement.innerHTML = textContent;
+          // Add a class to identify temporarily modified elements
+          htmlElement.classList.add('temp-unformatted');
+        }
+      });
+    } catch (error) {
+      console.warn('Error applying temporary formatting removal:', error);
+    }
+  };
+
+  const clearTemporaryFormattingRemoval = () => {
+    if (tempUnformattedContent === null) return;
+
+    try {
+      // Find all temporarily modified elements and restore them
+      const modifiedElements = document.querySelectorAll('.temp-unformatted');
+      modifiedElements.forEach((element, index) => {
+        element.classList.remove('temp-unformatted');
+        // Restore original formatting by re-rendering the content
+        if (showPreview && previewContent) {
+          // Trigger a re-render to restore original formatting
+          // This will be handled by the component re-render
+        }
+      });
+
+      setTempUnformattedContent(null);
+
+      // Force re-render of preview content to restore formatting
+      if (showPreview) {
+        // The component will re-render automatically due to state change
+      }
+    } catch (error) {
+      console.warn('Error clearing temporary formatting removal:', error);
+    }
+  };
+
+  const getSelectedElements = (range: Range): HTMLElement[] => {
+    const elements: HTMLElement[] = [];
+    const walker = document.createTreeWalker(
+      range.commonAncestorContainer,
+      NodeFilter.SHOW_ELEMENT,
+      {
+        acceptNode: (node) => {
+          if (range.intersectsNode(node)) {
+            return NodeFilter.FILTER_ACCEPT;
+          }
+          return NodeFilter.FILTER_REJECT;
+        }
+      }
+    );
+
+    let node;
+    while (node = walker.nextNode()) {
+      if (node.nodeType === Node.ELEMENT_NODE) {
+        elements.push(node as HTMLElement);
+      }
+    }
+
+    return elements;
+  };
+
   const handleTextSelection = () => {
     const selection = window.getSelection();
     if (selection && selection.toString()) {
       const selectedRenderedText = selection.toString();
+
+      // Store selection range for temporary formatting removal
+      if (selection.rangeCount > 0) {
+        const range = selection.getRangeAt(0);
+        setSelectionRange({
+          startContainer: range.startContainer,
+          endContainer: range.endContainer,
+          startOffset: range.startOffset,
+          endOffset: range.endOffset,
+        });
+      }
 
       // Always store the rendered text for display
       setSelectedDisplayText(selectedRenderedText);
@@ -377,6 +476,9 @@ export default function MobileEditorLayout() {
         );
         console.log("Mapped to original text:", originalText);
         setSelectedText(originalText);
+
+        // Apply temporary formatting removal in preview mode
+        applyTemporaryFormattingRemoval(selection, originalText);
       } else {
         // Normal mode - try to map from the current document content
         if (selectedDocument) {
@@ -390,6 +492,12 @@ export default function MobileEditorLayout() {
           setSelectedText(selectedRenderedText);
         }
       }
+    } else {
+      // Clear selection and restore formatting
+      clearTemporaryFormattingRemoval();
+      setSelectionRange(null);
+      setSelectedText("");
+      setSelectedDisplayText("");
     }
   };
 
