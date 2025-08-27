@@ -155,6 +155,26 @@ const mockQuizzes: Quiz[] = [
     ],
     createdAt: new Date(),
   },
+  {
+    id: "4",
+    type: "flashcard",
+    title: "English 2 - Basic Vocabulary",
+    sourceText: "Introduction to English basics and fundamental concepts.",
+    documentId: "1", // Associated with English 2 document
+    data: [
+      {
+        id: "1",
+        question: "What is the English word for 'hello'?",
+        answer: "Hello",
+      },
+      {
+        id: "2",
+        question: "What does 'basic' mean?",
+        answer: "Fundamental or elementary",
+      },
+    ],
+    createdAt: new Date(),
+  },
 ];
 
 export function QuizProvider({ children }: { children: ReactNode }) {
