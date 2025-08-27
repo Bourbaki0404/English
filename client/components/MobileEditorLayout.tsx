@@ -1429,9 +1429,22 @@ export default function MobileEditorLayout() {
                                     <span className="text-sm">
                                       {getQuizIcon(quiz.type)}
                                     </span>
-                                    <div className="text-sm font-medium text-gray-800 truncate">
-                                      {quiz.title}
-                                    </div>
+                                    {editingQuizId === quiz.id ? (
+                                      <input
+                                        type="text"
+                                        value={tempQuizTitle}
+                                        onChange={(e) => setTempQuizTitle(e.target.value)}
+                                        onKeyDown={handleRenameQuizKeyPress}
+                                        onBlur={handleRenameQuizSave}
+                                        className="text-sm font-medium text-gray-800 bg-white border border-blue-300 rounded px-1 py-0.5 w-full"
+                                        autoFocus
+                                        onClick={(e) => e.stopPropagation()}
+                                      />
+                                    ) : (
+                                      <div className="text-sm font-medium text-gray-800 truncate">
+                                        {quiz.title}
+                                      </div>
+                                    )}
                                   </div>
                                   <div className="text-xs text-gray-500 mt-1">
                                     {getItemCount(quiz)}
