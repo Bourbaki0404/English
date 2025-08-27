@@ -87,12 +87,12 @@ export default function FlashCardQuiz({ cards, onBack }: FlashCardQuizProps) {
         </div>
 
         {/* Completion Content */}
-        <div className="flex-1 p-6 overflow-y-auto">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-3xl font-bold text-gray-800 mb-8">You Did It! Flashcards Complete</h2>
+        <div className="flex-1 p-4 overflow-y-auto">
+          <div className="max-w-sm mx-auto">
+            <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">You Did It! Flashcards Complete</h2>
 
             {/* Statistics Cards */}
-            <div className="grid md:grid-cols-3 gap-4 mb-8">
+            <div className="grid grid-cols-1 gap-4 mb-6">
               <div className="bg-white rounded-lg p-6 shadow-sm">
                 <h3 className="text-sm font-medium text-gray-600 mb-2">Cards Reviewed</h3>
                 <div className="text-3xl font-bold text-gray-800">{reviewedCount}/{totalCount}</div>
@@ -123,7 +123,7 @@ export default function FlashCardQuiz({ cards, onBack }: FlashCardQuizProps) {
 
             {/* Return Button */}
             <div className="text-center">
-              <Button onClick={onBack} className="px-8 py-3">
+              <Button onClick={onBack} className="w-full py-3 text-base">
                 Return to Editor
               </Button>
             </div>
@@ -148,47 +148,47 @@ export default function FlashCardQuiz({ cards, onBack }: FlashCardQuizProps) {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex items-center justify-center p-8">
-        <div className="w-full max-w-2xl">
+      <div className="flex-1 flex items-center justify-center p-4">
+        <div className="w-full max-w-sm">
           {/* Flash Card */}
-          <div 
-            className="bg-white rounded-3xl shadow-lg p-12 mb-8 min-h-[400px] flex items-center justify-center cursor-pointer transition-all hover:shadow-xl"
+          <div
+            className="bg-white rounded-2xl shadow-lg p-8 mb-6 min-h-[280px] flex items-center justify-center cursor-pointer transition-all hover:shadow-xl"
             onClick={toggleAnswer}
           >
             <div className="text-center">
-              <div className="text-2xl font-medium text-gray-800 leading-relaxed">
+              <div className="text-lg font-medium text-gray-800 leading-relaxed">
                 {showAnswer ? currentCard.answer : currentCard.question}
               </div>
               {!showAnswer && (
-                <div className="mt-6 text-sm text-gray-500">
-                  Click to reveal answer
+                <div className="mt-4 text-sm text-gray-500">
+                  Tap to reveal answer
                 </div>
               )}
             </div>
           </div>
 
           {/* Navigation */}
-          <div className="flex items-center justify-center space-x-6">
+          <div className="flex items-center justify-between px-4">
             <Button
               onClick={prevCard}
               disabled={currentCardIndex === 0}
               variant="ghost"
               size="lg"
-              className="p-3"
+              className="p-4 touch-manipulation"
             >
               <ChevronLeft className="w-6 h-6" />
             </Button>
 
-            <div className="text-lg font-medium text-gray-600">
+            <div className="text-base font-medium text-gray-600 bg-gray-100 px-4 py-2 rounded-full">
               {currentCardIndex + 1} of {totalCards}
             </div>
 
-{currentCardIndex === totalCards - 1 ? (
+            {currentCardIndex === totalCards - 1 ? (
               <Button
                 onClick={finishQuiz}
                 variant="ghost"
                 size="lg"
-                className="p-3"
+                className="p-4 touch-manipulation"
               >
                 <ChevronRight className="w-6 h-6" />
               </Button>
@@ -197,7 +197,7 @@ export default function FlashCardQuiz({ cards, onBack }: FlashCardQuizProps) {
                 onClick={nextCard}
                 variant="ghost"
                 size="lg"
-                className="p-3"
+                className="p-4 touch-manipulation"
               >
                 <ChevronRight className="w-6 h-6" />
               </Button>
