@@ -217,6 +217,9 @@ Return only the title, no quotes or additional text.`;
         timestamp: new Date(),
       };
 
+      // Set typing effect for new assistant message
+      setTypingMessageId(assistantMessage.id);
+
       const finalSession = {
         ...updatedSession,
         messages: [...updatedSession.messages, assistantMessage],
