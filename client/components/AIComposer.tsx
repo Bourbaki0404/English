@@ -18,6 +18,7 @@ import { Button } from "./ui/button";
 import { AppSettings } from "./SettingsModal";
 import { getLLMService } from "../services/llmService";
 import { ErrorHandler } from "@/lib/error-handler";
+import TypingEffect from "./TypingEffect";
 
 interface Message {
   id: string;
