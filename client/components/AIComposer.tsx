@@ -380,6 +380,7 @@ Return only the title, no quotes or additional text.`;
         className="fixed top-0 right-0 bottom-0 w-11/12 bg-white flex flex-col shadow-2xl"
         style={{
           zIndex: 1000,
+          willChange: 'transform, opacity',
           animation: isClosing
             ? 'slide-out-right 0.3s ease-out'
             : 'slide-in-right 0.3s ease-out'
