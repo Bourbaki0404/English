@@ -1082,11 +1082,11 @@ export default function MobileEditorLayout() {
                 {selectedText ? (
                   <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg mb-4">
                     <div className="font-medium text-blue-800 mb-1">
-                      Selected text:
+                      Selected text (original markdown):
                     </div>
                     <div className="text-blue-700 text-sm">
-                      "{selectedDisplayText.substring(0, 100)}
-                      {selectedDisplayText.length > 100 ? "..." : '"'}
+                      "{selectedText.substring(0, 100)}
+                      {selectedText.length > 100 ? "..." : '"'}
                     </div>
                   </div>
                 ) : (
