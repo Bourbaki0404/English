@@ -84,6 +84,8 @@ export default function AIComposer({
     [key: string]: "formatted" | "raw";
   }>({});
   const [typingMessageId, setTypingMessageId] = useState<string | null>(null);
+  const [showContextSelector, setShowContextSelector] = useState(false);
+  const [selectedContextDocuments, setSelectedContextDocuments] = useState<Document[]>([]);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
