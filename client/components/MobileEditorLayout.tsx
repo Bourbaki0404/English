@@ -349,6 +349,45 @@ export default function MobileEditorLayout() {
     }, 300); // Match the animation duration
   };
 
+  const openSearchDrawer = () => {
+    setSearchDrawerClosing(false);
+    setSearchDrawerOpen(true);
+  };
+
+  const closeSearchDrawer = () => {
+    setSearchDrawerClosing(true);
+    setTimeout(() => {
+      setSearchDrawerOpen(false);
+      setSearchDrawerClosing(false);
+    }, 300);
+  };
+
+  const openQuizDrawer = () => {
+    setQuizDrawerClosing(false);
+    setQuizDrawerOpen(true);
+  };
+
+  const closeQuizDrawer = () => {
+    setQuizDrawerClosing(true);
+    setTimeout(() => {
+      setQuizDrawerOpen(false);
+      setQuizDrawerClosing(false);
+    }, 300);
+  };
+
+  const openMoreDrawer = () => {
+    setMoreDrawerClosing(false);
+    setMoreDrawerOpen(true);
+  };
+
+  const closeMoreDrawer = () => {
+    setMoreDrawerClosing(true);
+    setTimeout(() => {
+      setMoreDrawerOpen(false);
+      setMoreDrawerClosing(false);
+    }, 300);
+  };
+
   const handleSearch = (query: string) => {
     setSearchQuery(query);
     if (!query.trim()) {
