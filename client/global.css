@@ -102,5 +102,179 @@
 
   body {
     @apply bg-background text-foreground;
+    /* Mobile optimizations */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    touch-action: manipulation;
+    overscroll-behavior: none;
+  }
+
+  /* Mobile touch improvements */
+  @media (hover: none) and (pointer: coarse) {
+    button:hover {
+      background-color: initial;
+    }
+  }
+
+  /* Prevent zoom on input focus on iOS */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  textarea,
+  select {
+    font-size: 16px;
+  }
+
+  /* Custom scrollbars for mobile */
+  ::-webkit-scrollbar {
+    width: 2px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 1px;
+  }
+
+  /* Drawer slide animations */
+  .drawer-slide-in {
+    animation: slide-in-left 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  .drawer-slide-out {
+    animation: slide-out-left 0.3s cubic-bezier(0.55, 0.055, 0.675, 0.19);
+  }
+
+  @keyframes slide-in-left {
+    0% {
+      transform: translateX(-100%);
+      opacity: 0.8;
+    }
+    100% {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes slide-out-left {
+    0% {
+      transform: translateX(0);
+      opacity: 1;
+    }
+    100% {
+      transform: translateX(-100%);
+      opacity: 0.8;
+    }
+  }
+
+  /* Bottom drawer slide animations */
+  .drawer-slide-up {
+    animation: slide-in-bottom 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  .drawer-slide-down {
+    animation: slide-out-bottom 0.3s cubic-bezier(0.55, 0.055, 0.675, 0.19);
+  }
+
+  @keyframes slide-in-bottom {
+    0% {
+      transform: translateY(100%);
+      opacity: 0.8;
+    }
+    100% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes slide-out-bottom {
+    0% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(100%);
+      opacity: 0.8;
+    }
+  }
+
+  /* Right drawer horizontal expansion animation - fixed height, like a drawer */
+  @keyframes fade-expand-in {
+    0% {
+      transform: translate3d(0, 0, 0) scaleX(0.1);
+      transform-origin: right center;
+      opacity: 0;
+    }
+    100% {
+      transform: translate3d(0, 0, 0) scaleX(1);
+      transform-origin: right center;
+      opacity: 1;
+    }
+  }
+
+  @keyframes fade-shrink-out {
+    0% {
+      transform: translate3d(0, 0, 0) scaleX(1);
+      transform-origin: right center;
+      opacity: 1;
+    }
+    100% {
+      transform: translate3d(0, 0, 0) scaleX(0.1);
+      transform-origin: right center;
+      opacity: 0;
+    }
+  }
+
+  /* Legacy slide animations - keeping for compatibility */
+  @keyframes slide-in-right {
+    0% {
+      transform: translate3d(100%, 0, 0);
+      opacity: 0.8;
+    }
+    100% {
+      transform: translate3d(0, 0, 0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes slide-out-right {
+    0% {
+      transform: translate3d(0, 0, 0);
+      opacity: 1;
+    }
+    100% {
+      transform: translate3d(100%, 0, 0);
+      opacity: 0.8;
+    }
+  }
+
+  /* Search highlight animation */
+  .search-highlight {
+    background-color: #fef3c7;
+    transform: scale(1.02);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    animation: search-highlight-fade 3s ease-out forwards;
+  }
+
+  @keyframes search-highlight-fade {
+    0% {
+      background-color: #fef3c7;
+      transform: scale(1.02);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    70% {
+      background-color: #fef3c7;
+      transform: scale(1.02);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    100% {
+      background-color: transparent;
+      transform: scale(1);
+      box-shadow: none;
+    }
   }
 }
