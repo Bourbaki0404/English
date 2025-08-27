@@ -765,7 +765,7 @@ export default function MobileEditorLayout() {
                   }
                 >
                   {isEditMode ? (
-                    <span className="text-lg">✒���</span>
+                    <span className="text-lg">✒️</span>
                   ) : (
                     <span className="text-lg">👁️</span>
                   )}
