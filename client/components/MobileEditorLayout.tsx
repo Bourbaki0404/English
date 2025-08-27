@@ -819,6 +819,18 @@ export default function MobileEditorLayout() {
                 className="min-h-[calc(100vh-200px)] cursor-text"
                 onMouseUp={handleTextSelection}
                 onTouchEnd={handleTextSelection}
+                onClick={(e) => {
+                  // Clear selection if clicking without selection
+                  setTimeout(() => {
+                    const selection = window.getSelection();
+                    if (!selection || !selection.toString().trim()) {
+                      setIsTextSelected(false);
+                      setSelectedLineIndices([]);
+                      setSelectedText("");
+                      setSelectedDisplayText("");
+                    }
+                  }, 10);
+                }}
                 onDoubleClick={() => isEditMode && setIsEditingContent(true)}
                 onDragOver={(e) => {
                   e.preventDefault();
