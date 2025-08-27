@@ -802,7 +802,7 @@ export default function MobileEditorLayout() {
         </div>
 
         {/* Documents Drawer - Slide from Left */}
-        {documentsDrawerOpen && (
+        {(documentsDrawerOpen || documentsDrawerClosing) && (
           <>
             <div
               className="absolute inset-0 bg-black bg-opacity-30 z-30 animate-in fade-in duration-400"
