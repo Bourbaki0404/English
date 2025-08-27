@@ -178,6 +178,7 @@ export default function SettingsModal({ isOpen, onClose, settings, onSettingsCha
           >
             {settings.llm.provider === 'gemini' && (
               <>
+                <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
                 <option value="gemini-2.0-flash-exp">Gemini 2.0 Flash (Experimental)</option>
                 <option value="gemini-1.5-flash-latest">Gemini 1.5 Flash (Latest)</option>
                 <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
