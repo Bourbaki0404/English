@@ -126,16 +126,24 @@ class LLMService {
         // Handle specific error cases for user-friendly messages
         const lowerMessage = errorMessage.toLowerCase();
 
-        if (lowerMessage.includes("user location is not supported")) {
+        if (lowerMessage.includes("user location is not supported") || lowerMessage.includes("location not supported")) {
           throw new Error("Service not available in your region. The AI service is currently not supported in your location. Consider using a VPN or contact support.");
         }
 
-        if (lowerMessage.includes("api key") || lowerMessage.includes("unauthorized")) {
+        if (lowerMessage.includes("api key") || lowerMessage.includes("unauthorized") || lowerMessage.includes("forbidden")) {
           throw new Error("Invalid API key. Please check your API key in settings and try again.");
         }
 
-        if (lowerMessage.includes("quota") || lowerMessage.includes("rate limit")) {
+        if (lowerMessage.includes("quota") || lowerMessage.includes("rate limit") || lowerMessage.includes("too many requests")) {
           throw new Error("Rate limit exceeded. You've reached the API usage limit. Please wait before trying again.");
+        }
+
+        if (response.status === 400 && !errorMessage) {
+          throw new Error("Bad request. Please check your input and try again.");
+        }
+
+        if (response.status === 503) {
+          throw new Error("Service temporarily unavailable. Please try again in a few minutes.");
         }
 
         throw new Error(`API Error: ${errorMessage}`);
