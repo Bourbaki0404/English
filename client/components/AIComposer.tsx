@@ -382,8 +382,8 @@ Return only the title, no quotes or additional text.`;
           zIndex: 1000,
           willChange: 'transform, opacity',
           animation: isClosing
-            ? 'slide-out-right 0.3s ease-out'
-            : 'slide-in-right 0.3s ease-out'
+            ? 'fade-shrink-out 0.35s ease-out'
+            : 'fade-expand-in 0.35s ease-out'
         }}
       >
       {/* Header */}
