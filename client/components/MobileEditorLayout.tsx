@@ -557,11 +557,6 @@ export default function MobileEditorLayout() {
                       newMode ? "✒️ Edit Mode" : "👁️ Preview Mode",
                     );
                     setShowModeToast(true);
-
-                    // Hide toast after 1 second
-                    setTimeout(() => {
-                      setShowModeToast(false);
-                    }, 1000);
                   }}
                   title={
                     isEditMode
