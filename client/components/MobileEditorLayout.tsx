@@ -74,19 +74,11 @@ export default function MobileEditorLayout() {
   const [documents, setDocuments] = useState<Document[]>(initialDocuments);
   const [selectedDocumentId, setSelectedDocumentId] = useState<string>("3");
   const [selectedText, setSelectedText] = useState("");
-  // Simplified drawer state management
-  const [documentsDrawerState, setDocumentsDrawerState] = useState<'closed' | 'opening' | 'open' | 'closing'>('closed');
-  const [quizDrawerState, setQuizDrawerState] = useState<'closed' | 'opening' | 'open' | 'closing'>('closed');
-  const [searchDrawerState, setSearchDrawerState] = useState<'closed' | 'opening' | 'open' | 'closing'>('closed');
-  const [moreDrawerState, setMoreDrawerState] = useState<'closed' | 'opening' | 'open' | 'closing'>('closed');
-
-  // Timeout refs to prevent conflicts
-  const timeoutRefs = useRef<{
-    documents?: NodeJS.Timeout;
-    quiz?: NodeJS.Timeout;
-    search?: NodeJS.Timeout;
-    more?: NodeJS.Timeout;
-  }>({});
+  // 简单的抽屉状态管理
+  const [documentsDrawerOpen, setDocumentsDrawerOpen] = useState(false);
+  const [quizDrawerOpen, setQuizDrawerOpen] = useState(false);
+  const [searchDrawerOpen, setSearchDrawerOpen] = useState(false);
+  const [moreDrawerOpen, setMoreDrawerOpen] = useState(false);
   const [aiComposerOpen, setAiComposerOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<
@@ -1241,7 +1233,7 @@ export default function MobileEditorLayout() {
                               case "short-writing":
                                 return "✍️";
                               default:
-                                return "��";
+                                return "📄";
                             }
                           };
 
