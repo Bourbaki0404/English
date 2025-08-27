@@ -318,7 +318,7 @@ Return only the title, no quotes or additional text.`;
     setTimeout(() => {
       setIsClosing(false);
       onClose();
-    }, 280); // Slightly shorter than animation duration
+    }, 320); // Slightly shorter than animation duration
   };
 
   const toggleMessageView = (messageId: string) => {
