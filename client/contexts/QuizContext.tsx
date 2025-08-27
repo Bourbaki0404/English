@@ -36,7 +36,9 @@ interface QuizContextType {
   quizzes: Quiz[];
   selectedText: string;
   currentQuiz: Quiz | null;
+  currentDocumentId: string;
   setSelectedText: (text: string) => void;
+  setCurrentDocumentId: (documentId: string) => void;
   createQuiz: (
     type: Quiz["type"],
     title: string,
@@ -51,6 +53,7 @@ interface QuizContextType {
     type: Quiz["type"],
   ) => Quiz[];
   getLatestQuizByType: (type: Quiz["type"]) => Quiz | null;
+  getLatestQuizByTypeForCurrentDocument: (type: Quiz["type"]) => Quiz | null;
   getAllQuizzes: () => Quiz[];
   deleteQuiz: (id: string) => void;
   setCurrentQuiz: (quiz: Quiz | null) => void;
