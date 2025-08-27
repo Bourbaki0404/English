@@ -25,6 +25,7 @@ import { getLLMService } from "../services/llmService";
 import { ErrorHandler } from "@/lib/error-handler";
 import TypingEffect from "./TypingEffect";
 import PreviewRenderer from "./PreviewRenderer";
+import { formatDate } from "@/lib/date-utils";
 
 interface Message {
   id: string;
@@ -790,14 +791,7 @@ Please acknowledge that you've received these documents and are ready to help me
                         </div>
                         <div className="text-xs text-gray-500">
                           {session.messages.length} messages •{" "}
-                          {session.updatedAt.toLocaleString(undefined, {
-                            year: "numeric",
-                            month: "numeric",
-                            day: "numeric",
-                            hour: "numeric",
-                            minute: "2-digit",
-                            hour12: true,
-                          })}
+                          {formatDate(session.updatedAt)}
                         </div>
                       </div>
                       <Button
@@ -995,14 +989,7 @@ Please acknowledge that you've received these documents and are ready to help me
                               </p>
                               <div className="flex items-center gap-2 mt-2">
                                 <span className="text-xs text-gray-400">
-                                  {template.createdAt.toLocaleString(undefined, {
-                                    year: "numeric",
-                                    month: "numeric",
-                                    day: "numeric",
-                                    hour: "numeric",
-                                    minute: "2-digit",
-                                    hour12: true,
-                                  })}
+                                  {formatDate(template.createdAt)}
                                 </span>
                                 <div className="flex-1"></div>
                                 <Button
