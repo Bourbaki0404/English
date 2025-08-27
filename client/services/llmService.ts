@@ -83,47 +83,65 @@ class LLMService {
         response.statusText,
       );
 
-      if (!response.ok) {
-        let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
-        let errorDetails = "";
+      // Read response body only once to avoid "body stream already read" error
+      let responseText: string;
+      let data: any;
 
+      try {
+        responseText = await response.text();
+        console.log("Raw response received, length:", responseText.length);
+      } catch (readError) {
+        console.error("Failed to read response:", readError);
+        throw new Error("Failed to read server response");
+      }
+
+      // Parse JSON if we have content
+      if (responseText) {
         try {
-          // Read as text first to avoid "body stream already read" error
-          const responseText = await response.text();
-          console.error("Raw error response:", responseText);
+          data = JSON.parse(responseText);
+        } catch (jsonError) {
+          console.error("Response is not valid JSON:", jsonError);
+          console.error("Raw response:", responseText);
+          throw new Error("Invalid response format from server");
+        }
+      } else {
+        throw new Error("Empty response from server");
+      }
 
-          // Try to parse as JSON
-          try {
-            const errorData = JSON.parse(responseText);
-            console.error("Parsed error response:", errorData);
-            errorMessage = errorData.error?.message || errorMessage;
-            errorDetails = JSON.stringify(errorData, null, 2);
-          } catch (jsonError) {
-            console.error("Response is not valid JSON:", jsonError);
-            errorDetails = responseText;
-          }
-        } catch (readError) {
-          console.error("Failed to read error response:", readError);
-          errorDetails = `Failed to read response: ${readError.message}`;
+      // Handle error responses
+      if (!response.ok) {
+        console.error("Error response data:", data);
+
+        let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+
+        // Extract error message from response data
+        if (data?.error?.message) {
+          errorMessage = data.error.message;
+        } else if (data?.error) {
+          errorMessage = String(data.error);
+        } else if (typeof data === 'string') {
+          errorMessage = data;
         }
 
         // Handle specific error cases for user-friendly messages
-        if (errorMessage.toLowerCase().includes("user location is not supported")) {
+        const lowerMessage = errorMessage.toLowerCase();
+
+        if (lowerMessage.includes("user location is not supported")) {
           throw new Error("Service not available in your region. The AI service is currently not supported in your location. Consider using a VPN or contact support.");
         }
 
-        if (errorMessage.toLowerCase().includes("api key")) {
+        if (lowerMessage.includes("api key") || lowerMessage.includes("unauthorized")) {
           throw new Error("Invalid API key. Please check your API key in settings and try again.");
         }
 
-        if (errorMessage.toLowerCase().includes("quota") || errorMessage.toLowerCase().includes("rate limit")) {
+        if (lowerMessage.includes("quota") || lowerMessage.includes("rate limit")) {
           throw new Error("Rate limit exceeded. You've reached the API usage limit. Please wait before trying again.");
         }
 
         throw new Error(`API Error: ${errorMessage}`);
       }
 
-      const data = await response.json();
+      // Handle successful response
       console.log("Gemini API successful response structure:", {
         hasCandidates: !!data.candidates,
         candidatesLength: data.candidates?.length,
