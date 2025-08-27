@@ -74,6 +74,7 @@ export default function MobileEditorLayout() {
   const [documents, setDocuments] = useState<Document[]>(initialDocuments);
   const [selectedDocumentId, setSelectedDocumentId] = useState<string>("3");
   const [selectedText, setSelectedText] = useState("");
+  const [selectedDisplayText, setSelectedDisplayText] = useState("");
   // 简单的抽屉状态管理
   const [documentsDrawerOpen, setDocumentsDrawerOpen] = useState(false);
   const [quizDrawerOpen, setQuizDrawerOpen] = useState(false);
@@ -328,6 +329,9 @@ export default function MobileEditorLayout() {
     if (selection && selection.toString()) {
       const selectedRenderedText = selection.toString();
 
+      // Always store the rendered text for display
+      setSelectedDisplayText(selectedRenderedText);
+
       // If we're in preview mode, try to map back to original markdown
       if (showPreview && previewContent) {
         const originalText = findOriginalTextFromSelection(selectedRenderedText, previewContent);
@@ -398,6 +402,7 @@ export default function MobileEditorLayout() {
     }
     setSelectedDocumentId(docId);
     setSelectedText("");
+    setSelectedDisplayText("");
     closeDocumentsDrawer();
     closeSearchDrawer();
   };
@@ -1005,6 +1010,7 @@ export default function MobileEditorLayout() {
                               // Switch to the document first
                               setSelectedDocumentId(doc.id);
                               setSelectedText("");
+                              setSelectedDisplayText("");
                               closeSearchDrawer();
 
                               // Scroll to position immediately
@@ -1079,8 +1085,8 @@ export default function MobileEditorLayout() {
                       Selected text:
                     </div>
                     <div className="text-blue-700 text-sm">
-                      "{selectedText.substring(0, 100)}
-                      {selectedText.length > 100 ? "..." : '"'}
+                      "{selectedDisplayText.substring(0, 100)}
+                      {selectedDisplayText.length > 100 ? "..." : '"'}
                     </div>
                   </div>
                 ) : (
