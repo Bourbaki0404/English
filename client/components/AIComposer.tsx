@@ -1018,7 +1018,9 @@ Please acknowledge that you've received these documents and are ready to help me
             </div>
           ) : (
             currentSession.messages.map((message) => {
-              const viewMode = messageViewMode[message.id] || "formatted";
+              // Default to preview mode for AI assistant messages, formatted for others
+              const defaultMode = (message.role === "assistant" && !isSystemContextMessage(message)) ? "preview" : "formatted";
+              const viewMode = messageViewMode[message.id] || defaultMode;
               const isRawMode = viewMode === "raw";
               const isPreviewMode = viewMode === "preview";
               const isSystemMessage = isSystemContextMessage(message);
