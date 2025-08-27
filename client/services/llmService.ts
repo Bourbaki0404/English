@@ -83,29 +83,35 @@ class LLMService {
         response.statusText,
       );
 
-      // Read response body only once to avoid "body stream already read" error
-      let responseText: string;
+      // Clone response to avoid "body stream already read" error
+      const responseClone = response.clone();
       let data: any;
 
       try {
-        responseText = await response.text();
-        console.log("Raw response received, length:", responseText.length);
+        // Try to parse as JSON directly first
+        if (response.ok) {
+          data = await response.json();
+          console.log("Successfully parsed response as JSON");
+        } else {
+          // For error responses, read as text first then try to parse
+          const responseText = await responseClone.text();
+          console.log("Error response text:", responseText);
+
+          if (responseText.trim()) {
+            try {
+              data = JSON.parse(responseText);
+            } catch (jsonError) {
+              console.log("Error response is not JSON, treating as text");
+              data = { error: responseText };
+            }
+          } else {
+            data = { error: `HTTP ${response.status}: ${response.statusText}` };
+          }
+        }
       } catch (readError) {
         console.error("Failed to read response:", readError);
-        throw new Error("Failed to read server response");
-      }
-
-      // Parse JSON if we have content
-      if (responseText) {
-        try {
-          data = JSON.parse(responseText);
-        } catch (jsonError) {
-          console.error("Response is not valid JSON:", jsonError);
-          console.error("Raw response:", responseText);
-          throw new Error("Invalid response format from server");
-        }
-      } else {
-        throw new Error("Empty response from server");
+        // Fallback: create a basic error object
+        data = { error: `Failed to read response: ${readError.message}` };
       }
 
       // Handle error responses
