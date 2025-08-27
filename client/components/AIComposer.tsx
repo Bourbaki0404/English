@@ -18,6 +18,7 @@ import {
 import { Button } from "./ui/button";
 import { AppSettings } from "./SettingsModal";
 import { getLLMService } from "../services/llmService";
+import { ErrorHandler } from "@/lib/error-handler";
 
 interface Message {
   id: string;
@@ -172,7 +173,7 @@ Return only the title, no quotes or additional text.`;
   const sendMessage = async () => {
     if (!inputValue.trim() || isLoading) return;
     if (!settings.llm.apiKey) {
-      alert("Please configure your API key in settings first!");
+      ErrorHandler.showWarning("API Key Required", "Please configure your API key in settings first!");
       return;
     }
 
@@ -247,10 +248,7 @@ Return only the title, no quotes or additional text.`;
         }
       });
     } catch (error) {
-      console.error("Error sending message:", error);
-      alert(
-        `Failed to send message: ${error instanceof Error ? error.message : "Unknown error"}`,
-      );
+      ErrorHandler.handle(error, "AI Chat");
     } finally {
       setIsLoading(false);
     }
