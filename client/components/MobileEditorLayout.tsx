@@ -1079,7 +1079,14 @@ export default function MobileEditorLayout() {
                             {getDocumentDisplayName(doc)}
                           </div>
                           <div className="text-sm text-gray-500">
-                            {doc.createdAt.toLocaleDateString()}
+                            {doc.createdAt.toLocaleString(undefined, {
+                              year: "numeric",
+                              month: "numeric",
+                              day: "numeric",
+                              hour: "numeric",
+                              minute: "2-digit",
+                              hour12: true,
+                            })}
                           </div>
                         </div>
                       </div>
