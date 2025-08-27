@@ -760,7 +760,7 @@ Return only the title, no quotes or additional text.`;
                         {message.role === "assistant" && typingMessageId === message.id ? (
                           <TypingEffect
                             text={message.content}
-                            speed={20}
+                            speed={8}
                             onComplete={() => setTypingMessageId(null)}
                             className="text-sm leading-relaxed text-gray-800"
                           />
