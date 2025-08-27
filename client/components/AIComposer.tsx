@@ -987,36 +987,72 @@ Please acknowledge that you've received these documents and are ready to help me
             currentSession.messages.map((message) => {
               const viewMode = messageViewMode[message.id] || "formatted";
               const isRawMode = viewMode === "raw";
+              const isSystemMessage = isSystemContextMessage(message);
+              const isCollapsed = collapsedMessages.has(message.id);
 
               return (
                 <div
                   key={message.id}
-                  className="border border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm"
+                  className={`border rounded-lg overflow-hidden shadow-sm ${
+                    isSystemMessage
+                      ? "border-orange-200 bg-orange-50"
+                      : "border-gray-200 bg-white"
+                  }`}
                 >
                   {/* Message Window Header */}
                   <div
-                    className={`flex items-center justify-between px-4 py-2 border-b border-gray-200 ${
-                      message.role === "user" ? "bg-blue-50" : "bg-gray-50"
+                    className={`flex items-center justify-between px-4 py-2 border-b ${
+                      isSystemMessage
+                        ? "border-orange-200 bg-orange-100"
+                        : message.role === "user"
+                          ? "border-gray-200 bg-blue-50"
+                          : "border-gray-200 bg-gray-50"
                     }`}
                   >
                     <div className="flex items-center space-x-2">
                       <div
                         className={`w-2 h-2 rounded-full ${
-                          message.role === "user"
-                            ? "bg-blue-500"
-                            : "bg-purple-500"
+                          isSystemMessage
+                            ? "bg-orange-500"
+                            : message.role === "user"
+                              ? "bg-blue-500"
+                              : "bg-purple-500"
                         }`}
                       />
                       <span className="text-sm font-medium text-gray-700">
-                        {message.role === "user" ? "You" : "AI Assistant"}
+                        {isSystemMessage
+                          ? "System"
+                          : message.role === "user"
+                            ? "You"
+                            : "AI Assistant"}
                       </span>
                       <span className="text-xs text-gray-500">
                         {message.timestamp.toLocaleTimeString()}
                       </span>
+                      {isSystemMessage && (
+                        <span className="text-xs text-orange-600 bg-orange-200 px-2 py-0.5 rounded">
+                          Context
+                        </span>
+                      )}
                     </div>
 
                     {/* Action Buttons */}
                     <div className="flex items-center space-x-1">
+                      {isSystemMessage ? (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => toggleMessageCollapse(message.id)}
+                          className="h-7 w-7 p-0 text-gray-500 hover:text-gray-700"
+                          title={isCollapsed ? "Expand message" : "Collapse message"}
+                        >
+                          {isCollapsed ? (
+                            <ChevronDown className="w-3 h-3" />
+                          ) : (
+                            <ChevronUp className="w-3 h-3" />
+                          )}
+                        </Button>
+                      ) : null}
                       {message.role === "user" ? (
                         <Button
                           variant="ghost"
