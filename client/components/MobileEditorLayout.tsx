@@ -346,13 +346,27 @@ export default function MobileEditorLayout() {
       // Always store the rendered text for display
       setSelectedDisplayText(selectedRenderedText);
 
+      // Debug: log the selection details
+      console.log('=== Text Selection Debug ===');
+      console.log('Selected rendered text:', selectedRenderedText);
+      console.log('Show preview mode:', showPreview);
+      console.log('Has preview content:', !!previewContent);
+      console.log('Selected document content snippet:', selectedDocument?.content.substring(0, 200));
+
       // If we're in preview mode, try to map back to original markdown
       if (showPreview && previewContent) {
         const originalText = findOriginalTextFromSelection(selectedRenderedText, previewContent);
+        console.log('Mapped to original text:', originalText);
         setSelectedText(originalText);
       } else {
-        // Normal mode - use the selected text as-is
-        setSelectedText(selectedRenderedText);
+        // Normal mode - try to map from the current document content
+        if (selectedDocument) {
+          const originalText = findOriginalTextFromSelection(selectedRenderedText, selectedDocument.content);
+          console.log('Mapped to original text (normal mode):', originalText);
+          setSelectedText(originalText);
+        } else {
+          setSelectedText(selectedRenderedText);
+        }
       }
     }
   };
