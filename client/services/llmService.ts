@@ -163,13 +163,13 @@ class LLMService {
           );
         }
 
-        if (response.status === 400 && !errorMessage) {
+        if (responseStatus === 400 && !errorMessage) {
           throw new Error(
             "Bad request. Please check your input and try again.",
           );
         }
 
-        if (response.status === 503) {
+        if (responseStatus === 503) {
           throw new Error(
             "Service temporarily unavailable. Please try again in a few minutes.",
           );
