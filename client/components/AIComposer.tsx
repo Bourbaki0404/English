@@ -1105,26 +1105,42 @@ Please acknowledge that you've received these documents and are ready to help me
 
                   {/* Message Content */}
                   <div className="p-4">
-                    {isRawMode ? (
-                      <pre className="whitespace-pre-wrap text-sm font-mono text-gray-800 bg-gray-50 p-3 rounded border">
-                        {message.content}
-                      </pre>
+                    {isSystemMessage && isCollapsed ? (
+                      // Collapsed view for system messages
+                      <div
+                        className="text-sm text-gray-600 italic cursor-pointer hover:text-gray-800 transition-colors"
+                        onClick={() => toggleMessageCollapse(message.id)}
+                      >
+                        {getSystemMessageSummary(message)}
+                        <span className="ml-2 text-xs text-gray-400">Click to expand</span>
+                      </div>
                     ) : (
-                      <div className="prose prose-sm max-w-none">
-                        {message.role === "assistant" &&
-                        typingMessageId === message.id ? (
-                          <TypingEffect
-                            text={message.content}
-                            speed={8}
-                            onComplete={() => setTypingMessageId(null)}
-                            className="text-sm leading-relaxed text-gray-800"
-                          />
-                        ) : (
-                          <div className="whitespace-pre-wrap text-sm leading-relaxed text-gray-800">
+                      // Full content view
+                      <>
+                        {isRawMode ? (
+                          <pre className="whitespace-pre-wrap text-sm font-mono text-gray-800 bg-gray-50 p-3 rounded border">
                             {message.content}
+                          </pre>
+                        ) : (
+                          <div className="prose prose-sm max-w-none">
+                            {message.role === "assistant" &&
+                            typingMessageId === message.id ? (
+                              <TypingEffect
+                                text={message.content}
+                                speed={8}
+                                onComplete={() => setTypingMessageId(null)}
+                                className="text-sm leading-relaxed text-gray-800"
+                              />
+                            ) : (
+                              <div className={`whitespace-pre-wrap text-sm leading-relaxed ${
+                                isSystemMessage ? "text-gray-700" : "text-gray-800"
+                              }`}>
+                                {message.content}
+                              </div>
+                            )}
                           </div>
                         )}
-                      </div>
+                      </>
                     )}
                   </div>
                 </div>
