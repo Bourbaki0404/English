@@ -263,25 +263,28 @@ export default function MobileEditorLayout() {
   };
 
   // Helper function to find original markdown text from rendered selection
-  const findOriginalTextFromSelection = (selectedRenderedText: string, originalContent: string): string => {
+  const findOriginalTextFromSelection = (
+    selectedRenderedText: string,
+    originalContent: string,
+  ): string => {
     if (!selectedRenderedText.trim()) return selectedRenderedText;
 
     // Clean the selected text (remove extra whitespace, normalize)
-    const cleanSelected = selectedRenderedText.trim().replace(/\s+/g, ' ');
+    const cleanSelected = selectedRenderedText.trim().replace(/\s+/g, " ");
 
     // Split original content into lines and find the best match
-    const lines = originalContent.split('\n');
+    const lines = originalContent.split("\n");
     let bestMatch = selectedRenderedText;
     let bestMatchLength = 0;
 
     for (const line of lines) {
       // Create a clean version of the line for comparison (remove markdown formatting)
       const cleanLine = line
-        .replace(/^#+\s+/, '') // Remove headers
-        .replace(/\*\*(.*?)\*\*/g, '$1') // Remove bold
-        .replace(/\*(.*?)\*/g, '$1') // Remove italic
-        .replace(/`(.*?)`/g, '$1') // Remove inline code
-        .replace(/\[(.*?)\]\(.*?\)/g, '$1') // Remove links, keep text
+        .replace(/^#+\s+/, "") // Remove headers
+        .replace(/\*\*(.*?)\*\*/g, "$1") // Remove bold
+        .replace(/\*(.*?)\*/g, "$1") // Remove italic
+        .replace(/`(.*?)`/g, "$1") // Remove inline code
+        .replace(/\[(.*?)\]\(.*?\)/g, "$1") // Remove links, keep text
         .trim();
 
       // Check if this line contains our selected text
@@ -292,7 +295,7 @@ export default function MobileEditorLayout() {
         }
 
         // For partial matches, try to find the exact boundaries
-        const cleanLineNormalized = cleanLine.replace(/\s+/g, ' ');
+        const cleanLineNormalized = cleanLine.replace(/\s+/g, " ");
         const selectedIndex = cleanLineNormalized.indexOf(cleanSelected);
 
         if (selectedIndex !== -1) {
@@ -302,7 +305,11 @@ export default function MobileEditorLayout() {
           let cleanCharCount = 0;
 
           // Find the start position in the original line
-          for (let i = 0; i < line.length && cleanCharCount < selectedIndex; i++) {
+          for (
+            let i = 0;
+            i < line.length && cleanCharCount < selectedIndex;
+            i++
+          ) {
             const char = line[i];
             // Skip markdown characters but count regular characters
             if (char.match(/[a-zA-Z0-9\s.,!?'"]/)) {
@@ -315,7 +322,11 @@ export default function MobileEditorLayout() {
           let originalEndPos = originalStartPos;
           let selectedCharCount = 0;
 
-          for (let i = originalStartPos; i < line.length && selectedCharCount < cleanSelected.length; i++) {
+          for (
+            let i = originalStartPos;
+            i < line.length && selectedCharCount < cleanSelected.length;
+            i++
+          ) {
             const char = line[i];
             if (char.match(/[a-zA-Z0-9\s.,!?'"]/)) {
               selectedCharCount++;
@@ -324,7 +335,9 @@ export default function MobileEditorLayout() {
           }
 
           // Extract the segment with markdown formatting preserved
-          const candidate = line.substring(Math.max(0, originalStartPos - 1), originalEndPos).trim();
+          const candidate = line
+            .substring(Math.max(0, originalStartPos - 1), originalEndPos)
+            .trim();
 
           // Check if this candidate is better than our current best match
           if (candidate.length > bestMatchLength) {
@@ -347,22 +360,31 @@ export default function MobileEditorLayout() {
       setSelectedDisplayText(selectedRenderedText);
 
       // Debug: log the selection details
-      console.log('=== Text Selection Debug ===');
-      console.log('Selected rendered text:', selectedRenderedText);
-      console.log('Show preview mode:', showPreview);
-      console.log('Has preview content:', !!previewContent);
-      console.log('Selected document content snippet:', selectedDocument?.content.substring(0, 200));
+      console.log("=== Text Selection Debug ===");
+      console.log("Selected rendered text:", selectedRenderedText);
+      console.log("Show preview mode:", showPreview);
+      console.log("Has preview content:", !!previewContent);
+      console.log(
+        "Selected document content snippet:",
+        selectedDocument?.content.substring(0, 200),
+      );
 
       // If we're in preview mode, try to map back to original markdown
       if (showPreview && previewContent) {
-        const originalText = findOriginalTextFromSelection(selectedRenderedText, previewContent);
-        console.log('Mapped to original text:', originalText);
+        const originalText = findOriginalTextFromSelection(
+          selectedRenderedText,
+          previewContent,
+        );
+        console.log("Mapped to original text:", originalText);
         setSelectedText(originalText);
       } else {
         // Normal mode - try to map from the current document content
         if (selectedDocument) {
-          const originalText = findOriginalTextFromSelection(selectedRenderedText, selectedDocument.content);
-          console.log('Mapped to original text (normal mode):', originalText);
+          const originalText = findOriginalTextFromSelection(
+            selectedRenderedText,
+            selectedDocument.content,
+          );
+          console.log("Mapped to original text (normal mode):", originalText);
           setSelectedText(originalText);
         } else {
           setSelectedText(selectedRenderedText);
