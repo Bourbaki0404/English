@@ -325,8 +325,8 @@ export default function EditorLayout() {
                   Selected text:
                 </div>
                 <div className="text-blue-700 text-xs">
-                  "{selectedText.substring(0, 50)}
-                  {selectedText.length > 50 ? "..." : '"'}
+                  "{selectedDisplayText.substring(0, 50)}
+                  {selectedDisplayText.length > 50 ? "..." : '"'}
                 </div>
               </div>
             ) : (
