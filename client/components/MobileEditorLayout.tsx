@@ -594,7 +594,7 @@ export default function MobileEditorLayout() {
                   }
                 >
                   {isEditMode ? (
-                    <span className="text-lg">✒���</span>
+                    <span className="text-lg">✒️</span>
                   ) : (
                     <span className="text-lg">👁️</span>
                   )}
@@ -1275,7 +1275,7 @@ export default function MobileEditorLayout() {
         )}
 
         {/* More Drawer */}
-        {moreDrawerOpen && (
+        {(moreDrawerOpen || moreDrawerClosing) && (
           <>
             <div
               className="absolute inset-0 bg-black bg-opacity-50 z-30 animate-in fade-in duration-300"
