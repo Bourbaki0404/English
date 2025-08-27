@@ -128,6 +128,17 @@ export default function AIComposer({
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [currentSession?.messages]);
 
+  // Scroll to bottom during typing effect
+  useEffect(() => {
+    if (typingMessageId) {
+      const scrollInterval = setInterval(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+      }, 100); // Scroll every 100ms during typing
+
+      return () => clearInterval(scrollInterval);
+    }
+  }, [typingMessageId]);
+
   // Focus input when component opens
   useEffect(() => {
     if (isOpen && inputRef.current) {
