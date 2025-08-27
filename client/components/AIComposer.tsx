@@ -219,6 +219,12 @@ Return only the title, no quotes or additional text.`;
     setInputValue("");
     setShowHistory(false);
     setShowTemplates(false);
+    // Reset session context when starting new chat
+    setSessionContext({
+      documents: [],
+      lastUpdate: new Date()
+    });
+    setSelectedContextDocuments([]);
   };
 
   const loadChatSession = (session: ChatSession) => {
