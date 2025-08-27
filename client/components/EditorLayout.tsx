@@ -156,6 +156,7 @@ export default function EditorLayout() {
     const selection = window.getSelection()?.toString();
     if (selection) {
       setSelectedText(selection);
+      setSelectedDisplayText(selection);
     }
   };
 
