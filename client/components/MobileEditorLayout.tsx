@@ -94,7 +94,7 @@ export default function MobileEditorLayout() {
     llm: {
       apiKey: "AIzaSyCNDJgpRcdDiEVSNomjIMTW1yNWjX7K6P0",
       provider: "gemini",
-      model: "gemini-2.0-flash-exp",
+      model: "gemini-2.0-flash",
     },
   });
   const { createQuiz, getQuizzesByDocument, getAllQuizzes } = useQuiz();
