@@ -407,9 +407,9 @@ Please acknowledge that you've received these documents and are ready to help me
 
     try {
       const llmService = getLLMService(settings);
-      // Pass conversation history for multi-turn conversation, but use promptWithContext for the actual AI call
+      // Use pure user input with conversation history containing context
       const response = await llmService.chatWithAI(
-        promptWithContext,
+        userMessage.content,
         updatedSession.messages.slice(0, -1),
       );
 
