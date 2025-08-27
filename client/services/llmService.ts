@@ -120,7 +120,7 @@ class LLMService {
       if (!responseOk) {
         console.error("Error response data:", data);
 
-        let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+        let errorMessage = `HTTP ${responseStatus}: ${responseStatusText}`;
 
         // Extract error message from response data
         if (data?.error?.message) {
