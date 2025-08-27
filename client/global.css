@@ -170,6 +170,37 @@
     }
   }
 
+  /* Bottom drawer slide animations */
+  .drawer-slide-up {
+    animation: slide-in-bottom 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  .drawer-slide-down {
+    animation: slide-out-bottom 0.3s cubic-bezier(0.55, 0.055, 0.675, 0.19);
+  }
+
+  @keyframes slide-in-bottom {
+    0% {
+      transform: translateY(100%);
+      opacity: 0.8;
+    }
+    100% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes slide-out-bottom {
+    0% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(100%);
+      opacity: 0.8;
+    }
+  }
+
   /* Right drawer horizontal expansion animation - fixed height, like a drawer */
   @keyframes fade-expand-in {
     0% {
