@@ -52,6 +52,18 @@ interface Document {
   createdAt: Date;
 }
 
+interface DocumentSnapshot {
+  id: string;
+  title: string;
+  content: string;
+  timestamp: Date;
+}
+
+interface SessionContext {
+  documents: DocumentSnapshot[];
+  lastUpdate: Date;
+}
+
 interface AIComposerProps {
   isOpen: boolean;
   onClose: () => void;
@@ -88,6 +100,10 @@ export default function AIComposer({
   const [selectedContextDocuments, setSelectedContextDocuments] = useState<
     Document[]
   >([]);
+  const [sessionContext, setSessionContext] = useState<SessionContext>({
+    documents: [],
+    lastUpdate: new Date()
+  });
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -379,7 +395,7 @@ Please use the information from the provided document(s) to give a comprehensive
     try {
       await navigator.clipboard.writeText(messageContent);
       setCopiedMessageId(messageId);
-      // 让用户手动看到复制状态，不自动清除
+      // 让��户手动看到复制状态，不自动清除
     } catch (error) {
       console.error("Failed to copy message:", error);
     }
