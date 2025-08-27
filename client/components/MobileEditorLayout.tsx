@@ -1300,7 +1300,7 @@ export default function MobileEditorLayout() {
                   className="flex items-center p-4 rounded-lg border-2 border-purple-200 bg-purple-50 cursor-pointer hover:shadow-md transition-all"
                   onClick={() => {
                     setAiComposerOpen(true);
-                    setMoreDrawerOpen(false);
+                    closeMoreDrawer();
                   }}
                 >
                   <div className="flex items-center space-x-3">
