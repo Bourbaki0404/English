@@ -1220,7 +1220,7 @@ export default function MobileEditorLayout() {
                                   className="flex-1 cursor-pointer"
                                   onClick={() => {
                                     navigate(`/quiz/${quiz.type}`);
-                                    setQuizDrawerOpen(false);
+                                    closeQuizDrawer();
                                   }}
                                 >
                                   <div className="flex items-center space-x-2">
