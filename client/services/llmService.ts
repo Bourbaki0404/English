@@ -417,10 +417,17 @@ Generate 1-3 writing tasks that encourage creative or analytical thinking about 
     }
   }
 
-  async chatWithAI(message: string): Promise<string> {
+  async chatWithAI(message: string, conversationHistory?: Message[]): Promise<string> {
     const languageLevel = this.getLanguageLevelDescription();
 
-    const systemPrompt = `You are a helpful AI assistant designed to support ${languageLevel} English learners. Please:
+    try {
+      if (conversationHistory && conversationHistory.length > 0) {
+        // Multi-turn conversation with history
+        const response = await this.callGeminiAPIWithHistory(message, conversationHistory);
+        return response.trim();
+      } else {
+        // Single message (backward compatibility)
+        const systemPrompt = `You are a helpful AI assistant designed to support ${languageLevel} English learners. Please:
 
 1. **Communication Style**:
    - Use clear, appropriate language for ${languageLevel} proficiency
@@ -440,9 +447,9 @@ Generate 1-3 writing tasks that encourage creative or analytical thinking about 
 
 User message: ${message}`;
 
-    try {
-      const response = await this.callGeminiAPI(systemPrompt);
-      return response.trim();
+        const response = await this.callGeminiAPI(systemPrompt);
+        return response.trim();
+      }
     } catch (error) {
       console.error("Error in chat with AI:", error);
       throw error;
