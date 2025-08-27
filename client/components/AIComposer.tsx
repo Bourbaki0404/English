@@ -452,153 +452,181 @@ Return only the title, no quotes or additional text.`;
           </div>
         )}
 
-        {/* Prompt Templates Drawer - Obsidian Style */}
+        {/* Prompt Templates Modal - Obsidian Style */}
         {showTemplates && (
-          <div className="absolute top-16 left-0 right-0 bg-white border-b border-gray-200 z-10 max-h-[70vh] overflow-y-auto shadow-lg">
-            <div className="p-4">
-              {/* Header */}
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold text-gray-900">
-                  Prompt Templates
-                </h2>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setIsCreatingTemplate(true)}
-                  className="text-sm px-3 py-1.5 h-auto"
-                >
-                  Add Prompt Template
-                </Button>
-              </div>
+          <>
+            {/* Modal Backdrop */}
+            <div
+              className="absolute inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 animate-in fade-in duration-200"
+              onClick={() => setShowTemplates(false)}
+            >
+              {/* Modal Content */}
+              <div
+                className="bg-white rounded-lg shadow-xl max-w-lg w-full max-h-[80vh] overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {/* Modal Header */}
+                <div className="flex items-center justify-between p-4 border-b border-gray-200">
+                  <h2 className="text-xl font-bold text-gray-900">
+                    Prompt Templates
+                  </h2>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowTemplates(false)}
+                    className="p-1 h-8 w-8"
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
 
-              {/* How to use section - more compact */}
-              <div className="mb-4 p-3 bg-gray-50 border-l-4 border-blue-500 rounded-r-md">
-                <p className="text-sm text-gray-600 leading-relaxed">
-                  <span className="font-medium text-gray-800">How to use:</span> Create templates with reusable content that you can quickly insert into your chat. Type{" "}
-                  <code className="mx-1 px-1 py-0.5 bg-gray-200 rounded text-xs font-mono">
-                    /template-name
-                  </code>{" "}
-                  in the chat input to trigger template insertion. You can also drag and select text in the chat input to reveal a "Create template" button for quick template creation.
-                </p>
-              </div>
-
-              {/* Create template form */}
-              {isCreatingTemplate && (
-                <div className="mb-4 p-4 border border-gray-200 rounded-lg bg-white shadow-sm">
-                  <div className="space-y-3">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Name
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="Template name..."
-                        value={templateName}
-                        onChange={(e) => setTemplateName(e.target.value)}
-                        className="w-full p-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Content
-                      </label>
-                      <textarea
-                        placeholder="Template content..."
-                        value={templateContent}
-                        onChange={(e) => setTemplateContent(e.target.value)}
-                        className="w-full p-2 text-sm border border-gray-300 rounded-md h-20 resize-none focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                      />
-                    </div>
-                  </div>
-                  <div className="flex space-x-2 mt-3">
-                    <Button size="sm" onClick={createTemplate} className="px-3 py-1.5 h-auto text-xs">
-                      Save
-                    </Button>
+                {/* Modal Body */}
+                <div className="p-4 max-h-[60vh] overflow-y-auto">
+                  {/* Add Template Button */}
+                  <div className="mb-4">
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => {
-                        setIsCreatingTemplate(false);
-                        setTemplateName("");
-                        setTemplateContent("");
-                      }}
-                      className="px-3 py-1.5 h-auto text-xs"
+                      onClick={() => setIsCreatingTemplate(true)}
+                      className="text-sm px-3 py-1.5 h-auto w-full"
                     >
-                      Cancel
+                      Add Prompt Template
                     </Button>
                   </div>
-                </div>
-              )}
 
-              {/* Saved Templates section */}
-              <div className="mb-3">
-                <h3 className="text-base font-semibold text-gray-800 flex items-center gap-2">
-                  <span>Saved Templates</span>
-                  {promptTemplates.length > 0 && (
-                    <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
-                      {promptTemplates.length}
-                    </span>
-                  )}
-                </h3>
-              </div>
-
-              {/* Templates List */}
-              <div className="space-y-2">
-                {promptTemplates.length === 0 ? (
-                  <div className="text-center py-8">
-                    <div className="text-gray-400 mb-2">
-                      <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                    </div>
-                    <p className="text-gray-500 text-sm">No templates found</p>
-                    <p className="text-gray-400 text-xs mt-1">Click "Add Prompt Template" to create your first template</p>
+                  {/* How to use section - more compact */}
+                  <div className="mb-4 p-3 bg-gray-50 border-l-4 border-blue-500 rounded-r-md">
+                    <p className="text-sm text-gray-600 leading-relaxed">
+                      <span className="font-medium text-gray-800">How to use:</span> Create templates with reusable content that you can quickly insert into your chat. Type{" "}
+                      <code className="mx-1 px-1 py-0.5 bg-gray-200 rounded text-xs font-mono">
+                        /template-name
+                      </code>{" "}
+                      in the chat input to trigger template insertion.
+                    </p>
                   </div>
-                ) : (
-                  promptTemplates.map((template) => (
-                    <div
-                      key={template.id}
-                      className="group p-3 border border-gray-200 rounded-lg hover:border-gray-300 hover:shadow-sm transition-all cursor-pointer bg-white"
-                      onClick={() => useTemplate(template)}
-                    >
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <h4 className="font-medium text-sm text-gray-900 truncate">
-                              {template.name}
-                            </h4>
-                            <span className="text-xs text-gray-400">
-                              /{template.name.toLowerCase().replace(/\s+/g, '-')}
-                            </span>
-                          </div>
-                          <p className="text-xs text-gray-600 line-clamp-2 leading-relaxed">
-                            {template.content}
-                          </p>
-                          <div className="flex items-center gap-2 mt-2">
-                            <span className="text-xs text-gray-400">
-                              {template.createdAt.toLocaleDateString()}
-                            </span>
-                            <div className="flex-1"></div>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                deleteTemplate(template.id);
-                              }}
-                              className="opacity-0 group-hover:opacity-100 p-1 h-6 w-6 text-gray-400 hover:text-red-500 transition-all"
-                            >
-                              <X className="w-3 h-3" />
-                            </Button>
-                          </div>
+
+                  {/* Create template form */}
+                  {isCreatingTemplate && (
+                    <div className="mb-4 p-4 border border-gray-200 rounded-lg bg-white shadow-sm">
+                      <div className="space-y-3">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Name
+                          </label>
+                          <input
+                            type="text"
+                            placeholder="Template name..."
+                            value={templateName}
+                            onChange={(e) => setTemplateName(e.target.value)}
+                            className="w-full p-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Content
+                          </label>
+                          <textarea
+                            placeholder="Template content..."
+                            value={templateContent}
+                            onChange={(e) => setTemplateContent(e.target.value)}
+                            className="w-full p-2 text-sm border border-gray-300 rounded-md h-20 resize-none focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                          />
                         </div>
                       </div>
+                      <div className="flex space-x-2 mt-3">
+                        <Button size="sm" onClick={createTemplate} className="px-3 py-1.5 h-auto text-xs">
+                          Save
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setIsCreatingTemplate(false);
+                            setTemplateName("");
+                            setTemplateContent("");
+                          }}
+                          className="px-3 py-1.5 h-auto text-xs"
+                        >
+                          Cancel
+                        </Button>
+                      </div>
                     </div>
-                  ))
-                )}
+                  )}
+
+                  {/* Saved Templates section */}
+                  <div className="mb-3">
+                    <h3 className="text-base font-semibold text-gray-800 flex items-center gap-2">
+                      <span>Saved Templates</span>
+                      {promptTemplates.length > 0 && (
+                        <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
+                          {promptTemplates.length}
+                        </span>
+                      )}
+                    </h3>
+                  </div>
+
+                  {/* Templates List */}
+                  <div className="space-y-2">
+                    {promptTemplates.length === 0 ? (
+                      <div className="text-center py-8">
+                        <div className="text-gray-400 mb-2">
+                          <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                        </div>
+                        <p className="text-gray-500 text-sm">No templates found</p>
+                        <p className="text-gray-400 text-xs mt-1">Click "Add Prompt Template" to create your first template</p>
+                      </div>
+                    ) : (
+                      promptTemplates.map((template) => (
+                        <div
+                          key={template.id}
+                          className="group p-3 border border-gray-200 rounded-lg hover:border-gray-300 hover:shadow-sm transition-all cursor-pointer bg-white"
+                          onClick={() => {
+                            useTemplate(template);
+                            setShowTemplates(false);
+                          }}
+                        >
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1">
+                                <h4 className="font-medium text-sm text-gray-900 truncate">
+                                  {template.name}
+                                </h4>
+                                <span className="text-xs text-gray-400">
+                                  /{template.name.toLowerCase().replace(/\s+/g, '-')}
+                                </span>
+                              </div>
+                              <p className="text-xs text-gray-600 line-clamp-2 leading-relaxed">
+                                {template.content}
+                              </p>
+                              <div className="flex items-center gap-2 mt-2">
+                                <span className="text-xs text-gray-400">
+                                  {template.createdAt.toLocaleDateString()}
+                                </span>
+                                <div className="flex-1"></div>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    deleteTemplate(template.id);
+                                  }}
+                                  className="opacity-0 group-hover:opacity-100 p-1 h-6 w-6 text-gray-400 hover:text-red-500 transition-all"
+                                >
+                                  <X className="w-3 h-3" />
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
+          </>
         )}
 
         {/* Messages Area */}
