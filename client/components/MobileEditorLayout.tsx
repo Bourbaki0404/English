@@ -1275,6 +1275,8 @@ export default function MobileEditorLayout() {
           isOpen={aiComposerOpen}
           onClose={() => setAiComposerOpen(false)}
           settings={settings}
+          documents={documents}
+          selectedDocument={selectedDocument}
         />
 
         {/* Settings Modal - Mobile Constrained */}
