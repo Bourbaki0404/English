@@ -15,6 +15,7 @@ import {
   Layers,
   PenTool,
   Grid,
+  Edit,
 } from "lucide-react";
 import { Button } from "./ui/button";
 import SettingsModal, { AppSettings } from "./SettingsModal";
