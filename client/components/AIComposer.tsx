@@ -126,13 +126,10 @@ export default function AIComposer({
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [currentSession?.messages]);
 
-  // Focus input when component opens and reset closing state
+  // Focus input when component opens
   useEffect(() => {
-    if (isOpen) {
-      setIsClosing(false);
-      if (inputRef.current) {
-        inputRef.current.focus();
-      }
+    if (isOpen && inputRef.current) {
+      inputRef.current.focus();
     }
   }, [isOpen]);
 
