@@ -1037,7 +1037,7 @@ export default function MobileEditorLayout() {
         )}
 
         {/* Quiz Tools Drawer */}
-        {quizDrawerOpen && (
+        {(quizDrawerOpen || quizDrawerClosing) && (
           <>
             <div
               className="absolute inset-0 bg-black bg-opacity-50 z-30 animate-in fade-in duration-300"
