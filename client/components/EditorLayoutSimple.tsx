@@ -62,6 +62,7 @@ export default function EditorLayoutSimple() {
   const [documents, setDocuments] = useState<Document[]>(initialDocuments);
   const [selectedDocumentId, setSelectedDocumentId] = useState<string>("3");
   const [selectedText, setSelectedText] = useState("");
+  const [selectedDisplayText, setSelectedDisplayText] = useState("");
   const [leftSidebarOpen, setLeftSidebarOpen] = useState(true);
   const [rightSidebarOpen, setRightSidebarOpen] = useState(true);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -266,6 +267,9 @@ export default function EditorLayoutSimple() {
     if (selection && selection.toString()) {
       const selectedRenderedText = selection.toString();
 
+      // Always store the rendered text for display
+      setSelectedDisplayText(selectedRenderedText);
+
       // If we're in preview mode, try to map back to original markdown
       if (showPreview && previewContent) {
         const originalText = findOriginalTextFromSelection(selectedRenderedText, previewContent);
@@ -282,6 +286,7 @@ export default function EditorLayoutSimple() {
     if (!showPreview) {
       setIsEditingContent(true);
       setSelectedText(""); // Clear selection when entering edit mode
+      setSelectedDisplayText("");
     }
   };
 
@@ -299,6 +304,7 @@ export default function EditorLayoutSimple() {
     // Clear selection when clicking (but not when selecting text)
     if (!window.getSelection()?.toString()) {
       setSelectedText("");
+      setSelectedDisplayText("");
     }
   };
 
@@ -339,6 +345,7 @@ export default function EditorLayoutSimple() {
   const handleDocumentSelect = (docId: string) => {
     setSelectedDocumentId(docId);
     setSelectedText("");
+    setSelectedDisplayText("");
   };
 
   const handleContentChange = (newContent: string) => {
@@ -686,8 +693,8 @@ export default function EditorLayoutSimple() {
                   Selected text:
                 </div>
                 <div className="text-blue-700 text-xs">
-                  "{selectedText.substring(0, 50)}
-                  {selectedText.length > 50 ? "..." : '"'}
+                  "{selectedDisplayText.substring(0, 50)}
+                  {selectedDisplayText.length > 50 ? "..." : '"'}
                 </div>
               </div>
             ) : (
