@@ -1020,6 +1020,7 @@ Please acknowledge that you've received these documents and are ready to help me
             currentSession.messages.map((message) => {
               const viewMode = messageViewMode[message.id] || "formatted";
               const isRawMode = viewMode === "raw";
+              const isPreviewMode = viewMode === "preview";
               const isSystemMessage = isSystemContextMessage(message);
               const isCollapsed = collapsedMessages.has(message.id);
 
