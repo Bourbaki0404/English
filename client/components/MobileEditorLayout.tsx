@@ -302,7 +302,6 @@ export default function MobileEditorLayout() {
 
     setDocuments((prev) => [...prev, newDocument]);
     setSelectedDocumentId(newId);
-    closeDocumentsDrawer();
   };
 
   const handleDeleteDocument = (docId: string) => {
