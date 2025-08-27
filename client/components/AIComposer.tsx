@@ -357,13 +357,9 @@ Return only the title, no quotes or additional text.`;
 
       {/* Right drawer contained within app bounds */}
       <div
-        className="absolute top-0 right-0 bottom-0 w-5/6 bg-white flex flex-col shadow-2xl"
+        className="absolute top-0 right-0 bottom-0 w-5/6 bg-white flex flex-col shadow-2xl animate-in slide-in-from-right duration-300"
         style={{
           zIndex: 1000,
-          willChange: "transform, opacity",
-          animation: isClosing
-            ? "fade-shrink-out 0.35s ease-out"
-            : "fade-expand-in 0.35s ease-out",
           maxWidth: "calc(100% - 20px)", // Ensure it stays within bounds
         }}
       >
