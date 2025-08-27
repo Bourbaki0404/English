@@ -328,8 +328,16 @@ export default function MobileEditorLayout() {
     }
     setSelectedDocumentId(docId);
     setSelectedText("");
-    setDocumentsDrawerOpen(false);
+    closeDocumentsDrawer();
     setSearchDrawerOpen(false);
+  };
+
+  const closeDocumentsDrawer = () => {
+    setDocumentsDrawerClosing(true);
+    setTimeout(() => {
+      setDocumentsDrawerOpen(false);
+      setDocumentsDrawerClosing(false);
+    }, 300); // Match the animation duration
   };
 
   const handleSearch = (query: string) => {
