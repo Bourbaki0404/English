@@ -310,6 +310,21 @@ Return only the title, no quotes or additional text.`;
     }
   };
 
+  const handleClose = () => {
+    setIsClosing(true);
+    setTimeout(() => {
+      setIsClosing(false);
+      onClose();
+    }, 300);
+  };
+
+  const toggleMessageView = (messageId: string) => {
+    setMessageViewMode(prev => ({
+      ...prev,
+      [messageId]: prev[messageId] === 'raw' ? 'formatted' : 'raw'
+    }));
+  };
+
   const copyMessage = async (messageContent: string, messageId: string) => {
     try {
       await navigator.clipboard.writeText(messageContent);
