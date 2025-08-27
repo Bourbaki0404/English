@@ -5,6 +5,7 @@ import { Button } from './ui/button';
 import SettingsModal, { AppSettings } from './SettingsModal';
 import { getLLMService } from '../services/llmService';
 import { useQuiz } from '../contexts/QuizContext';
+import { ErrorHandler } from '@/lib/error-handler';
 
 interface Document {
   id: string;
@@ -113,12 +114,12 @@ export default function EditorLayoutSimple() {
 
   const handleQuizToolClick = async (toolId: string) => {
     if (!selectedText) {
-      alert('Please select some text first to generate a quiz!');
+      ErrorHandler.showWarning('No Text Selected', 'Please select some text first to generate a quiz!');
       return;
     }
 
     if (!settings.llm.apiKey) {
-      alert('Please configure your LLM API key in settings first!');
+      ErrorHandler.showWarning('API Key Required', 'Please configure your LLM API key in settings first!');
       setSettingsOpen(true);
       return;
     }
@@ -150,8 +151,7 @@ export default function EditorLayoutSimple() {
         }
       }
     } catch (error) {
-      console.error('Error generating quiz:', error);
-      alert(`Failed to generate quiz: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      ErrorHandler.handle(error, 'Quiz Generation');
     } finally {
       setIsGeneratingQuiz(false);
       setGeneratingType('');
@@ -206,7 +206,7 @@ export default function EditorLayoutSimple() {
 
   const handleDeleteDocument = (docId: string) => {
     if (documents.length <= 1) {
-      alert('You must have at least one document.');
+      ErrorHandler.showWarning('Cannot Delete Document', 'You must have at least one document.');
       return;
     }
     
