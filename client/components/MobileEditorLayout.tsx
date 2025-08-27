@@ -108,6 +108,8 @@ export default function MobileEditorLayout() {
   const [titleCollisionWarning, setTitleCollisionWarning] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [previewContent, setPreviewContent] = useState("");
+  const [editingQuizId, setEditingQuizId] = useState<string | null>(null);
+  const [tempQuizTitle, setTempQuizTitle] = useState("");
   const [previewTitle, setPreviewTitle] = useState("");
   const [isEditMode, setIsEditMode] = useState(false);
   const [showModeToast, setShowModeToast] = useState(false);
