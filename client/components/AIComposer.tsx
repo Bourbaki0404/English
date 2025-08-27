@@ -845,34 +845,30 @@ Return only the title, no quotes or additional text.`;
 
         {/* Input Area */}
         <div className="border-t border-gray-200 p-4 bg-gray-50">
-          <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
-            <div className="flex items-end">
-              <div className="flex-1">
-                <textarea
-                  ref={inputRef}
-                  value={inputValue}
-                  onChange={(e) => setInputValue(e.target.value)}
-                  onKeyDown={handleInputKeyDown}
-                  placeholder="Type your message... (Enter to send, Shift+Enter for new line)"
-                  className="w-full p-4 pr-12 border-0 bg-transparent resize-none focus:outline-none text-sm placeholder-gray-400 rounded-xl"
-                  rows={3}
-                  disabled={isLoading}
-                />
-              </div>
-              <div className="absolute right-2 bottom-2">
-                <Button
-                  onClick={sendMessage}
-                  disabled={!inputValue.trim() || isLoading}
-                  size="sm"
-                  className="bg-blue-500 hover:bg-blue-600 text-white rounded-lg h-8 w-8 p-0 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isLoading ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <Send className="w-4 h-4" />
-                  )}
-                </Button>
-              </div>
+          <div className="relative bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+            <textarea
+              ref={inputRef}
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyDown={handleInputKeyDown}
+              placeholder="Type your message... (Enter to send, Shift+Enter for new line)"
+              className="w-full p-4 pr-12 border-0 bg-transparent resize-none focus:outline-none text-sm placeholder-gray-400 rounded-xl"
+              rows={3}
+              disabled={isLoading}
+            />
+            <div className="absolute right-3 bottom-3">
+              <Button
+                onClick={sendMessage}
+                disabled={!inputValue.trim() || isLoading}
+                size="sm"
+                className="bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 text-white rounded-lg h-8 w-8 p-0 shadow-sm transition-colors"
+              >
+                {isLoading ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Send className="w-4 h-4" />
+                )}
+              </Button>
             </div>
           </div>
         </div>
