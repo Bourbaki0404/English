@@ -231,6 +231,12 @@ Return only the title, no quotes or additional text.`;
     setCurrentSession(session);
     setShowHistory(false);
     setShowTemplates(false);
+    // Reset context when loading existing session (for simplicity)
+    setSessionContext({
+      documents: [],
+      lastUpdate: new Date()
+    });
+    setSelectedContextDocuments([]);
   };
 
   // Check if document context needs updating
