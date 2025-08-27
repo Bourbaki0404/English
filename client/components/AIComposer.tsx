@@ -45,10 +45,19 @@ interface PromptTemplate {
   createdAt: Date;
 }
 
+interface Document {
+  id: string;
+  title: string;
+  content: string;
+  createdAt: Date;
+}
+
 interface AIComposerProps {
   isOpen: boolean;
   onClose: () => void;
   settings: AppSettings;
+  documents?: Document[];
+  selectedDocument?: Document | null;
 }
 
 export default function AIComposer({
