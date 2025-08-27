@@ -429,16 +429,20 @@ Please acknowledge that you've received these documents and are ready to help me
         updatedAt: new Date(),
       };
 
-      // Generate title for new sessions
-      if (
-        finalSession.title === "New Chat" &&
-        finalSession.messages.length === 2
-      ) {
-        try {
-          const title = await generateSessionTitle(userMessage.content);
-          finalSession.title = title;
-        } catch (error) {
-          console.error("Error generating title:", error);
+      // Generate title for new sessions - check for first user message response
+      if (finalSession.title === "New Chat") {
+        // Find the first actual user message (not context setup)
+        const firstUserMessage = finalSession.messages.find(msg =>
+          msg.role === "user" && !msg.content.includes("I'm sharing some documents")
+        );
+
+        if (firstUserMessage) {
+          try {
+            const title = await generateSessionTitle(firstUserMessage.content);
+            finalSession.title = title;
+          } catch (error) {
+            console.error("Error generating title:", error);
+          }
         }
       }
 
