@@ -75,6 +75,7 @@ export default function MobileEditorLayout() {
   const [selectedDocumentId, setSelectedDocumentId] = useState<string>("3");
   const [selectedText, setSelectedText] = useState("");
   const [documentsDrawerOpen, setDocumentsDrawerOpen] = useState(false);
+  const [documentsDrawerClosing, setDocumentsDrawerClosing] = useState(false);
   const [quizDrawerOpen, setQuizDrawerOpen] = useState(false);
   const [searchDrawerOpen, setSearchDrawerOpen] = useState(false);
   const [moreDrawerOpen, setMoreDrawerOpen] = useState(false);
