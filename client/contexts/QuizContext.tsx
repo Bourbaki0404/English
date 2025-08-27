@@ -245,6 +245,14 @@ export function QuizProvider({ children }: { children: ReactNode }) {
     setQuizzes((prev) => prev.filter((quiz) => quiz.id !== id));
   };
 
+  const renameQuiz = (id: string, newTitle: string) => {
+    setQuizzes((prev) =>
+      prev.map((quiz) =>
+        quiz.id === id ? { ...quiz, title: newTitle } : quiz
+      )
+    );
+  };
+
   return (
     <QuizContext.Provider
       value={{
