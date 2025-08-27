@@ -299,7 +299,7 @@ export default function MobileEditorLayout() {
 
     setDocuments((prev) => [...prev, newDocument]);
     setSelectedDocumentId(newId);
-    setDocumentsDrawerOpen(false);
+    closeDocumentsDrawer();
   };
 
   const handleDeleteDocument = (docId: string) => {
