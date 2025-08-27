@@ -427,7 +427,7 @@ Return only the title, no quotes or additional text.`;
               <Download className="w-4 h-4" />
             </Button>
           )}
-          <Button variant="ghost" size="sm" onClick={onClose}>
+          <Button variant="ghost" size="sm" onClick={handleClose}>
             <X className="w-5 h-5" />
           </Button>
         </div>
