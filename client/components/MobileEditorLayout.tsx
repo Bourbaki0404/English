@@ -261,10 +261,81 @@ export default function MobileEditorLayout() {
     }
   };
 
+  // Helper function to find original markdown text from rendered selection
+  const findOriginalTextFromSelection = (selectedRenderedText: string, originalContent: string): string => {
+    if (!selectedRenderedText.trim()) return selectedRenderedText;
+
+    // Clean the selected text (remove extra whitespace, normalize)
+    const cleanSelected = selectedRenderedText.trim().replace(/\s+/g, ' ');
+
+    // Try to find the exact text in original content first
+    if (originalContent.includes(cleanSelected)) {
+      return cleanSelected;
+    }
+
+    // Look for text that would render to the selected text
+    // Split original content into lines and check each
+    const lines = originalContent.split('\n');
+    let bestMatch = selectedRenderedText;
+    let bestMatchScore = 0;
+
+    for (const line of lines) {
+      // Remove markdown formatting for comparison
+      const cleanLine = line
+        .replace(/^#+\s+/, '') // Remove headers
+        .replace(/\*\*(.*?)\*\*/g, '$1') // Remove bold
+        .replace(/\*(.*?)\*/g, '$1') // Remove italic
+        .replace(/`(.*?)`/g, '$1') // Remove inline code
+        .replace(/\[(.*?)\]\(.*?\)/g, '$1') // Remove links, keep text
+        .trim();
+
+      // Check if this line contains our selected text
+      if (cleanLine.includes(cleanSelected)) {
+        // Find the best matching segment in the original line
+        const selectedWords = cleanSelected.split(' ');
+        let startIndex = -1;
+        let endIndex = -1;
+
+        // Try to find the span of text in the original line
+        for (let i = 0; i < selectedWords.length; i++) {
+          const wordIndex = line.toLowerCase().indexOf(selectedWords[i].toLowerCase());
+          if (wordIndex !== -1) {
+            if (startIndex === -1) startIndex = wordIndex;
+            // Find the end of the last word
+            const lastWordIndex = line.toLowerCase().lastIndexOf(selectedWords[selectedWords.length - 1].toLowerCase());
+            if (lastWordIndex !== -1) {
+              endIndex = lastWordIndex + selectedWords[selectedWords.length - 1].length;
+            }
+          }
+        }
+
+        if (startIndex !== -1 && endIndex !== -1) {
+          const originalSegment = line.substring(startIndex, endIndex);
+          const score = (originalSegment.length / selectedRenderedText.length);
+          if (score > bestMatchScore) {
+            bestMatch = originalSegment;
+            bestMatchScore = score;
+          }
+        }
+      }
+    }
+
+    return bestMatch;
+  };
+
   const handleTextSelection = () => {
     const selection = window.getSelection();
     if (selection && selection.toString()) {
-      setSelectedText(selection.toString());
+      const selectedRenderedText = selection.toString();
+
+      // If we're in preview mode, try to map back to original markdown
+      if (showPreview && previewContent) {
+        const originalText = findOriginalTextFromSelection(selectedRenderedText, previewContent);
+        setSelectedText(originalText);
+      } else {
+        // Normal mode - use the selected text as-is
+        setSelectedText(selectedRenderedText);
+      }
     }
   };
 
