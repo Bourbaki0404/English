@@ -188,9 +188,9 @@ export function QuizProvider({ children }: { children: ReactNode }) {
   };
 
   const getQuizzesByDocument = (documentId: string) => {
-    return quizzes
-      .filter((quiz) => quiz.documentId === documentId)
-      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    const filteredQuizzes = quizzes.filter((quiz) => quiz.documentId === documentId);
+    console.log(`[QuizContext] getQuizzesByDocument(${documentId}) found ${filteredQuizzes.length} quizzes:`, filteredQuizzes.map(q => q.title));
+    return filteredQuizzes.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
   };
 
   const getQuizzesByDocumentAndType = (
