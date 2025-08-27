@@ -925,7 +925,7 @@ export default function MobileEditorLayout() {
         )}
 
         {/* Search Drawer */}
-        {searchDrawerOpen && (
+        {(searchDrawerOpen || searchDrawerClosing) && (
           <>
             <div
               className="absolute inset-0 bg-black bg-opacity-50 z-30 animate-in fade-in duration-300"
