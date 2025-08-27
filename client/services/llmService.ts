@@ -656,4 +656,4 @@ export const getLLMService = (settings: AppSettings): LLMService => {
   return llmServiceInstance;
 };
 
-export type { MultipleChoiceQuiz, FlashCard, WritingTask };
+export type { MultipleChoiceQuiz, FlashCard, WritingTask, Message };
