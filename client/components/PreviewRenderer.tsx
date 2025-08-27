@@ -25,6 +25,10 @@ export default function PreviewRenderer({ content, className = "" }: PreviewRend
           '<span class="bg-yellow-200 px-1 py-0.5 rounded font-medium text-gray-900">$1</span>',
         )
         .replace(
+          /==(.*?)==/g,
+          '<span class="bg-yellow-200 px-1 py-0.5 rounded font-medium text-gray-900">$1</span>',
+        )
+        .replace(
           /\[([^\]]+)\]/g,
           '<span class="text-purple-600 text-sm block mt-1 leading-relaxed">[$1]</span>',
         );
