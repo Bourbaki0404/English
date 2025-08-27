@@ -219,10 +219,27 @@ Return only the title, no quotes or additional text.`;
       return;
     }
 
+    // Craft prompt with document context
+    let promptWithContext = inputValue.trim();
+
+    if (selectedContextDocuments.length > 0) {
+      const contextSections = selectedContextDocuments.map(doc =>
+        `### Document: ${doc.title}\n\n${doc.content}\n\n---\n`
+      ).join('\n');
+
+      promptWithContext = `Based on the following document(s), please answer this question or request:
+
+${contextSections}
+
+**User Request:** ${inputValue.trim()}
+
+Please use the information from the provided document(s) to give a comprehensive and accurate response.`;
+    }
+
     const userMessage: Message = {
       id: Date.now().toString(),
       role: "user",
-      content: inputValue.trim(),
+      content: inputValue.trim(), // Store original user input for display
       timestamp: new Date(),
     };
 
@@ -246,12 +263,14 @@ Return only the title, no quotes or additional text.`;
 
     setCurrentSession(updatedSession);
     setInputValue("");
+    setSelectedContextDocuments([]); // Clear selected context after sending
+    setShowContextSelector(false);
     setIsLoading(true);
 
     try {
       const llmService = getLLMService(settings);
-      // Pass conversation history for multi-turn conversation
-      const response = await llmService.chatWithAI(inputValue.trim(), updatedSession.messages);
+      // Pass conversation history for multi-turn conversation, but use promptWithContext for the actual AI call
+      const response = await llmService.chatWithAI(promptWithContext, updatedSession.messages.slice(0, -1));
 
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
