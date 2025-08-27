@@ -324,6 +324,19 @@ Return only the title, no quotes or additional text.`;
     updatedAt: new Date(),
   });
 
+  // Create initial context message for new conversations
+  const createInitialContextMessage = (): string => {
+    const contextSections = selectedContextDocuments
+      .map((doc) => `## ${doc.title}\n\n${doc.content}\n`)
+      .join("\n---\n\n");
+
+    return `I'm sharing some documents for our conversation. Please use these as reference for any questions I might ask:
+
+${contextSections}
+
+Please acknowledge that you've received these documents and are ready to help me with questions about them.`;
+  };
+
   const sendMessage = async () => {
     if (!inputValue.trim() || isLoading) return;
     if (!settings.llm.apiKey) {
