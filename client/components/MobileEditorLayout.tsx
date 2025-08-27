@@ -1320,7 +1320,7 @@ export default function MobileEditorLayout() {
                   className="flex items-center p-4 rounded-lg border-2 border-gray-200 bg-gray-50 cursor-pointer hover:shadow-md transition-all"
                   onClick={() => {
                     setSettingsOpen(true);
-                    setMoreDrawerOpen(false);
+                    closeMoreDrawer();
                   }}
                 >
                   <div className="flex items-center space-x-3">
