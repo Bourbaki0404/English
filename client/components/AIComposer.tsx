@@ -105,9 +105,11 @@ export default function AIComposer({
   >([]);
   const [sessionContext, setSessionContext] = useState<SessionContext>({
     documents: [],
-    lastUpdate: new Date()
+    lastUpdate: new Date(),
   });
-  const [collapsedMessages, setCollapsedMessages] = useState<Set<string>>(new Set());
+  const [collapsedMessages, setCollapsedMessages] = useState<Set<string>>(
+    new Set(),
+  );
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -226,7 +228,7 @@ Return only the title, no quotes or additional text.`;
     // Reset session context when starting new chat
     setSessionContext({
       documents: [],
-      lastUpdate: new Date()
+      lastUpdate: new Date(),
     });
     setSelectedContextDocuments([]);
     setCollapsedMessages(new Set());
@@ -239,7 +241,7 @@ Return only the title, no quotes or additional text.`;
     // Reset context when loading existing session (for simplicity)
     setSessionContext({
       documents: [],
-      lastUpdate: new Date()
+      lastUpdate: new Date(),
     });
     setSelectedContextDocuments([]);
     setCollapsedMessages(new Set());
@@ -248,15 +250,17 @@ Return only the title, no quotes or additional text.`;
   // Check if document context needs updating
   const checkIfContextNeedsUpdate = (): boolean => {
     // 1. Check for newly added documents
-    const currentDocIds = selectedContextDocuments.map(d => d.id);
-    const sessionDocIds = sessionContext.documents.map(d => d.id);
+    const currentDocIds = selectedContextDocuments.map((d) => d.id);
+    const sessionDocIds = sessionContext.documents.map((d) => d.id);
 
-    const hasNewDocs = currentDocIds.some(id => !sessionDocIds.includes(id));
-    const hasRemovedDocs = sessionDocIds.some(id => !currentDocIds.includes(id));
+    const hasNewDocs = currentDocIds.some((id) => !sessionDocIds.includes(id));
+    const hasRemovedDocs = sessionDocIds.some(
+      (id) => !currentDocIds.includes(id),
+    );
 
     // 2. Check for content changes in existing documents
-    const hasContentChanges = selectedContextDocuments.some(doc => {
-      const sessionDoc = sessionContext.documents.find(d => d.id === doc.id);
+    const hasContentChanges = selectedContextDocuments.some((doc) => {
+      const sessionDoc = sessionContext.documents.find((d) => d.id === doc.id);
       return sessionDoc && sessionDoc.content !== doc.content;
     });
 
@@ -265,49 +269,54 @@ Return only the title, no quotes or additional text.`;
 
   // Create context update message
   const createContextUpdateMessage = (): Message | null => {
-    if (selectedContextDocuments.length === 0 && sessionContext.documents.length === 0) {
+    if (
+      selectedContextDocuments.length === 0 &&
+      sessionContext.documents.length === 0
+    ) {
       return null;
     }
 
     let updateText = "";
 
     // Check for new documents
-    const newDocs = selectedContextDocuments.filter(doc =>
-      !sessionContext.documents.some(d => d.id === doc.id)
+    const newDocs = selectedContextDocuments.filter(
+      (doc) => !sessionContext.documents.some((d) => d.id === doc.id),
     );
 
     // Check for removed documents
-    const removedDocs = sessionContext.documents.filter(sessionDoc =>
-      !selectedContextDocuments.some(d => d.id === sessionDoc.id)
+    const removedDocs = sessionContext.documents.filter(
+      (sessionDoc) =>
+        !selectedContextDocuments.some((d) => d.id === sessionDoc.id),
     );
 
     // Check for content changes
-    const changedDocs = selectedContextDocuments.filter(doc => {
-      const sessionDoc = sessionContext.documents.find(d => d.id === doc.id);
+    const changedDocs = selectedContextDocuments.filter((doc) => {
+      const sessionDoc = sessionContext.documents.find((d) => d.id === doc.id);
       return sessionDoc && sessionDoc.content !== doc.content;
     });
 
     // Build update message
     if (newDocs.length > 0) {
       updateText += "## New Documents Added:\n\n";
-      newDocs.forEach(doc => {
+      newDocs.forEach((doc) => {
         updateText += `### ${doc.title}\n\n${doc.content}\n\n---\n\n`;
       });
     }
 
     if (changedDocs.length > 0) {
       updateText += "## Updated Documents:\n\n";
-      changedDocs.forEach(doc => {
+      changedDocs.forEach((doc) => {
         updateText += `### ${doc.title} (Updated)\n\n${doc.content}\n\n---\n\n`;
       });
     }
 
     if (removedDocs.length > 0) {
       updateText += "## Documents Removed:\n\n";
-      removedDocs.forEach(doc => {
+      removedDocs.forEach((doc) => {
         updateText += `- ${doc.title}\n`;
       });
-      updateText += "\nPlease ignore the removed documents for future questions.\n\n";
+      updateText +=
+        "\nPlease ignore the removed documents for future questions.\n\n";
     }
 
     if (!updateText) return null;
@@ -323,13 +332,13 @@ Return only the title, no quotes or additional text.`;
   // Update session context tracking
   const updateSessionContext = () => {
     setSessionContext({
-      documents: selectedContextDocuments.map(doc => ({
+      documents: selectedContextDocuments.map((doc) => ({
         id: doc.id,
         title: doc.title,
         content: doc.content,
-        timestamp: new Date()
+        timestamp: new Date(),
       })),
-      lastUpdate: new Date()
+      lastUpdate: new Date(),
     });
   };
 
@@ -357,10 +366,12 @@ Please acknowledge that you've received these documents and are ready to help me
 
   // Check if a message is a system context message
   const isSystemContextMessage = (message: Message): boolean => {
-    return message.content.includes("I'm sharing some documents") ||
-           message.content.includes("[Context Update]") ||
-           (message.role === "assistant" &&
-            message.content.includes("I've reviewed the provided documents"));
+    return (
+      message.content.includes("I'm sharing some documents") ||
+      message.content.includes("[Context Update]") ||
+      (message.role === "assistant" &&
+        message.content.includes("I've reviewed the provided documents"))
+    );
   };
 
   // Generate summary for collapsed system messages
@@ -368,8 +379,10 @@ Please acknowledge that you've received these documents and are ready to help me
     if (message.content.includes("I'm sharing some documents")) {
       // Try to count documents from the message content
       const docMatches = message.content.match(/## (.+?)(?=\n)/g);
-      const docCount = docMatches ? docMatches.length : selectedContextDocuments.length;
-      return `📄 Shared ${docCount} document${docCount !== 1 ? 's' : ''} for context`;
+      const docCount = docMatches
+        ? docMatches.length
+        : selectedContextDocuments.length;
+      return `📄 Shared ${docCount} document${docCount !== 1 ? "s" : ""} for context`;
     }
     if (message.content.includes("[Context Update]")) {
       if (message.content.includes("New Documents Added")) {
@@ -383,7 +396,10 @@ Please acknowledge that you've received these documents and are ready to help me
       }
       return "📄 Updated document context";
     }
-    if (message.role === "assistant" && message.content.includes("I've reviewed")) {
+    if (
+      message.role === "assistant" &&
+      message.content.includes("I've reviewed")
+    ) {
       return "✅ AI acknowledged document context";
     }
     return "🔧 System message";
@@ -391,7 +407,7 @@ Please acknowledge that you've received these documents and are ready to help me
 
   // Toggle message collapse state
   const toggleMessageCollapse = (messageId: string) => {
-    setCollapsedMessages(prev => {
+    setCollapsedMessages((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(messageId)) {
         newSet.delete(messageId);
@@ -441,14 +457,15 @@ Please acknowledge that you've received these documents and are ready to help me
         const ackMessage: Message = {
           id: (Date.now() - 1).toString(),
           role: "assistant",
-          content: "I've reviewed the provided documents and I'm ready to help you with questions about them.",
+          content:
+            "I've reviewed the provided documents and I'm ready to help you with questions about them.",
           timestamp: new Date(),
         };
 
         messages = [contextMessage, ackMessage];
 
         // Auto-collapse system messages
-        setCollapsedMessages(prev => {
+        setCollapsedMessages((prev) => {
           const newSet = new Set(prev);
           newSet.add(contextMessage.id);
           newSet.add(ackMessage.id);
@@ -462,7 +479,7 @@ Please acknowledge that you've received these documents and are ready to help me
         messages.push(contextUpdateMessage);
 
         // Auto-collapse context update messages
-        setCollapsedMessages(prev => {
+        setCollapsedMessages((prev) => {
           const newSet = new Set(prev);
           newSet.add(contextUpdateMessage.id);
           return newSet;
@@ -512,8 +529,10 @@ Please acknowledge that you've received these documents and are ready to help me
       // Generate title for new sessions - check for first user message response
       if (finalSession.title === "New Chat") {
         // Find the first actual user message (not context setup)
-        const firstUserMessage = finalSession.messages.find(msg =>
-          msg.role === "user" && !msg.content.includes("I'm sharing some documents")
+        const firstUserMessage = finalSession.messages.find(
+          (msg) =>
+            msg.role === "user" &&
+            !msg.content.includes("I'm sharing some documents"),
         );
 
         if (firstUserMessage) {
@@ -1019,7 +1038,10 @@ Please acknowledge that you've received these documents and are ready to help me
           ) : (
             currentSession.messages.map((message) => {
               // Default to preview mode for AI assistant messages, formatted for others
-              const defaultMode = (message.role === "assistant" && !isSystemContextMessage(message)) ? "preview" : "formatted";
+              const defaultMode =
+                message.role === "assistant" && !isSystemContextMessage(message)
+                  ? "preview"
+                  : "formatted";
               const viewMode = messageViewMode[message.id] || defaultMode;
               const isRawMode = viewMode === "raw";
               const isPreviewMode = viewMode === "preview";
@@ -1080,7 +1102,9 @@ Please acknowledge that you've received these documents and are ready to help me
                           size="sm"
                           onClick={() => toggleMessageCollapse(message.id)}
                           className="h-7 w-7 p-0 text-gray-500 hover:text-gray-700"
-                          title={isCollapsed ? "Expand message" : "Collapse message"}
+                          title={
+                            isCollapsed ? "Expand message" : "Collapse message"
+                          }
                         >
                           {isCollapsed ? (
                             <ChevronDown className="w-3 h-3" />
@@ -1156,7 +1180,9 @@ Please acknowledge that you've received these documents and are ready to help me
                         onClick={() => toggleMessageCollapse(message.id)}
                       >
                         {getSystemMessageSummary(message)}
-                        <span className="ml-2 text-xs text-gray-400">Click to expand</span>
+                        <span className="ml-2 text-xs text-gray-400">
+                          Click to expand
+                        </span>
                       </div>
                     ) : (
                       // Full content view
@@ -1178,7 +1204,11 @@ Please acknowledge that you've received these documents and are ready to help me
                             ) : (
                               <PreviewRenderer
                                 content={message.content}
-                                className={isSystemMessage ? "text-gray-700" : "text-gray-800"}
+                                className={
+                                  isSystemMessage
+                                    ? "text-gray-700"
+                                    : "text-gray-800"
+                                }
                               />
                             )}
                           </div>
@@ -1193,9 +1223,13 @@ Please acknowledge that you've received these documents and are ready to help me
                                 className="text-sm leading-relaxed text-gray-800"
                               />
                             ) : (
-                              <div className={`whitespace-pre-wrap text-sm leading-relaxed ${
-                                isSystemMessage ? "text-gray-700" : "text-gray-800"
-                              }`}>
+                              <div
+                                className={`whitespace-pre-wrap text-sm leading-relaxed ${
+                                  isSystemMessage
+                                    ? "text-gray-700"
+                                    : "text-gray-800"
+                                }`}
+                              >
                                 {message.content}
                               </div>
                             )}
