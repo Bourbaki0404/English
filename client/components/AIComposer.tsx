@@ -1035,11 +1035,8 @@ Please acknowledge that you've received these documents and are ready to help me
             </div>
           ) : (
             currentSession.messages.map((message) => {
-              // Default to preview mode for AI assistant messages, formatted for others
-              const defaultMode =
-                message.role === "assistant" && !isSystemContextMessage(message)
-                  ? "preview"
-                  : "formatted";
+              // Default to preview mode for all messages
+              const defaultMode = "preview";
               const viewMode = messageViewMode[message.id] || defaultMode;
               const isRawMode = viewMode === "raw";
               const isPreviewMode = viewMode === "preview";
@@ -1128,19 +1125,15 @@ Please acknowledge that you've received these documents and are ready to help me
                           onClick={() => toggleMessageView(message.id)}
                           className="h-7 w-7 p-0 text-gray-500 hover:text-gray-700"
                           title={
-                            viewMode === "formatted"
-                              ? "Switch to preview mode"
-                              : viewMode === "preview"
-                                ? "Switch to raw mode"
-                                : "Switch to formatted mode"
+                            viewMode === "preview"
+                              ? "Switch to raw mode"
+                              : "Switch to preview mode"
                           }
                         >
-                          {viewMode === "formatted" ? (
-                            <span className="text-xs font-bold">P</span>
-                          ) : viewMode === "preview" ? (
+                          {viewMode === "preview" ? (
                             <span className="text-xs font-bold">R</span>
                           ) : (
-                            <span className="text-xs font-bold">F</span>
+                            <span className="text-xs font-bold">P</span>
                           )}
                         </Button>
                       )}
