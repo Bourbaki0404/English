@@ -810,7 +810,7 @@ export default function MobileEditorLayout() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => setDocumentsDrawerOpen(false)}
+                  onClick={closeDocumentsDrawer}
                 >
                   <X className="w-5 h-5" />
                 </Button>
