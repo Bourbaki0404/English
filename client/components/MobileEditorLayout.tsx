@@ -1261,6 +1261,24 @@ export default function MobileEditorLayout() {
                     </div>
                   </div>
                 </div>
+
+                <div
+                  className="flex items-center p-4 rounded-lg border-2 border-red-200 bg-red-50 cursor-pointer hover:shadow-md transition-all"
+                  onClick={() => {
+                    ErrorHandler.handle(new Error("User location is not supported for the API use"), "Test Error");
+                    setMoreDrawerOpen(false);
+                  }}
+                >
+                  <div className="flex items-center space-x-3">
+                    <span className="text-2xl">🚨</span>
+                    <div>
+                      <h3 className="font-semibold text-gray-800">Test Error Toast</h3>
+                      <p className="text-sm text-gray-600">
+                        Test red warning notification on top
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </>
