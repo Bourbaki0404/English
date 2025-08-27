@@ -498,9 +498,7 @@ export default function MobileEditorLayout() {
 
   return (
     <div className="h-screen flex justify-center bg-gray-100">
-      <div
-        className="w-full max-w-sm bg-white flex flex-col relative shadow-lg overflow-hidden"
-      >
+      <div className="w-full max-w-sm bg-white flex flex-col relative shadow-lg overflow-hidden">
         {/* Top Navigation Bar */}
         <div className="flex items-center justify-between px-4 py-3 bg-white border-b border-gray-200 relative z-20">
           <Button
@@ -735,9 +733,7 @@ export default function MobileEditorLayout() {
               <div className="text-center">
                 <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                 <p className="text-gray-500 mb-4">Select a document to start</p>
-                <Button onClick={openDocumentsDrawer}>
-                  View Documents
-                </Button>
+                <Button onClick={openDocumentsDrawer}>View Documents</Button>
               </div>
             </div>
           )}
@@ -903,11 +899,7 @@ export default function MobileEditorLayout() {
             <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-xl z-40 max-h-[80vh] overflow-hidden animate-in slide-in-from-bottom duration-300">
               <div className="flex items-center justify-between p-4 border-b border-gray-200">
                 <h2 className="text-lg font-semibold text-gray-900">Search</h2>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={closeSearchDrawer}
-                >
+                <Button variant="ghost" size="sm" onClick={closeSearchDrawer}>
                   <X className="w-5 h-5" />
                 </Button>
               </div>
@@ -955,7 +947,7 @@ export default function MobileEditorLayout() {
                                 });
 
                                 // Add highlight class instead of inline styles
-                                targetElement.classList.add('search-highlight');
+                                targetElement.classList.add("search-highlight");
                               }
                             }}
                           >
@@ -1000,11 +992,7 @@ export default function MobileEditorLayout() {
                 <h2 className="text-lg font-semibold text-gray-900">
                   Quiz Tools
                 </h2>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={closeQuizDrawer}
-                >
+                <Button variant="ghost" size="sm" onClick={closeQuizDrawer}>
                   <X className="w-5 h-5" />
                 </Button>
               </div>
@@ -1234,11 +1222,7 @@ export default function MobileEditorLayout() {
             <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-xl z-40 max-h-[80vh] overflow-hidden animate-in slide-in-from-bottom duration-300">
               <div className="flex items-center justify-between p-4 border-b border-gray-200">
                 <h2 className="text-lg font-semibold text-gray-900">More</h2>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={closeMoreDrawer}
-                >
+                <Button variant="ghost" size="sm" onClick={closeMoreDrawer}>
                   <X className="w-5 h-5" />
                 </Button>
               </div>

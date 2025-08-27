@@ -122,7 +122,7 @@ class LLMService {
         data = {
           error: responseOk
             ? "No content received from API"
-            : `HTTP ${responseStatus}: ${responseStatusText}`
+            : `HTTP ${responseStatus}: ${responseStatusText}`,
         };
       }
 

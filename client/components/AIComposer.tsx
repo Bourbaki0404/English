@@ -285,7 +285,6 @@ Return only the title, no quotes or additional text.`;
     setPromptTemplates(promptTemplates.filter((t) => t.id !== id));
   };
 
-
   const deleteChatSession = (sessionId: string) => {
     setChatHistory(chatHistory.filter((s) => s.id !== sessionId));
     if (currentSession?.id === sessionId) {
@@ -350,7 +349,7 @@ Return only the title, no quotes or additional text.`;
         style={{
           zIndex: 999,
           maxWidth: "100%", // Stay within parent container
-          maxHeight: "100%" // Stay within parent container
+          maxHeight: "100%", // Stay within parent container
         }}
         onClick={handleClose}
       />
@@ -497,7 +496,11 @@ Return only the title, no quotes or additional text.`;
                   {/* How to use section - more compact */}
                   <div className="mb-4 p-3 bg-gray-50 border-l-4 border-blue-500 rounded-r-md">
                     <p className="text-sm text-gray-600 leading-relaxed">
-                      <span className="font-medium text-gray-800">How to use:</span> Create templates with reusable content that you can quickly insert into your chat. Type{" "}
+                      <span className="font-medium text-gray-800">
+                        How to use:
+                      </span>{" "}
+                      Create templates with reusable content that you can
+                      quickly insert into your chat. Type{" "}
                       <code className="mx-1 px-1 py-0.5 bg-gray-200 rounded text-xs font-mono">
                         /template-name
                       </code>{" "}
@@ -534,7 +537,11 @@ Return only the title, no quotes or additional text.`;
                         </div>
                       </div>
                       <div className="flex space-x-2 mt-3">
-                        <Button size="sm" onClick={createTemplate} className="px-3 py-1.5 h-auto text-xs">
+                        <Button
+                          size="sm"
+                          onClick={createTemplate}
+                          className="px-3 py-1.5 h-auto text-xs"
+                        >
                           Save
                         </Button>
                         <Button
@@ -570,12 +577,27 @@ Return only the title, no quotes or additional text.`;
                     {promptTemplates.length === 0 ? (
                       <div className="text-center py-8">
                         <div className="text-gray-400 mb-2">
-                          <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          <svg
+                            className="w-12 h-12 mx-auto"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={1.5}
+                              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                            />
                           </svg>
                         </div>
-                        <p className="text-gray-500 text-sm">No templates found</p>
-                        <p className="text-gray-400 text-xs mt-1">Click "Add Prompt Template" to create your first template</p>
+                        <p className="text-gray-500 text-sm">
+                          No templates found
+                        </p>
+                        <p className="text-gray-400 text-xs mt-1">
+                          Click "Add Prompt Template" to create your first
+                          template
+                        </p>
                       </div>
                     ) : (
                       promptTemplates.map((template) => (
@@ -594,7 +616,10 @@ Return only the title, no quotes or additional text.`;
                                   {template.name}
                                 </h4>
                                 <span className="text-xs text-gray-400">
-                                  /{template.name.toLowerCase().replace(/\s+/g, '-')}
+                                  /
+                                  {template.name
+                                    .toLowerCase()
+                                    .replace(/\s+/g, "-")}
                                 </span>
                               </div>
                               <p className="text-xs text-gray-600 line-clamp-2 leading-relaxed">
