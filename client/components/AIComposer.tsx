@@ -373,12 +373,10 @@ Return only the title, no quotes or additional text.`;
 
       {/* Right drawer taking most of screen width */}
       <div
-        className={`absolute top-0 right-0 bottom-0 w-11/12 bg-white z-50 flex flex-col shadow-2xl ${
-          isClosing ? '' : ''
-        }`}
+        className="absolute top-0 right-0 bottom-0 w-11/12 bg-white z-50 flex flex-col shadow-2xl"
         style={
           isClosing
-            ? {animation: 'slide-in-right 0.3s ease-out reverse'}
+            ? {animation: 'slide-out-right 0.3s ease-out'}
             : {animation: 'slide-in-right 0.3s ease-out'}
         }
       >
