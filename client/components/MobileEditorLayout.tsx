@@ -817,10 +817,10 @@ export default function MobileEditorLayout() {
         {documentsDrawerOpen && (
           <>
             <div
-              className="absolute inset-0 bg-black bg-opacity-30 z-30 animate-in fade-in duration-300"
+              className="absolute inset-0 bg-black bg-opacity-30 z-30"
               onClick={closeDocumentsDrawer}
             />
-            <div className="absolute top-0 left-0 bottom-0 bg-white z-40 w-4/5 overflow-hidden shadow-xl animate-in slide-in-from-left duration-300">
+            <div className="absolute top-0 left-0 bottom-0 bg-white z-40 w-4/5 overflow-hidden shadow-xl">
               <div className="flex items-center justify-between p-4 border-b border-gray-200">
                 <h2 className="text-lg font-semibold text-gray-900">
                   Documents
@@ -897,10 +897,10 @@ export default function MobileEditorLayout() {
         {searchDrawerOpen && (
           <>
             <div
-              className="absolute inset-0 bg-black bg-opacity-50 z-30 animate-in fade-in duration-300"
+              className="absolute inset-0 bg-black bg-opacity-50 z-30"
               onClick={closeSearchDrawer}
             />
-            <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-xl z-40 max-h-[80vh] overflow-hidden animate-in slide-in-from-bottom duration-300">
+            <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-xl z-40 max-h-[80vh] overflow-hidden">
               <div className="flex items-center justify-between p-4 border-b border-gray-200">
                 <h2 className="text-lg font-semibold text-gray-900">Search</h2>
                 <Button variant="ghost" size="sm" onClick={closeSearchDrawer}>
@@ -988,10 +988,10 @@ export default function MobileEditorLayout() {
         {quizDrawerOpen && (
           <>
             <div
-              className="absolute inset-0 bg-black bg-opacity-50 z-30 animate-in fade-in duration-300"
+              className="absolute inset-0 bg-black bg-opacity-50 z-30"
               onClick={closeQuizDrawer}
             />
-            <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-xl z-40 max-h-[80vh] overflow-hidden animate-in slide-in-from-bottom duration-300">
+            <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-xl z-40 max-h-[80vh] overflow-hidden">
               <div className="flex items-center justify-between p-4 border-b border-gray-200">
                 <h2 className="text-lg font-semibold text-gray-900">
                   Quiz Tools
@@ -1220,10 +1220,10 @@ export default function MobileEditorLayout() {
         {moreDrawerOpen && (
           <>
             <div
-              className="absolute inset-0 bg-black bg-opacity-50 z-30 animate-in fade-in duration-300"
+              className="absolute inset-0 bg-black bg-opacity-50 z-30"
               onClick={closeMoreDrawer}
             />
-            <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-xl z-40 max-h-[80vh] overflow-hidden animate-in slide-in-from-bottom duration-300">
+            <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-xl z-40 max-h-[80vh] overflow-hidden">
               <div className="flex items-center justify-between p-4 border-b border-gray-200">
                 <h2 className="text-lg font-semibold text-gray-900">More</h2>
                 <Button variant="ghost" size="sm" onClick={closeMoreDrawer}>
@@ -1286,7 +1286,7 @@ export default function MobileEditorLayout() {
         {/* Settings Modal - Mobile Constrained */}
         {settingsOpen && (
           <div className="absolute inset-0 bg-black bg-opacity-50 z-50 flex items-end justify-center">
-            <div className="w-full max-w-sm h-[85vh] animate-in slide-in-from-bottom-4 duration-300">
+            <div className="w-full max-w-sm h-[85vh]">
               <SettingsModal
                 isOpen={settingsOpen}
                 onClose={() => setSettingsOpen(false)}
