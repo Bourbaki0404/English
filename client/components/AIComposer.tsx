@@ -65,7 +65,9 @@ export default function AIComposer({
   const [templateName, setTemplateName] = useState("");
   const [templateContent, setTemplateContent] = useState("");
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
-  const [messageViewMode, setMessageViewMode] = useState<{[key: string]: 'formatted' | 'raw'}>({});
+  const [messageViewMode, setMessageViewMode] = useState<{
+    [key: string]: "formatted" | "raw";
+  }>({});
   const [isClosing, setIsClosing] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -322,9 +324,9 @@ Return only the title, no quotes or additional text.`;
   };
 
   const toggleMessageView = (messageId: string) => {
-    setMessageViewMode(prev => ({
+    setMessageViewMode((prev) => ({
       ...prev,
-      [messageId]: prev[messageId] === 'raw' ? 'formatted' : 'raw'
+      [messageId]: prev[messageId] === "raw" ? "formatted" : "raw",
     }));
   };
 
@@ -334,14 +336,16 @@ Return only the title, no quotes or additional text.`;
       setCopiedMessageId(messageId);
       setTimeout(() => setCopiedMessageId(null), 2000);
     } catch (error) {
-      console.error('Failed to copy message:', error);
+      console.error("Failed to copy message:", error);
     }
   };
 
   const recallMessage = (messageId: string) => {
     if (!currentSession) return;
 
-    const messageIndex = currentSession.messages.findIndex(msg => msg.id === messageId);
+    const messageIndex = currentSession.messages.findIndex(
+      (msg) => msg.id === messageId,
+    );
     if (messageIndex === -1) return;
 
     // Remove the message and all messages after it
@@ -355,10 +359,10 @@ Return only the title, no quotes or additional text.`;
     setCurrentSession(updatedSession);
 
     // Update in chat history
-    setChatHistory(prev =>
-      prev.map(session =>
-        session.id === currentSession.id ? updatedSession : session
-      )
+    setChatHistory((prev) =>
+      prev.map((session) =>
+        session.id === currentSession.id ? updatedSession : session,
+      ),
     );
   };
 
@@ -369,7 +373,7 @@ Return only the title, no quotes or additional text.`;
       {/* Background overlay with fade-in/out */}
       <div
         className={`absolute inset-0 bg-black transition-all duration-300 ${
-          isClosing ? 'bg-opacity-0' : 'bg-opacity-30'
+          isClosing ? "bg-opacity-0" : "bg-opacity-30"
         }`}
         style={{ zIndex: 999 }}
         onClick={handleClose}
@@ -380,368 +384,390 @@ Return only the title, no quotes or additional text.`;
         className="absolute top-0 right-0 bottom-0 w-5/6 bg-white flex flex-col shadow-2xl"
         style={{
           zIndex: 1000,
-          willChange: 'transform, opacity',
+          willChange: "transform, opacity",
           animation: isClosing
-            ? 'fade-shrink-out 0.35s ease-out'
-            : 'fade-expand-in 0.35s ease-out'
+            ? "fade-shrink-out 0.35s ease-out"
+            : "fade-expand-in 0.35s ease-out",
         }}
       >
-      {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-white">
-        <div className="flex items-center space-x-2">
-          <Sparkles className="w-5 h-5 text-purple-600" />
-          <h1 className="text-lg font-semibold text-gray-900">AI Composer</h1>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={startNewChat}
-            className="text-sm"
-            title="New Chat"
-          >
-            <Plus className="w-4 h-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => {
-              setShowHistory(!showHistory);
-              setShowTemplates(false);
-            }}
-            className="text-sm"
-            title="Chat History"
-          >
-            <RotateCcw className="w-4 h-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => {
-              setShowTemplates(!showTemplates);
-              setShowHistory(false);
-            }}
-            className="text-sm"
-            title="Prompt Templates"
-          >
-            <MessageSquare className="w-4 h-4" />
-          </Button>
-          {currentSession && (
+        {/* Header */}
+        <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-white">
+          <div className="flex items-center space-x-2">
+            <Sparkles className="w-5 h-5 text-purple-600" />
+            <h1 className="text-lg font-semibold text-gray-900">AI Composer</h1>
+          </div>
+          <div className="flex items-center space-x-2">
             <Button
               variant="ghost"
               size="sm"
-              onClick={exportChatHistory}
+              onClick={startNewChat}
               className="text-sm"
-              title="Export Chat"
+              title="New Chat"
             >
-              <Download className="w-4 h-4" />
+              <Plus className="w-4 h-4" />
             </Button>
-          )}
-          <Button variant="ghost" size="sm" onClick={handleClose}>
-            <X className="w-5 h-5" />
-          </Button>
-        </div>
-      </div>
-
-      {/* Chat History Drawer */}
-      {showHistory && (
-        <div className="absolute top-16 left-0 right-0 bg-white border-b border-gray-200 z-10 max-h-64 overflow-y-auto">
-          <div className="p-4">
-            <h3 className="font-medium text-gray-900 mb-3">Chat History</h3>
-            {chatHistory.length === 0 ? (
-              <p className="text-gray-500 text-sm">No chat history yet</p>
-            ) : (
-              <div className="space-y-2">
-                {chatHistory.map((session) => (
-                  <div
-                    key={session.id}
-                    className="flex items-center justify-between p-2 rounded-lg bg-gray-50 hover:bg-gray-100 cursor-pointer"
-                    onClick={() => loadChatSession(session)}
-                  >
-                    <div className="flex-1 min-w-0">
-                      <div className="font-medium text-sm text-gray-900 truncate">
-                        {session.title}
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        {session.messages.length} messages •{" "}
-                        {session.updatedAt.toLocaleDateString()}
-                      </div>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        deleteChatSession(session.id);
-                      }}
-                      className="ml-2 p-1"
-                    >
-                      <X className="w-4 h-4 text-red-500" />
-                    </Button>
-                  </div>
-                ))}
-              </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setShowHistory(!showHistory);
+                setShowTemplates(false);
+              }}
+              className="text-sm"
+              title="Chat History"
+            >
+              <RotateCcw className="w-4 h-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setShowTemplates(!showTemplates);
+                setShowHistory(false);
+              }}
+              className="text-sm"
+              title="Prompt Templates"
+            >
+              <MessageSquare className="w-4 h-4" />
+            </Button>
+            {currentSession && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={exportChatHistory}
+                className="text-sm"
+                title="Export Chat"
+              >
+                <Download className="w-4 h-4" />
+              </Button>
             )}
+            <Button variant="ghost" size="sm" onClick={handleClose}>
+              <X className="w-5 h-5" />
+            </Button>
           </div>
         </div>
-      )}
 
-      {/* Prompt Templates Drawer - Obsidian Style */}
-      {showTemplates && (
-        <div className="absolute top-16 left-0 right-0 bg-white border-b border-gray-200 z-10 max-h-80 overflow-y-auto shadow-lg">
-          <div className="p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg font-semibold text-gray-800">Prompt Templates</h2>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setIsCreatingTemplate(true)}
-                className="text-sm"
-              >
-                Add Prompt Template
-              </Button>
-            </div>
-
-            {/* How to use section */}
-            <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <p className="text-sm text-gray-700 leading-relaxed">
-                <strong>How to use:</strong> Create templates with reusable content that you can quickly insert into your chat. Type
-                <code className="mx-1 px-2 py-1 bg-gray-200 rounded text-xs">/template-name</code>
-                in the chat input to trigger template insertion. You can also drag and select text in the chat input to reveal a "Create template" button for quick template creation.
-              </p>
-            </div>
-
-            <div className="mb-4">
-              <h3 className="text-md font-medium text-gray-800 mb-3">Saved Templates</h3>
-            </div>
-
-            {isCreatingTemplate && (
-              <div className="mb-6 p-4 border border-gray-300 rounded-lg bg-gray-50">
-                <div className="space-y-3">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-                    <input
-                      type="text"
-                      placeholder="Template name..."
-                      value={templateName}
-                      onChange={(e) => setTemplateName(e.target.value)}
-                      className="w-full p-3 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Content</label>
-                    <textarea
-                      placeholder="Template content..."
-                      value={templateContent}
-                      onChange={(e) => setTemplateContent(e.target.value)}
-                      className="w-full p-3 text-sm border border-gray-300 rounded-md h-24 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                </div>
-                <div className="flex space-x-2 mt-4">
-                  <Button size="sm" onClick={createTemplate} className="px-4">
-                    Save
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      setIsCreatingTemplate(false);
-                      setTemplateName("");
-                      setTemplateContent("");
-                    }}
-                    className="px-4"
-                  >
-                    Cancel
-                  </Button>
-                </div>
-              </div>
-            )}
-
-            {/* Templates Table */}
-            <div className="border border-gray-200 rounded-lg overflow-hidden">
-              {promptTemplates.length === 0 ? (
-                <div className="p-8 text-center">
-                  <p className="text-gray-500">No templates found</p>
-                </div>
+        {/* Chat History Drawer */}
+        {showHistory && (
+          <div className="absolute top-16 left-0 right-0 bg-white border-b border-gray-200 z-10 max-h-64 overflow-y-auto">
+            <div className="p-4">
+              <h3 className="font-medium text-gray-900 mb-3">Chat History</h3>
+              {chatHistory.length === 0 ? (
+                <p className="text-gray-500 text-sm">No chat history yet</p>
               ) : (
-                <div>
-                  {/* Table Header */}
-                  <div className="grid grid-cols-12 gap-4 p-3 bg-gray-50 border-b border-gray-200 text-sm font-medium text-gray-700">
-                    <div className="col-span-4">Name</div>
-                    <div className="col-span-7">Content</div>
-                    <div className="col-span-1 text-center">Actions</div>
-                  </div>
-
-                  {/* Table Rows */}
-                  {promptTemplates.map((template, index) => (
+                <div className="space-y-2">
+                  {chatHistory.map((session) => (
                     <div
-                      key={template.id}
-                      className={`grid grid-cols-12 gap-4 p-3 hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0 cursor-pointer`}
-                      onClick={() => useTemplate(template)}
+                      key={session.id}
+                      className="flex items-center justify-between p-2 rounded-lg bg-gray-50 hover:bg-gray-100 cursor-pointer"
+                      onClick={() => loadChatSession(session)}
                     >
-                      <div className="col-span-4">
+                      <div className="flex-1 min-w-0">
                         <div className="font-medium text-sm text-gray-900 truncate">
-                          {template.name}
+                          {session.title}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {session.messages.length} messages •{" "}
+                          {session.updatedAt.toLocaleDateString()}
                         </div>
                       </div>
-                      <div className="col-span-7">
-                        <div className="text-sm text-gray-600 line-clamp-2">
-                          {template.content}
-                        </div>
-                      </div>
-                      <div className="col-span-1 flex justify-center">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            deleteTemplate(template.id);
-                          }}
-                          className="p-1 h-6 w-6 text-red-500 hover:text-red-700"
-                        >
-                          <X className="w-3 h-3" />
-                        </Button>
-                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          deleteChatSession(session.id);
+                        }}
+                        className="ml-2 p-1"
+                      >
+                        <X className="w-4 h-4 text-red-500" />
+                      </Button>
                     </div>
                   ))}
                 </div>
               )}
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {!currentSession || currentSession.messages.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-center">
-            <Bot className="w-16 h-16 text-gray-300 mb-4" />
-            <h2 className="text-xl font-semibold text-gray-700 mb-2">
-              Welcome to AI Composer
-            </h2>
-            <p className="text-gray-500 mb-6 max-w-sm">
-              Start a conversation with AI to generate content, get help, or
-              brainstorm ideas.
-            </p>
-            <div className="space-y-2 text-sm text-gray-400">
-              <p>💡 Use prompt templates to get started quickly</p>
-              <p>💾 Your chat history is automatically saved</p>
-              <p>📤 Export conversations as text files</p>
+        {/* Prompt Templates Drawer - Obsidian Style */}
+        {showTemplates && (
+          <div className="absolute top-16 left-0 right-0 bg-white border-b border-gray-200 z-10 max-h-80 overflow-y-auto shadow-lg">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-lg font-semibold text-gray-800">
+                  Prompt Templates
+                </h2>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsCreatingTemplate(true)}
+                  className="text-sm"
+                >
+                  Add Prompt Template
+                </Button>
+              </div>
+
+              {/* How to use section */}
+              <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <p className="text-sm text-gray-700 leading-relaxed">
+                  <strong>How to use:</strong> Create templates with reusable
+                  content that you can quickly insert into your chat. Type
+                  <code className="mx-1 px-2 py-1 bg-gray-200 rounded text-xs">
+                    /template-name
+                  </code>
+                  in the chat input to trigger template insertion. You can also
+                  drag and select text in the chat input to reveal a "Create
+                  template" button for quick template creation.
+                </p>
+              </div>
+
+              <div className="mb-4">
+                <h3 className="text-md font-medium text-gray-800 mb-3">
+                  Saved Templates
+                </h3>
+              </div>
+
+              {isCreatingTemplate && (
+                <div className="mb-6 p-4 border border-gray-300 rounded-lg bg-gray-50">
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Name
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Template name..."
+                        value={templateName}
+                        onChange={(e) => setTemplateName(e.target.value)}
+                        className="w-full p-3 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Content
+                      </label>
+                      <textarea
+                        placeholder="Template content..."
+                        value={templateContent}
+                        onChange={(e) => setTemplateContent(e.target.value)}
+                        className="w-full p-3 text-sm border border-gray-300 rounded-md h-24 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex space-x-2 mt-4">
+                    <Button size="sm" onClick={createTemplate} className="px-4">
+                      Save
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setIsCreatingTemplate(false);
+                        setTemplateName("");
+                        setTemplateContent("");
+                      }}
+                      className="px-4"
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {/* Templates Table */}
+              <div className="border border-gray-200 rounded-lg overflow-hidden">
+                {promptTemplates.length === 0 ? (
+                  <div className="p-8 text-center">
+                    <p className="text-gray-500">No templates found</p>
+                  </div>
+                ) : (
+                  <div>
+                    {/* Table Header */}
+                    <div className="grid grid-cols-12 gap-4 p-3 bg-gray-50 border-b border-gray-200 text-sm font-medium text-gray-700">
+                      <div className="col-span-4">Name</div>
+                      <div className="col-span-7">Content</div>
+                      <div className="col-span-1 text-center">Actions</div>
+                    </div>
+
+                    {/* Table Rows */}
+                    {promptTemplates.map((template, index) => (
+                      <div
+                        key={template.id}
+                        className={`grid grid-cols-12 gap-4 p-3 hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0 cursor-pointer`}
+                        onClick={() => useTemplate(template)}
+                      >
+                        <div className="col-span-4">
+                          <div className="font-medium text-sm text-gray-900 truncate">
+                            {template.name}
+                          </div>
+                        </div>
+                        <div className="col-span-7">
+                          <div className="text-sm text-gray-600 line-clamp-2">
+                            {template.content}
+                          </div>
+                        </div>
+                        <div className="col-span-1 flex justify-center">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              deleteTemplate(template.id);
+                            }}
+                            className="p-1 h-6 w-6 text-red-500 hover:text-red-700"
+                          >
+                            <X className="w-3 h-3" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
-        ) : (
-          currentSession.messages.map((message) => {
-            const viewMode = messageViewMode[message.id] || 'formatted';
-            const isRawMode = viewMode === 'raw';
-
-            return (
-              <div key={message.id} className="border border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm">
-                {/* Message Window Header */}
-                <div className={`flex items-center justify-between px-4 py-2 border-b border-gray-200 ${
-                  message.role === "user" ? "bg-blue-50" : "bg-gray-50"
-                }`}>
-                  <div className="flex items-center space-x-2">
-                    <div className={`w-2 h-2 rounded-full ${
-                      message.role === "user" ? "bg-blue-500" : "bg-purple-500"
-                    }`} />
-                    <span className="text-sm font-medium text-gray-700">
-                      {message.role === "user" ? "You" : "AI Assistant"}
-                    </span>
-                    <span className="text-xs text-gray-500">
-                      {message.timestamp.toLocaleTimeString()}
-                    </span>
-                  </div>
-
-                  {/* Action Buttons */}
-                  <div className="flex items-center space-x-1">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => toggleMessageView(message.id)}
-                      className="h-7 w-7 p-0 text-gray-500 hover:text-gray-700"
-                      title={isRawMode ? "Show formatted" : "Show raw text"}
-                    >
-                      {isRawMode ? (
-                        <span className="text-xs font-bold">F</span>
-                      ) : (
-                        <span className="text-xs font-bold">R</span>
-                      )}
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => copyMessage(message.content, message.id)}
-                      className="h-7 w-7 p-0 text-gray-500 hover:text-gray-700"
-                      title="Copy message"
-                    >
-                      {copiedMessageId === message.id ? (
-                        <Check className="w-3 h-3 text-green-600" />
-                      ) : (
-                        <Copy className="w-3 h-3" />
-                      )}
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => recallMessage(message.id)}
-                      className="h-7 w-7 p-0 text-gray-500 hover:text-gray-700"
-                      title="Recall message"
-                    >
-                      <Undo2 className="w-3 h-3" />
-                    </Button>
-                  </div>
-                </div>
-
-                {/* Message Content */}
-                <div className="p-4">
-                  {isRawMode ? (
-                    <pre className="whitespace-pre-wrap text-sm font-mono text-gray-800 bg-gray-50 p-3 rounded border">
-                      {message.content}
-                    </pre>
-                  ) : (
-                    <div className="prose prose-sm max-w-none">
-                      <div className="whitespace-pre-wrap text-sm leading-relaxed text-gray-800">
-                        {message.content}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            );
-          })
         )}
-        <div ref={messagesEndRef} />
-      </div>
 
-      {/* Input Area */}
-      <div className="border-t border-gray-200 p-4 bg-white">
-        <div className="flex items-end space-x-3">
-          <div className="flex-1">
-            <textarea
-              ref={inputRef}
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyDown={handleInputKeyDown}
-              placeholder="Type your message... (Enter to send, Shift+Enter for new line)"
-              className="w-full p-3 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
-              rows={3}
-              disabled={isLoading}
-            />
-          </div>
-          <Button
-            onClick={sendMessage}
-            disabled={!inputValue.trim() || isLoading}
-            className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-3"
-          >
-            {isLoading ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <Send className="w-4 h-4" />
-            )}
-          </Button>
+        {/* Messages Area */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          {!currentSession || currentSession.messages.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-full text-center">
+              <Bot className="w-16 h-16 text-gray-300 mb-4" />
+              <h2 className="text-xl font-semibold text-gray-700 mb-2">
+                Welcome to AI Composer
+              </h2>
+              <p className="text-gray-500 mb-6 max-w-sm">
+                Start a conversation with AI to generate content, get help, or
+                brainstorm ideas.
+              </p>
+              <div className="space-y-2 text-sm text-gray-400">
+                <p>💡 Use prompt templates to get started quickly</p>
+                <p>💾 Your chat history is automatically saved</p>
+                <p>📤 Export conversations as text files</p>
+              </div>
+            </div>
+          ) : (
+            currentSession.messages.map((message) => {
+              const viewMode = messageViewMode[message.id] || "formatted";
+              const isRawMode = viewMode === "raw";
+
+              return (
+                <div
+                  key={message.id}
+                  className="border border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm"
+                >
+                  {/* Message Window Header */}
+                  <div
+                    className={`flex items-center justify-between px-4 py-2 border-b border-gray-200 ${
+                      message.role === "user" ? "bg-blue-50" : "bg-gray-50"
+                    }`}
+                  >
+                    <div className="flex items-center space-x-2">
+                      <div
+                        className={`w-2 h-2 rounded-full ${
+                          message.role === "user"
+                            ? "bg-blue-500"
+                            : "bg-purple-500"
+                        }`}
+                      />
+                      <span className="text-sm font-medium text-gray-700">
+                        {message.role === "user" ? "You" : "AI Assistant"}
+                      </span>
+                      <span className="text-xs text-gray-500">
+                        {message.timestamp.toLocaleTimeString()}
+                      </span>
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex items-center space-x-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => toggleMessageView(message.id)}
+                        className="h-7 w-7 p-0 text-gray-500 hover:text-gray-700"
+                        title={isRawMode ? "Show formatted" : "Show raw text"}
+                      >
+                        {isRawMode ? (
+                          <span className="text-xs font-bold">F</span>
+                        ) : (
+                          <span className="text-xs font-bold">R</span>
+                        )}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => copyMessage(message.content, message.id)}
+                        className="h-7 w-7 p-0 text-gray-500 hover:text-gray-700"
+                        title="Copy message"
+                      >
+                        {copiedMessageId === message.id ? (
+                          <Check className="w-3 h-3 text-green-600" />
+                        ) : (
+                          <Copy className="w-3 h-3" />
+                        )}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => recallMessage(message.id)}
+                        className="h-7 w-7 p-0 text-gray-500 hover:text-gray-700"
+                        title="Recall message"
+                      >
+                        <Undo2 className="w-3 h-3" />
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Message Content */}
+                  <div className="p-4">
+                    {isRawMode ? (
+                      <pre className="whitespace-pre-wrap text-sm font-mono text-gray-800 bg-gray-50 p-3 rounded border">
+                        {message.content}
+                      </pre>
+                    ) : (
+                      <div className="prose prose-sm max-w-none">
+                        <div className="whitespace-pre-wrap text-sm leading-relaxed text-gray-800">
+                          {message.content}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })
+          )}
+          <div ref={messagesEndRef} />
         </div>
-      </div>
+
+        {/* Input Area */}
+        <div className="border-t border-gray-200 p-4 bg-white">
+          <div className="flex items-end space-x-3">
+            <div className="flex-1">
+              <textarea
+                ref={inputRef}
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyDown={handleInputKeyDown}
+                placeholder="Type your message... (Enter to send, Shift+Enter for new line)"
+                className="w-full p-3 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+                rows={3}
+                disabled={isLoading}
+              />
+            </div>
+            <Button
+              onClick={sendMessage}
+              disabled={!inputValue.trim() || isLoading}
+              className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-3"
+            >
+              {isLoading ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Send className="w-4 h-4" />
+              )}
+            </Button>
+          </div>
+        </div>
       </div>
     </>
   );
