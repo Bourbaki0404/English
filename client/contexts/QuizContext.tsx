@@ -209,8 +209,12 @@ export function QuizProvider({ children }: { children: ReactNode }) {
   };
 
   const getQuizzesByDocument = (documentId: string) => {
-    const filteredQuizzes = quizzes.filter((quiz) => quiz.documentId === documentId);
-    return filteredQuizzes.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    const filteredQuizzes = quizzes.filter(
+      (quiz) => quiz.documentId === documentId,
+    );
+    return filteredQuizzes.sort(
+      (a, b) => b.createdAt.getTime() - a.createdAt.getTime(),
+    );
   };
 
   const getQuizzesByDocumentAndType = (
@@ -228,7 +232,10 @@ export function QuizProvider({ children }: { children: ReactNode }) {
   };
 
   const getLatestQuizByTypeForCurrentDocument = (type: Quiz["type"]) => {
-    const documentTypeQuizzes = getQuizzesByDocumentAndType(currentDocumentId, type);
+    const documentTypeQuizzes = getQuizzesByDocumentAndType(
+      currentDocumentId,
+      type,
+    );
     return documentTypeQuizzes.length > 0 ? documentTypeQuizzes[0] : null; // Already sorted by createdAt desc
   };
 
@@ -245,8 +252,8 @@ export function QuizProvider({ children }: { children: ReactNode }) {
   const renameQuiz = (id: string, newTitle: string) => {
     setQuizzes((prev) =>
       prev.map((quiz) =>
-        quiz.id === id ? { ...quiz, title: newTitle } : quiz
-      )
+        quiz.id === id ? { ...quiz, title: newTitle } : quiz,
+      ),
     );
   };
 

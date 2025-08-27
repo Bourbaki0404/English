@@ -15,7 +15,10 @@ export interface DateFormatOptions {
  * @param options - Formatting options
  * @returns Formatted date string
  */
-export function formatDate(date: Date, options: DateFormatOptions = {}): string {
+export function formatDate(
+  date: Date,
+  options: DateFormatOptions = {},
+): string {
   const {
     showTime = true,
     showSeconds = false,
