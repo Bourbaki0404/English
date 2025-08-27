@@ -1103,12 +1103,20 @@ Please acknowledge that you've received these documents and are ready to help me
                           size="sm"
                           onClick={() => toggleMessageView(message.id)}
                           className="h-7 w-7 p-0 text-gray-500 hover:text-gray-700"
-                          title={isRawMode ? "Show formatted" : "Show raw text"}
+                          title={
+                            viewMode === "formatted"
+                              ? "Switch to preview mode"
+                              : viewMode === "preview"
+                                ? "Switch to raw mode"
+                                : "Switch to formatted mode"
+                          }
                         >
-                          {isRawMode ? (
-                            <span className="text-xs font-bold">F</span>
-                          ) : (
+                          {viewMode === "formatted" ? (
+                            <span className="text-xs font-bold">P</span>
+                          ) : viewMode === "preview" ? (
                             <span className="text-xs font-bold">R</span>
+                          ) : (
+                            <span className="text-xs font-bold">F</span>
                           )}
                         </Button>
                       )}
