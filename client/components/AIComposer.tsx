@@ -790,7 +790,14 @@ Please acknowledge that you've received these documents and are ready to help me
                         </div>
                         <div className="text-xs text-gray-500">
                           {session.messages.length} messages •{" "}
-                          {session.updatedAt.toLocaleDateString()}
+                          {session.updatedAt.toLocaleString(undefined, {
+                            year: "numeric",
+                            month: "numeric",
+                            day: "numeric",
+                            hour: "numeric",
+                            minute: "2-digit",
+                            hour12: true,
+                          })}
                         </div>
                       </div>
                       <Button
@@ -988,7 +995,14 @@ Please acknowledge that you've received these documents and are ready to help me
                               </p>
                               <div className="flex items-center gap-2 mt-2">
                                 <span className="text-xs text-gray-400">
-                                  {template.createdAt.toLocaleDateString()}
+                                  {template.createdAt.toLocaleString(undefined, {
+                                    year: "numeric",
+                                    month: "numeric",
+                                    day: "numeric",
+                                    hour: "numeric",
+                                    minute: "2-digit",
+                                    hour12: true,
+                                  })}
                                 </span>
                                 <div className="flex-1"></div>
                                 <Button
