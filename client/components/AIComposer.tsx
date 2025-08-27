@@ -298,11 +298,7 @@ Return only the title, no quotes or additional text.`;
   };
 
   const handleClose = () => {
-    setIsClosing(true);
-    setTimeout(() => {
-      setIsClosing(false);
-      onClose();
-    }, 320); // Slightly shorter than animation duration
+    onClose();
   };
 
   const toggleMessageView = (messageId: string) => {
