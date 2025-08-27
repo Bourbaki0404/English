@@ -241,6 +241,7 @@ Return only the title, no quotes or additional text.`;
       lastUpdate: new Date()
     });
     setSelectedContextDocuments([]);
+    setCollapsedMessages(new Set());
   };
 
   // Check if document context needs updating
@@ -595,7 +596,7 @@ Please acknowledge that you've received these documents and are ready to help me
     try {
       await navigator.clipboard.writeText(messageContent);
       setCopiedMessageId(messageId);
-      // 让��户手动看到复制���态，不自动清除
+      // 让��户手动看到复制状态，不自动清除
     } catch (error) {
       console.error("Failed to copy message:", error);
     }
