@@ -1163,6 +1163,23 @@ Please acknowledge that you've received these documents and are ready to help me
                           <pre className="whitespace-pre-wrap text-sm font-mono text-gray-800 bg-gray-50 p-3 rounded border">
                             {message.content}
                           </pre>
+                        ) : isPreviewMode ? (
+                          <div className="preview-mode">
+                            {message.role === "assistant" &&
+                            typingMessageId === message.id ? (
+                              <TypingEffect
+                                text={message.content}
+                                speed={8}
+                                onComplete={() => setTypingMessageId(null)}
+                                className="text-sm leading-relaxed text-gray-800"
+                              />
+                            ) : (
+                              <PreviewRenderer
+                                content={message.content}
+                                className={isSystemMessage ? "text-gray-700" : "text-gray-800"}
+                              />
+                            )}
+                          </div>
                         ) : (
                           <div className="prose prose-sm max-w-none">
                             {message.role === "assistant" &&
