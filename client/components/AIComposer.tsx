@@ -344,11 +344,9 @@ Return only the title, no quotes or additional text.`;
 
   return (
     <>
-      {/* Background overlay with fade-in/out */}
+      {/* Background overlay */}
       <div
-        className={`absolute inset-0 bg-black transition-all duration-300 ${
-          isClosing ? "bg-opacity-0" : "bg-opacity-30"
-        }`}
+        className="absolute inset-0 bg-black bg-opacity-30 animate-in fade-in duration-300"
         style={{
           zIndex: 999,
           maxWidth: "100%", // Stay within parent container
