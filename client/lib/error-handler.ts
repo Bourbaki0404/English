@@ -20,7 +20,7 @@ export class ErrorHandler {
     toast({
       title: errorDetails.title,
       description: errorDetails.description,
-      variant: errorDetails.variant || "destructive",
+      variant: "destructive", // Always use destructive (red) for errors
     });
 
     // Also log to console for debugging
@@ -140,7 +140,7 @@ export class ErrorHandler {
    */
   static handleNetworkError(error: unknown, context?: string): void {
     const errorDetails: ErrorDetails = {
-      title: "Network Error",
+      title: "🚨 Network Error",
       description: "Unable to connect to the AI service. Please check your internet connection and try again.",
       variant: "destructive"
     };
@@ -167,9 +167,9 @@ export class ErrorHandler {
    */
   static handleApiError(error: unknown, apiName?: string): void {
     const contextName = apiName || "API";
-    
+
     const errorDetails: ErrorDetails = {
-      title: `${contextName} Error`,
+      title: `🚨 ${contextName} Error`,
       description: "Unable to process your request. Please try again.",
       variant: "destructive"
     };
