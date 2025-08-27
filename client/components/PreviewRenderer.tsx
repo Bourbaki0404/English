@@ -7,8 +7,12 @@ interface PreviewRendererProps {
 
 export default function PreviewRenderer({ content, className = "" }: PreviewRendererProps) {
   const renderContent = () => {
+    if (!content) {
+      return null;
+    }
+
     const lines = content.split('\n');
-    
+
     return lines.map((line, index) => {
       if (line.trim() === "") {
         return <div key={index} className="mb-4"></div>;
