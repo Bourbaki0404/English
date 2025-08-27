@@ -589,10 +589,23 @@ Please acknowledge that you've received these documents and are ready to help me
   };
 
   const toggleMessageView = (messageId: string) => {
-    setMessageViewMode((prev) => ({
-      ...prev,
-      [messageId]: prev[messageId] === "raw" ? "formatted" : "raw",
-    }));
+    setMessageViewMode((prev) => {
+      const currentMode = prev[messageId] || "formatted";
+      let nextMode: "formatted" | "raw" | "preview";
+
+      if (currentMode === "formatted") {
+        nextMode = "preview";
+      } else if (currentMode === "preview") {
+        nextMode = "raw";
+      } else {
+        nextMode = "formatted";
+      }
+
+      return {
+        ...prev,
+        [messageId]: nextMode,
+      };
+    });
   };
 
   const copyMessage = async (messageContent: string, messageId: string) => {
