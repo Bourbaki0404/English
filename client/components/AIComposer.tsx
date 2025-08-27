@@ -455,6 +455,13 @@ Please acknowledge that you've received these documents and are ready to help me
       const contextUpdateMessage = createContextUpdateMessage();
       if (contextUpdateMessage) {
         messages.push(contextUpdateMessage);
+
+        // Auto-collapse context update messages
+        setCollapsedMessages(prev => {
+          const newSet = new Set(prev);
+          newSet.add(contextUpdateMessage.id);
+          return newSet;
+        });
       }
     }
 
