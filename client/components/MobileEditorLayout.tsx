@@ -332,6 +332,12 @@ export default function MobileEditorLayout() {
     setSearchDrawerOpen(false);
   };
 
+  const openDocumentsDrawer = () => {
+    // Cancel any ongoing closing animation
+    setDocumentsDrawerClosing(false);
+    setDocumentsDrawerOpen(true);
+  };
+
   const closeDocumentsDrawer = () => {
     setDocumentsDrawerClosing(true);
     setTimeout(() => {
