@@ -939,7 +939,7 @@ export default function MobileEditorLayout() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => setSearchDrawerOpen(false)}
+                  onClick={closeSearchDrawer}
                 >
                   <X className="w-5 h-5" />
                 </Button>
