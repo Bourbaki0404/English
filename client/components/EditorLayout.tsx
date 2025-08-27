@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Button } from './ui/button';
+import { ErrorHandler } from '@/lib/error-handler';
 import { ChevronLeft, ChevronRight, FileText, Plus, Menu } from 'lucide-react';
 import { useQuiz } from '../contexts/QuizContext';
 import { useNavigate } from 'react-router-dom';
@@ -88,7 +89,7 @@ export default function EditorLayout() {
 
   const handleQuizToolClick = (toolId: string) => {
     if (!selectedText) {
-      alert('Please select some text first to generate a quiz!');
+      ErrorHandler.showWarning('No Text Selected', 'Please select some text first to generate a quiz!');
       return;
     }
 
