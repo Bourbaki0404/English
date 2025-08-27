@@ -228,9 +228,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
   };
 
   const getLatestQuizByTypeForCurrentDocument = (type: Quiz["type"]) => {
-    console.log(`[QuizContext] Getting ${type} quiz for document ${currentDocumentId}`);
     const documentTypeQuizzes = getQuizzesByDocumentAndType(currentDocumentId, type);
-    console.log(`[QuizContext] Found ${documentTypeQuizzes.length} ${type} quizzes for document ${currentDocumentId}`);
     return documentTypeQuizzes.length > 0 ? documentTypeQuizzes[0] : null; // Already sorted by createdAt desc
   };
 
