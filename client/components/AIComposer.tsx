@@ -4,7 +4,7 @@ import {
   Send,
   Plus,
   RotateCcw,
-  MessageSquare,
+  FileText,
   Upload,
   Sparkles,
   Bot,
@@ -13,6 +13,7 @@ import {
   Copy,
   Undo2,
   Check,
+  Edit,
 } from "lucide-react";
 import { Button } from "./ui/button";
 import { AppSettings } from "./SettingsModal";
