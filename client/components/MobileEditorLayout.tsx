@@ -1248,7 +1248,7 @@ export default function MobileEditorLayout() {
                                       setPreviewContent(quiz.sourceText);
                                       setPreviewTitle(quiz.title);
                                       setShowPreview(true);
-                                      setQuizDrawerOpen(false);
+                                      closeQuizDrawer();
                                     }}
                                     title="Preview source text"
                                   >
