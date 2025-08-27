@@ -802,7 +802,9 @@ export default function MobileEditorLayout() {
               className="absolute inset-0 bg-black bg-opacity-30 z-30 animate-in fade-in duration-400"
               onClick={closeDocumentsDrawer}
             />
-            <div className="absolute top-0 left-0 bottom-0 bg-white z-40 w-4/5 overflow-hidden shadow-xl drawer-slide-in">
+            <div className={`absolute top-0 left-0 bottom-0 bg-white z-40 w-4/5 overflow-hidden shadow-xl ${
+              documentsDrawerClosing ? 'drawer-slide-out' : 'drawer-slide-in'
+            }`}>
               <div className="flex items-center justify-between p-4 border-b border-gray-200">
                 <h2 className="text-lg font-semibold text-gray-900">
                   Documents
