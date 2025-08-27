@@ -128,20 +128,58 @@ class LLMService {
 
       // Handle error responses
       if (!responseOk) {
-        console.error("Error response data:", data);
+        console.error("Error response data:", JSON.stringify(data, null, 2));
 
         let errorMessage = `HTTP ${responseStatus}: ${responseStatusText}`;
 
-        // Extract error message from response data
-        if (data?.error?.message) {
-          errorMessage = data.error.message;
-        } else if (data?.error) {
-          errorMessage = String(data.error);
-        } else if (typeof data === "string") {
-          errorMessage = data;
+        // Extract error message from response data with better parsing
+        try {
+          if (data?.error?.message) {
+            errorMessage = data.error.message;
+          } else if (data?.error?.errors?.[0]?.message) {
+            // Handle Gemini API error format
+            errorMessage = data.error.errors[0].message;
+          } else if (data?.error && typeof data.error === "string") {
+            errorMessage = data.error;
+          } else if (data?.message) {
+            errorMessage = data.message;
+          } else if (typeof data === "string") {
+            errorMessage = data;
+          } else if (data?.error && typeof data.error === "object") {
+            // If error is an object, try to extract meaningful info
+            errorMessage = JSON.stringify(data.error);
+          }
+        } catch (parseError) {
+          console.warn("Error parsing error message:", parseError);
+          errorMessage = `HTTP ${responseStatus}: ${responseStatusText}`;
         }
 
-        // Handle specific error cases for user-friendly messages
+        // Handle specific HTTP status codes first
+        if (responseStatus === 429) {
+          throw new Error(
+            "Rate limit exceeded. You've reached the API usage limit. Please wait a few minutes before trying again.",
+          );
+        }
+
+        if (responseStatus === 400) {
+          throw new Error(
+            "Bad request. Please check your input and try again.",
+          );
+        }
+
+        if (responseStatus === 401 || responseStatus === 403) {
+          throw new Error(
+            "Invalid API key. Please check your API key in settings and try again.",
+          );
+        }
+
+        if (responseStatus === 503) {
+          throw new Error(
+            "Service temporarily unavailable. Please try again in a few minutes.",
+          );
+        }
+
+        // Handle specific error messages
         const lowerMessage = errorMessage.toLowerCase();
 
         if (
@@ -170,18 +208,6 @@ class LLMService {
         ) {
           throw new Error(
             "Rate limit exceeded. You've reached the API usage limit. Please wait before trying again.",
-          );
-        }
-
-        if (responseStatus === 400 && !errorMessage) {
-          throw new Error(
-            "Bad request. Please check your input and try again.",
-          );
-        }
-
-        if (responseStatus === 503) {
-          throw new Error(
-            "Service temporarily unavailable. Please try again in a few minutes.",
           );
         }
 
