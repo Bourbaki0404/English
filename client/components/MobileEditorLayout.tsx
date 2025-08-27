@@ -269,19 +269,13 @@ export default function MobileEditorLayout() {
     // Clean the selected text (remove extra whitespace, normalize)
     const cleanSelected = selectedRenderedText.trim().replace(/\s+/g, ' ');
 
-    // Try to find the exact text in original content first
-    if (originalContent.includes(cleanSelected)) {
-      return cleanSelected;
-    }
-
-    // Look for text that would render to the selected text
-    // Split original content into lines and check each
+    // Split original content into lines and find the best match
     const lines = originalContent.split('\n');
     let bestMatch = selectedRenderedText;
-    let bestMatchScore = 0;
+    let bestMatchLength = 0;
 
     for (const line of lines) {
-      // Remove markdown formatting for comparison
+      // Create a clean version of the line for comparison (remove markdown formatting)
       const cleanLine = line
         .replace(/^#+\s+/, '') // Remove headers
         .replace(/\*\*(.*?)\*\*/g, '$1') // Remove bold
@@ -292,30 +286,50 @@ export default function MobileEditorLayout() {
 
       // Check if this line contains our selected text
       if (cleanLine.includes(cleanSelected)) {
-        // Find the best matching segment in the original line
-        const selectedWords = cleanSelected.split(' ');
-        let startIndex = -1;
-        let endIndex = -1;
-
-        // Try to find the span of text in the original line
-        for (let i = 0; i < selectedWords.length; i++) {
-          const wordIndex = line.toLowerCase().indexOf(selectedWords[i].toLowerCase());
-          if (wordIndex !== -1) {
-            if (startIndex === -1) startIndex = wordIndex;
-            // Find the end of the last word
-            const lastWordIndex = line.toLowerCase().lastIndexOf(selectedWords[selectedWords.length - 1].toLowerCase());
-            if (lastWordIndex !== -1) {
-              endIndex = lastWordIndex + selectedWords[selectedWords.length - 1].length;
-            }
-          }
+        // If the clean line exactly matches our selection, return the original line
+        if (cleanLine.trim() === cleanSelected.trim()) {
+          return line.trim();
         }
 
-        if (startIndex !== -1 && endIndex !== -1) {
-          const originalSegment = line.substring(startIndex, endIndex);
-          const score = (originalSegment.length / selectedRenderedText.length);
-          if (score > bestMatchScore) {
-            bestMatch = originalSegment;
-            bestMatchScore = score;
+        // For partial matches, try to find the exact boundaries
+        const cleanLineNormalized = cleanLine.replace(/\s+/g, ' ');
+        const selectedIndex = cleanLineNormalized.indexOf(cleanSelected);
+
+        if (selectedIndex !== -1) {
+          // Calculate positions in the original line
+          // We need to account for markdown formatting that was removed
+          let originalStartPos = 0;
+          let cleanCharCount = 0;
+
+          // Find the start position in the original line
+          for (let i = 0; i < line.length && cleanCharCount < selectedIndex; i++) {
+            const char = line[i];
+            // Skip markdown characters but count regular characters
+            if (char.match(/[a-zA-Z0-9\s.,!?'"]/)) {
+              cleanCharCount++;
+            }
+            originalStartPos = i + 1;
+          }
+
+          // Find the end position
+          let originalEndPos = originalStartPos;
+          let selectedCharCount = 0;
+
+          for (let i = originalStartPos; i < line.length && selectedCharCount < cleanSelected.length; i++) {
+            const char = line[i];
+            if (char.match(/[a-zA-Z0-9\s.,!?'"]/)) {
+              selectedCharCount++;
+            }
+            originalEndPos = i + 1;
+          }
+
+          // Extract the segment with markdown formatting preserved
+          const candidate = line.substring(Math.max(0, originalStartPos - 1), originalEndPos).trim();
+
+          // Check if this candidate is better than our current best match
+          if (candidate.length > bestMatchLength) {
+            bestMatch = candidate;
+            bestMatchLength = candidate.length;
           }
         }
       }
