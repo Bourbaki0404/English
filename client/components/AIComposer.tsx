@@ -68,7 +68,6 @@ export default function AIComposer({
   const [messageViewMode, setMessageViewMode] = useState<{
     [key: string]: "formatted" | "raw";
   }>({});
-  const [isClosing, setIsClosing] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
