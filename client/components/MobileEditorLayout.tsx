@@ -805,7 +805,7 @@ export default function MobileEditorLayout() {
         {/* Main Content Area */}
         <div className="flex-1 overflow-y-auto px-8 py-6 bg-white">
           {selectedDocument ? (
-            isEditingContent ? (
+            isEditingContent || isEditMode ? (
               <textarea
                 value={selectedDocument.content}
                 onChange={(e) => handleContentChange(e.target.value)}
