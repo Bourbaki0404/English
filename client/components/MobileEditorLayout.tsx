@@ -331,7 +331,7 @@ export default function MobileEditorLayout() {
     setSelectedDocumentId(docId);
     setSelectedText("");
     closeDocumentsDrawer();
-    setSearchDrawerOpen(false);
+    closeSearchDrawer();
   };
 
   const openDocumentsDrawer = () => {
