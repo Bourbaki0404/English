@@ -227,6 +227,103 @@ Return only the title, no quotes or additional text.`;
     setShowTemplates(false);
   };
 
+  // Check if document context needs updating
+  const checkIfContextNeedsUpdate = (): boolean => {
+    // 1. Check for newly added documents
+    const currentDocIds = selectedContextDocuments.map(d => d.id);
+    const sessionDocIds = sessionContext.documents.map(d => d.id);
+
+    const hasNewDocs = currentDocIds.some(id => !sessionDocIds.includes(id));
+    const hasRemovedDocs = sessionDocIds.some(id => !currentDocIds.includes(id));
+
+    // 2. Check for content changes in existing documents
+    const hasContentChanges = selectedContextDocuments.some(doc => {
+      const sessionDoc = sessionContext.documents.find(d => d.id === doc.id);
+      return sessionDoc && sessionDoc.content !== doc.content;
+    });
+
+    return hasNewDocs || hasRemovedDocs || hasContentChanges;
+  };
+
+  // Create context update message
+  const createContextUpdateMessage = (): Message | null => {
+    if (selectedContextDocuments.length === 0 && sessionContext.documents.length === 0) {
+      return null;
+    }
+
+    let updateText = "";
+
+    // Check for new documents
+    const newDocs = selectedContextDocuments.filter(doc =>
+      !sessionContext.documents.some(d => d.id === doc.id)
+    );
+
+    // Check for removed documents
+    const removedDocs = sessionContext.documents.filter(sessionDoc =>
+      !selectedContextDocuments.some(d => d.id === sessionDoc.id)
+    );
+
+    // Check for content changes
+    const changedDocs = selectedContextDocuments.filter(doc => {
+      const sessionDoc = sessionContext.documents.find(d => d.id === doc.id);
+      return sessionDoc && sessionDoc.content !== doc.content;
+    });
+
+    // Build update message
+    if (newDocs.length > 0) {
+      updateText += "## New Documents Added:\n\n";
+      newDocs.forEach(doc => {
+        updateText += `### ${doc.title}\n\n${doc.content}\n\n---\n\n`;
+      });
+    }
+
+    if (changedDocs.length > 0) {
+      updateText += "## Updated Documents:\n\n";
+      changedDocs.forEach(doc => {
+        updateText += `### ${doc.title} (Updated)\n\n${doc.content}\n\n---\n\n`;
+      });
+    }
+
+    if (removedDocs.length > 0) {
+      updateText += "## Documents Removed:\n\n";
+      removedDocs.forEach(doc => {
+        updateText += `- ${doc.title}\n`;
+      });
+      updateText += "\nPlease ignore the removed documents for future questions.\n\n";
+    }
+
+    if (!updateText) return null;
+
+    return {
+      id: (Date.now() - 1).toString(),
+      role: "user",
+      content: `[Context Update] ${updateText}Please acknowledge these changes and use the updated document context for our conversation.`,
+      timestamp: new Date(),
+    };
+  };
+
+  // Update session context tracking
+  const updateSessionContext = () => {
+    setSessionContext({
+      documents: selectedContextDocuments.map(doc => ({
+        id: doc.id,
+        title: doc.title,
+        content: doc.content,
+        timestamp: new Date()
+      })),
+      lastUpdate: new Date()
+    });
+  };
+
+  // Create new session helper
+  const createNewSession = (): ChatSession => ({
+    id: Date.now().toString(),
+    title: "New Chat",
+    messages: [],
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  });
+
   const sendMessage = async () => {
     if (!inputValue.trim() || isLoading) return;
     if (!settings.llm.apiKey) {
