@@ -401,7 +401,10 @@ Return only the title, no quotes or additional text.`;
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setShowHistory(!showHistory)}
+            onClick={() => {
+              setShowHistory(!showHistory);
+              setShowTemplates(false);
+            }}
             className="text-sm"
             title="Chat History"
           >
