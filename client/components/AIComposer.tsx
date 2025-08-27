@@ -371,8 +371,17 @@ Return only the title, no quotes or additional text.`;
         onClick={handleClose}
       />
 
-      {/* Right drawer taking 5/6 of screen width */}
-      <div className="absolute top-0 right-0 bottom-0 w-5/6 bg-white z-50 flex flex-col shadow-2xl" style={{animation: 'slide-in-right 0.3s ease-out'}}>
+      {/* Right drawer taking most of screen width */}
+      <div
+        className={`absolute top-0 right-0 bottom-0 w-11/12 bg-white z-50 flex flex-col shadow-2xl ${
+          isClosing ? '' : ''
+        }`}
+        style={
+          isClosing
+            ? {animation: 'slide-in-right 0.3s ease-out reverse'}
+            : {animation: 'slide-in-right 0.3s ease-out'}
+        }
+      >
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-white">
         <div className="flex items-center space-x-2">
