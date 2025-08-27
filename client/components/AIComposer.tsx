@@ -621,73 +621,85 @@ Return only the title, no quotes or additional text.`;
             </div>
           </div>
         ) : (
-          currentSession.messages.map((message) => (
-            <div
-              key={message.id}
-              className={`flex items-start space-x-3 ${
-                message.role === "user" ? "justify-end" : "justify-start"
-              }`}
-            >
-              {message.role === "assistant" && (
-                <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
-                  <Bot className="w-4 h-4 text-purple-600" />
-                </div>
-              )}
+          currentSession.messages.map((message) => {
+            const viewMode = messageViewMode[message.id] || 'formatted';
+            const isRawMode = viewMode === 'raw';
 
-              <div className="group relative">
-                <div
-                  className={`max-w-[80%] p-3 rounded-lg ${
-                    message.role === "user"
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-100 text-gray-900"
-                  }`}
-                >
-                  <div className="whitespace-pre-wrap text-sm leading-relaxed">
-                    {message.content}
+            return (
+              <div key={message.id} className="border border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm">
+                {/* Message Window Header */}
+                <div className={`flex items-center justify-between px-4 py-2 border-b border-gray-200 ${
+                  message.role === "user" ? "bg-blue-50" : "bg-gray-50"
+                }`}>
+                  <div className="flex items-center space-x-2">
+                    <div className={`w-2 h-2 rounded-full ${
+                      message.role === "user" ? "bg-blue-500" : "bg-purple-500"
+                    }`} />
+                    <span className="text-sm font-medium text-gray-700">
+                      {message.role === "user" ? "You" : "AI Assistant"}
+                    </span>
+                    <span className="text-xs text-gray-500">
+                      {message.timestamp.toLocaleTimeString()}
+                    </span>
                   </div>
-                  <div
-                    className={`text-xs mt-2 ${
-                      message.role === "user" ? "text-blue-200" : "text-gray-500"
-                    }`}
-                  >
-                    {message.timestamp.toLocaleTimeString()}
+
+                  {/* Action Buttons */}
+                  <div className="flex items-center space-x-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => toggleMessageView(message.id)}
+                      className="h-7 w-7 p-0 text-gray-500 hover:text-gray-700"
+                      title={isRawMode ? "Show formatted" : "Show raw text"}
+                    >
+                      {isRawMode ? (
+                        <span className="text-xs font-bold">F</span>
+                      ) : (
+                        <span className="text-xs font-bold">R</span>
+                      )}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => copyMessage(message.content, message.id)}
+                      className="h-7 w-7 p-0 text-gray-500 hover:text-gray-700"
+                      title="Copy message"
+                    >
+                      {copiedMessageId === message.id ? (
+                        <Check className="w-3 h-3 text-green-600" />
+                      ) : (
+                        <Copy className="w-3 h-3" />
+                      )}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => recallMessage(message.id)}
+                      className="h-7 w-7 p-0 text-gray-500 hover:text-gray-700"
+                      title="Recall message"
+                    >
+                      <Undo2 className="w-3 h-3" />
+                    </Button>
                   </div>
                 </div>
 
-                {/* Message Actions */}
-                <div className={`absolute top-0 ${message.role === "user" ? "left-0 -translate-x-full" : "right-0 translate-x-full"} opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center space-x-1 ml-2 mr-2`}>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => copyMessage(message.content, message.id)}
-                    className="h-8 w-8 p-0 bg-white shadow-sm border border-gray-200 hover:bg-gray-50"
-                    title="Copy message"
-                  >
-                    {copiedMessageId === message.id ? (
-                      <Check className="w-3 h-3 text-green-600" />
-                    ) : (
-                      <Copy className="w-3 h-3 text-gray-600" />
-                    )}
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => recallMessage(message.id)}
-                    className="h-8 w-8 p-0 bg-white shadow-sm border border-gray-200 hover:bg-gray-50"
-                    title="Recall message"
-                  >
-                    <Undo2 className="w-3 h-3 text-gray-600" />
-                  </Button>
+                {/* Message Content */}
+                <div className="p-4">
+                  {isRawMode ? (
+                    <pre className="whitespace-pre-wrap text-sm font-mono text-gray-800 bg-gray-50 p-3 rounded border">
+                      {message.content}
+                    </pre>
+                  ) : (
+                    <div className="prose prose-sm max-w-none">
+                      <div className="whitespace-pre-wrap text-sm leading-relaxed text-gray-800">
+                        {message.content}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
-
-              {message.role === "user" && (
-                <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                  <User className="w-4 h-4 text-blue-600" />
-                </div>
-              )}
-            </div>
-          ))
+            );
+          })
         )}
         <div ref={messagesEndRef} />
       </div>
