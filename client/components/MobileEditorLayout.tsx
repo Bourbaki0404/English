@@ -274,6 +274,35 @@ export default function MobileEditorLayout() {
     }
   };
 
+  // Quiz rename handlers
+  const handleRenameQuizStart = (quiz: any) => {
+    setEditingQuizId(quiz.id);
+    setTempQuizTitle(quiz.title);
+  };
+
+  const handleRenameQuizCancel = () => {
+    setEditingQuizId(null);
+    setTempQuizTitle("");
+  };
+
+  const handleRenameQuizSave = () => {
+    if (editingQuizId && tempQuizTitle.trim()) {
+      renameQuiz(editingQuizId, tempQuizTitle.trim());
+      setEditingQuizId(null);
+      setTempQuizTitle("");
+    }
+  };
+
+  const handleRenameQuizKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleRenameQuizSave();
+    } else if (e.key === "Escape") {
+      e.preventDefault();
+      handleRenameQuizCancel();
+    }
+  };
+
   // Helper function to find original markdown text from rendered selection
   const findOriginalTextFromSelection = (
     selectedRenderedText: string,
