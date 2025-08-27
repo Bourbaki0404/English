@@ -755,7 +755,7 @@ Return only the title, no quotes or additional text.`;
               </p>
               <div className="space-y-2 text-sm text-gray-400">
                 <p>💡 Use prompt templates to get started quickly</p>
-                <p>💾 Your chat history is automatically saved</p>
+                <p>���� Your chat history is automatically saved</p>
                 <p>��� Export conversations as text files</p>
               </div>
             </div>
@@ -901,7 +901,7 @@ Return only the title, no quotes or additional text.`;
 
             <div className="flex items-start gap-2 p-4">
               {/* Context Button */}
-              <div className="relative">
+              <div className="relative context-selector-container">
                 <Button
                   variant="ghost"
                   size="sm"
