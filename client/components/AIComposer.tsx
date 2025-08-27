@@ -357,7 +357,11 @@ Return only the title, no quotes or additional text.`;
         className={`absolute inset-0 bg-black transition-all duration-300 ${
           isClosing ? "bg-opacity-0" : "bg-opacity-30"
         }`}
-        style={{ zIndex: 999 }}
+        style={{
+          zIndex: 999,
+          maxWidth: "100%", // Stay within parent container
+          maxHeight: "100%" // Stay within parent container
+        }}
         onClick={handleClose}
       />
 
