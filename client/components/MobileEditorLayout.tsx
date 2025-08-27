@@ -940,37 +940,23 @@ export default function MobileEditorLayout() {
                               setSelectedText("");
                               closeSearchDrawer();
 
-                              // Wait for document to render, then scroll to position
-                              setTimeout(() => {
-                                const targetLineNumber = lineNumbers[index];
-                                const targetElement = document.getElementById(
-                                  `content-line-${targetLineNumber}`,
-                                );
+                              // Scroll to position immediately
+                              const targetLineNumber = lineNumbers[index];
+                              const targetElement = document.getElementById(
+                                `content-line-${targetLineNumber}`,
+                              );
 
-                                if (targetElement) {
-                                  // Scroll to the element
-                                  targetElement.scrollIntoView({
-                                    behavior: "smooth",
-                                    block: "center",
-                                    inline: "nearest",
-                                  });
+                              if (targetElement) {
+                                // Scroll to the element
+                                targetElement.scrollIntoView({
+                                  behavior: "smooth",
+                                  block: "center",
+                                  inline: "nearest",
+                                });
 
-                                  // Highlight the found text temporarily
-                                  targetElement.style.backgroundColor =
-                                    "#fef3c7";
-                                  targetElement.style.transition =
-                                    "background-color 0.3s ease";
-                                  targetElement.style.transform = "scale(1.02)";
-                                  targetElement.style.boxShadow =
-                                    "0 2px 8px rgba(0,0,0,0.1)";
-
-                                  setTimeout(() => {
-                                    targetElement.style.backgroundColor = "";
-                                    targetElement.style.transform = "";
-                                    targetElement.style.boxShadow = "";
-                                  }, 2500);
-                                }
-                              }, 300);
+                                // Add highlight class instead of inline styles
+                                targetElement.classList.add('search-highlight');
+                              }
                             }}
                           >
                             <div
