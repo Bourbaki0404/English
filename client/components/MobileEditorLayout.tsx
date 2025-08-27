@@ -1277,7 +1277,7 @@ export default function MobileEditorLayout() {
                                     className="w-4 h-4 text-gray-400 cursor-grab"
                                     title="Drag to preview"
                                   >
-                                    ⋮���
+                                    ⋮⋮
                                   </div>
                                 </div>
                               </div>
