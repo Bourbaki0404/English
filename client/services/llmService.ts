@@ -77,10 +77,11 @@ class LLMService {
         body: JSON.stringify(requestBody),
       });
 
-      // Store response status before reading body
+      // Store response metadata immediately
       const responseStatus = response.status;
       const responseStatusText = response.statusText;
       const responseOk = response.ok;
+      const responseHeaders = response.headers;
 
       console.log(
         "Gemini API response status:",
@@ -88,32 +89,41 @@ class LLMService {
         responseStatusText,
       );
 
+      // Handle response reading with proper error handling
       let data: any;
-      let responseText: string;
+      let responseText: string = "";
 
-      try {
-        // Read response as text (single consumption)
-        responseText = await response.text();
-        console.log("Response text length:", responseText.length);
-
-        if (responseText.trim()) {
-          try {
-            data = JSON.parse(responseText);
-            console.log("Successfully parsed response as JSON");
-          } catch (jsonError) {
-            console.log("Response is not JSON, treating as text");
-            data = { error: responseText };
-          }
-        } else {
-          data = { error: `HTTP ${responseStatus}: ${responseStatusText}` };
+      // Check if response body exists and hasn't been consumed
+      if (!response.bodyUsed) {
+        try {
+          responseText = await response.text();
+          console.log("Response text length:", responseText.length);
+        } catch (readError) {
+          console.error("Failed to read response body:", readError);
+          // If we can't read the body, create a minimal error response
+          responseText = "";
         }
-      } catch (readError) {
-        console.error("Failed to read response:", readError);
-        // Final fallback: create error from status only
+      } else {
+        console.warn("Response body was already consumed");
+        responseText = "";
+      }
+
+      // Parse response text
+      if (responseText.trim()) {
+        try {
+          data = JSON.parse(responseText);
+          console.log("Successfully parsed response as JSON");
+        } catch (jsonError) {
+          console.log("Response is not valid JSON, treating as text");
+          data = { error: responseText };
+        }
+      } else {
+        // Fallback when no response text is available
         data = {
-          error: `Unable to read response (${responseStatus}): ${readError.message}`,
+          error: responseOk
+            ? "No content received from API"
+            : `HTTP ${responseStatus}: ${responseStatusText}`
         };
-        throw new Error(`Response read failed: ${readError.message}`);
       }
 
       // Handle error responses
