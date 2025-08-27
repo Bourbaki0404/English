@@ -418,7 +418,7 @@ Return only the title, no quotes or additional text.`;
               className="text-sm"
               title="Prompt Templates"
             >
-              <MessageSquare className="w-4 h-4" />
+              <FileText className="w-4 h-4" />
             </Button>
             <Button variant="ghost" size="sm" onClick={handleClose}>
               <X className="w-5 h-5" />
@@ -687,7 +687,7 @@ Return only the title, no quotes or additional text.`;
               <div className="space-y-2 text-sm text-gray-400">
                 <p>💡 Use prompt templates to get started quickly</p>
                 <p>💾 Your chat history is automatically saved</p>
-                <p>📤 Export conversations as text files</p>
+                <p>��� Export conversations as text files</p>
               </div>
             </div>
           ) : (
