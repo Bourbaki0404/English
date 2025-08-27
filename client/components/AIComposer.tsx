@@ -14,6 +14,8 @@ import {
   Undo2,
   Check,
   Edit,
+  AtSign,
+  ChevronDown,
 } from "lucide-react";
 import { Button } from "./ui/button";
 import { AppSettings } from "./SettingsModal";
