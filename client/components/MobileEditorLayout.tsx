@@ -123,6 +123,7 @@ export default function MobileEditorLayout() {
 
   // Sync selectedDocumentId to QuizContext
   useEffect(() => {
+    console.log(`[MobileEditorLayout] Document changed to: ${selectedDocumentId}`);
     setCurrentDocumentId(selectedDocumentId);
   }, [selectedDocumentId, setCurrentDocumentId]);
 
