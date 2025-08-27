@@ -594,7 +594,7 @@ export default function MobileEditorLayout() {
                   }
                 >
                   {isEditMode ? (
-                    <span className="text-lg">✒️</span>
+                    <span className="text-lg">✒���</span>
                   ) : (
                     <span className="text-lg">👁️</span>
                   )}
@@ -818,7 +818,7 @@ export default function MobileEditorLayout() {
               if (isEditingTitle && titleCollisionWarning) {
                 cancelTitleEditing();
               }
-              setQuizDrawerOpen(true);
+              openQuizDrawer();
             }}
           >
             <PenTool className="w-5 h-5 text-gray-600" />
