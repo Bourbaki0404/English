@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { Button } from './ui/button';
-import { ChevronLeft, ChevronRight, ArrowLeft } from 'lucide-react';
+import React, { useState } from "react";
+import { Button } from "./ui/button";
+import { ChevronLeft, ChevronRight, ArrowLeft } from "lucide-react";
 
 interface FlashCard {
   id: string;
@@ -25,7 +25,7 @@ export default function FlashCardQuiz({ cards, onBack }: FlashCardQuizProps) {
   const nextCard = () => {
     // Mark current card as reviewed if answer was shown
     if (showAnswer) {
-      setReviewedCards(prev => new Set([...prev, currentCardIndex]));
+      setReviewedCards((prev) => new Set([...prev, currentCardIndex]));
     }
 
     if (currentCardIndex < totalCards - 1) {
@@ -37,7 +37,7 @@ export default function FlashCardQuiz({ cards, onBack }: FlashCardQuizProps) {
   const finishQuiz = () => {
     // Mark current card as reviewed if answer was shown
     if (showAnswer) {
-      setReviewedCards(prev => new Set([...prev, currentCardIndex]));
+      setReviewedCards((prev) => new Set([...prev, currentCardIndex]));
     }
     setIsCompleted(true);
   };
@@ -59,7 +59,9 @@ export default function FlashCardQuiz({ cards, onBack }: FlashCardQuizProps) {
         <div className="w-full max-w-sm bg-white flex flex-col relative shadow-lg overflow-hidden">
           <div className="flex-1 flex items-center justify-center">
             <div className="text-center p-6">
-              <h2 className="text-2xl font-bold text-gray-800 mb-4">No flashcards available</h2>
+              <h2 className="text-2xl font-bold text-gray-800 mb-4">
+                No flashcards available
+              </h2>
               <Button onClick={onBack} variant="outline">
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back to Editor
@@ -74,7 +76,8 @@ export default function FlashCardQuiz({ cards, onBack }: FlashCardQuizProps) {
   if (isCompleted) {
     const reviewedCount = reviewedCards.size;
     const totalCount = cards.length;
-    const completionRate = totalCount > 0 ? Math.round((reviewedCount / totalCount) * 100) : 0;
+    const completionRate =
+      totalCount > 0 ? Math.round((reviewedCount / totalCount) * 100) : 0;
 
     return (
       <div className="h-screen flex justify-center bg-gray-100">
@@ -94,18 +97,28 @@ export default function FlashCardQuiz({ cards, onBack }: FlashCardQuizProps) {
           {/* Completion Content */}
           <div className="flex-1 p-4 overflow-y-auto">
             <div className="max-w-sm mx-auto">
-              <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">You Did It! Flashcards Complete</h2>
+              <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
+                You Did It! Flashcards Complete
+              </h2>
 
               {/* Statistics Cards */}
               <div className="grid grid-cols-1 gap-4 mb-6">
                 <div className="bg-white rounded-lg p-6 shadow-sm">
-                  <h3 className="text-sm font-medium text-gray-600 mb-2">Cards Reviewed</h3>
-                  <div className="text-3xl font-bold text-gray-800">{reviewedCount}/{totalCount}</div>
+                  <h3 className="text-sm font-medium text-gray-600 mb-2">
+                    Cards Reviewed
+                  </h3>
+                  <div className="text-3xl font-bold text-gray-800">
+                    {reviewedCount}/{totalCount}
+                  </div>
                 </div>
 
                 <div className="bg-white rounded-lg p-6 shadow-sm">
-                  <h3 className="text-sm font-medium text-gray-600 mb-2">Completion Rate</h3>
-                  <div className="text-3xl font-bold text-gray-800">{completionRate}%</div>
+                  <h3 className="text-sm font-medium text-gray-600 mb-2">
+                    Completion Rate
+                  </h3>
+                  <div className="text-3xl font-bold text-gray-800">
+                    {completionRate}%
+                  </div>
                 </div>
 
                 <div className="bg-white rounded-lg p-6 shadow-sm">
@@ -116,7 +129,9 @@ export default function FlashCardQuiz({ cards, onBack }: FlashCardQuizProps) {
                     </div>
                     <div className="flex justify-between">
                       <span className="text-sm text-gray-600">Remaining</span>
-                      <span className="font-semibold">{totalCount - reviewedCount}</span>
+                      <span className="font-semibold">
+                        {totalCount - reviewedCount}
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-sm text-gray-600">Total</span>
@@ -158,7 +173,7 @@ export default function FlashCardQuiz({ cards, onBack }: FlashCardQuizProps) {
         <div className="flex-1 flex items-center justify-center p-4">
           <div className="w-full max-w-sm">
             {/* Flash Card */}
-            <div 
+            <div
               className="bg-white rounded-2xl shadow-lg p-8 mb-6 min-h-[280px] flex items-center justify-center cursor-pointer transition-all hover:shadow-xl"
               onClick={toggleAnswer}
             >

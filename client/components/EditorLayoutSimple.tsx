@@ -861,12 +861,12 @@ export default function EditorLayoutSimple() {
                         </div>
                         <div className="text-xs text-gray-400">
                           {quiz.createdAt.toLocaleString(undefined, {
-                            year: 'numeric',
-                            month: 'numeric',
-                            day: 'numeric',
-                            hour: 'numeric',
-                            minute: '2-digit',
-                            hour12: true
+                            year: "numeric",
+                            month: "numeric",
+                            day: "numeric",
+                            hour: "numeric",
+                            minute: "2-digit",
+                            hour12: true,
                           })}
                         </div>
                       </div>

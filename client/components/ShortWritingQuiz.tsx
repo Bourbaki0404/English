@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Button } from './ui/button';
-import { ArrowLeft, Clock, Timer } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { Button } from "./ui/button";
+import { ArrowLeft, Clock, Timer } from "lucide-react";
 
 interface WritingTask {
   id: string;
@@ -15,13 +15,18 @@ interface ShortWritingQuizProps {
   onBack: () => void;
 }
 
-export default function ShortWritingQuiz({ tasks, onBack }: ShortWritingQuizProps) {
+export default function ShortWritingQuiz({
+  tasks,
+  onBack,
+}: ShortWritingQuizProps) {
   const [currentTaskIndex, setCurrentTaskIndex] = useState(0);
-  const [response, setResponse] = useState('');
+  const [response, setResponse] = useState("");
   const [timeRemaining, setTimeRemaining] = useState(0);
   const [timerActive, setTimerActive] = useState(false);
   const [wordCount, setWordCount] = useState(0);
-  const [responses, setResponses] = useState<string[]>(new Array(tasks.length).fill(''));
+  const [responses, setResponses] = useState<string[]>(
+    new Array(tasks.length).fill(""),
+  );
   const [isCompleted, setIsCompleted] = useState(false);
 
   const currentTask = tasks[currentTaskIndex];
@@ -34,7 +39,10 @@ export default function ShortWritingQuiz({ tasks, onBack }: ShortWritingQuizProp
   }, [currentTask]);
 
   useEffect(() => {
-    const words = response.trim().split(/\s+/).filter(word => word.length > 0);
+    const words = response
+      .trim()
+      .split(/\s+/)
+      .filter((word) => word.length > 0);
     setWordCount(words.length);
   }, [response]);
 
@@ -42,7 +50,7 @@ export default function ShortWritingQuiz({ tasks, onBack }: ShortWritingQuizProp
     let interval: NodeJS.Timeout;
     if (timerActive && timeRemaining > 0) {
       interval = setInterval(() => {
-        setTimeRemaining(time => time - 1);
+        setTimeRemaining((time) => time - 1);
       }, 1000);
     }
     return () => clearInterval(interval);
@@ -55,7 +63,7 @@ export default function ShortWritingQuiz({ tasks, onBack }: ShortWritingQuizProp
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
   const nextTask = () => {
@@ -66,7 +74,7 @@ export default function ShortWritingQuiz({ tasks, onBack }: ShortWritingQuizProp
 
     if (currentTaskIndex < totalTasks - 1) {
       setCurrentTaskIndex(currentTaskIndex + 1);
-      setResponse(responses[currentTaskIndex + 1] || '');
+      setResponse(responses[currentTaskIndex + 1] || "");
       setTimerActive(false);
       setWordCount(0);
     } else {
@@ -86,7 +94,7 @@ export default function ShortWritingQuiz({ tasks, onBack }: ShortWritingQuizProp
   const prevTask = () => {
     if (currentTaskIndex > 0) {
       setCurrentTaskIndex(currentTaskIndex - 1);
-      setResponse('');
+      setResponse("");
       setTimerActive(false);
       setWordCount(0);
     }
@@ -98,7 +106,9 @@ export default function ShortWritingQuiz({ tasks, onBack }: ShortWritingQuizProp
         <div className="w-full max-w-sm bg-white flex flex-col relative shadow-lg overflow-hidden">
           <div className="flex-1 flex items-center justify-center">
             <div className="text-center p-6">
-              <h2 className="text-2xl font-bold text-gray-800 mb-4">No writing tasks available</h2>
+              <h2 className="text-2xl font-bold text-gray-800 mb-4">
+                No writing tasks available
+              </h2>
               <Button onClick={onBack} variant="outline">
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back to Editor
@@ -111,12 +121,18 @@ export default function ShortWritingQuiz({ tasks, onBack }: ShortWritingQuizProp
   }
 
   if (isCompleted) {
-    const completedTasks = responses.filter(response => response.trim().length > 0).length;
+    const completedTasks = responses.filter(
+      (response) => response.trim().length > 0,
+    ).length;
     const totalWordCount = responses.reduce((total, resp) => {
-      const words = resp.trim().split(/\s+/).filter(word => word.length > 0);
+      const words = resp
+        .trim()
+        .split(/\s+/)
+        .filter((word) => word.length > 0);
       return total + words.length;
     }, 0);
-    const completionRate = tasks.length > 0 ? Math.round((completedTasks / tasks.length) * 100) : 0;
+    const completionRate =
+      tasks.length > 0 ? Math.round((completedTasks / tasks.length) * 100) : 0;
 
     return (
       <div className="h-screen flex justify-center bg-gray-100">
@@ -136,18 +152,28 @@ export default function ShortWritingQuiz({ tasks, onBack }: ShortWritingQuizProp
           {/* Completion Content */}
           <div className="flex-1 p-4 overflow-y-auto">
             <div className="max-w-sm mx-auto">
-              <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">You Did It! Writing Tasks Complete</h2>
+              <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
+                You Did It! Writing Tasks Complete
+              </h2>
 
               {/* Statistics Cards */}
               <div className="grid grid-cols-1 gap-4 mb-6">
                 <div className="bg-white rounded-lg p-6 shadow-sm">
-                  <h3 className="text-sm font-medium text-gray-600 mb-2">Tasks Completed</h3>
-                  <div className="text-3xl font-bold text-gray-800">{completedTasks}/{tasks.length}</div>
+                  <h3 className="text-sm font-medium text-gray-600 mb-2">
+                    Tasks Completed
+                  </h3>
+                  <div className="text-3xl font-bold text-gray-800">
+                    {completedTasks}/{tasks.length}
+                  </div>
                 </div>
 
                 <div className="bg-white rounded-lg p-6 shadow-sm">
-                  <h3 className="text-sm font-medium text-gray-600 mb-2">Completion Rate</h3>
-                  <div className="text-3xl font-bold text-gray-800">{completionRate}%</div>
+                  <h3 className="text-sm font-medium text-gray-600 mb-2">
+                    Completion Rate
+                  </h3>
+                  <div className="text-3xl font-bold text-gray-800">
+                    {completionRate}%
+                  </div>
                 </div>
 
                 <div className="bg-white rounded-lg p-6 shadow-sm">
@@ -162,13 +188,13 @@ export default function ShortWritingQuiz({ tasks, onBack }: ShortWritingQuizProp
                     </div>
                     <div className="flex justify-between">
                       <span className="text-sm text-gray-600">Remaining</span>
-                      <span className="font-semibold">{tasks.length - completedTasks}</span>
+                      <span className="font-semibold">
+                        {tasks.length - completedTasks}
+                      </span>
                     </div>
                   </div>
                 </div>
               </div>
-
-
 
               {/* Return Button */}
               <div className="text-center">
@@ -201,13 +227,20 @@ export default function ShortWritingQuiz({ tasks, onBack }: ShortWritingQuizProp
         {/* Progress Bar */}
         <div className="bg-white border-b border-gray-200 px-4 py-3">
           <div className="flex justify-between items-center mb-2">
-            <span className="text-sm font-medium text-gray-600">Question {currentTaskIndex + 1} of {totalTasks}</span>
-            <span className="text-sm text-gray-500">{Math.round(((currentTaskIndex + 1) / totalTasks) * 100)}% Complete</span>
+            <span className="text-sm font-medium text-gray-600">
+              Question {currentTaskIndex + 1} of {totalTasks}
+            </span>
+            <span className="text-sm text-gray-500">
+              {Math.round(((currentTaskIndex + 1) / totalTasks) * 100)}%
+              Complete
+            </span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2">
-            <div 
+            <div
               className="bg-green-600 h-2 rounded-full transition-all duration-300"
-              style={{ width: `${((currentTaskIndex + 1) / totalTasks) * 100}%` }}
+              style={{
+                width: `${((currentTaskIndex + 1) / totalTasks) * 100}%`,
+              }}
             ></div>
           </div>
         </div>
@@ -217,42 +250,59 @@ export default function ShortWritingQuiz({ tasks, onBack }: ShortWritingQuizProp
           <div className="max-w-sm mx-auto">
             {/* Task Header */}
             <div className="mb-4">
-              <h2 className="text-xl font-bold text-gray-800 mb-3">{currentTask.title}</h2>
+              <h2 className="text-xl font-bold text-gray-800 mb-3">
+                {currentTask.title}
+              </h2>
               <div className="flex flex-col space-y-2 text-sm text-gray-600">
                 <div className="flex items-center justify-center bg-gray-100 py-2 px-3 rounded">
-                  <span className="font-medium">Max {currentTask.maxWords} words</span>
+                  <span className="font-medium">
+                    Max {currentTask.maxWords} words
+                  </span>
                 </div>
                 <div className="flex items-center justify-center bg-gray-100 py-2 px-3 rounded">
                   <Clock className="w-4 h-4 mr-1" />
-                  <span className="font-medium">{currentTask.timeLimit} min limit</span>
+                  <span className="font-medium">
+                    {currentTask.timeLimit} min limit
+                  </span>
                 </div>
               </div>
             </div>
 
             {/* Task Prompt */}
             <div className="bg-white rounded-lg p-4 mb-4 shadow-sm">
-              <p className="text-base text-gray-800 leading-relaxed">{currentTask.prompt}</p>
+              <p className="text-base text-gray-800 leading-relaxed">
+                {currentTask.prompt}
+              </p>
             </div>
 
             {/* Timer and Start Button */}
             <div className="mb-4">
               {!timerActive ? (
                 <div className="text-center space-y-2">
-                  <Button onClick={startTimer} className="w-full bg-green-600 hover:bg-green-700 py-3 touch-manipulation">
+                  <Button
+                    onClick={startTimer}
+                    className="w-full bg-green-600 hover:bg-green-700 py-3 touch-manipulation"
+                  >
                     <Timer className="w-4 h-4 mr-2" />
                     Start Timer (Optional)
                   </Button>
-                  <span className="text-sm text-gray-500 block">You can write with or without the timer</span>
+                  <span className="text-sm text-gray-500 block">
+                    You can write with or without the timer
+                  </span>
                 </div>
               ) : (
                 <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-center">
                   <div className="flex items-center justify-center space-x-2 text-lg font-mono">
                     <Timer className="w-5 h-5 text-green-600" />
-                    <span className={`font-bold ${timeRemaining < 60 ? 'text-red-600' : 'text-green-600'}`}>
+                    <span
+                      className={`font-bold ${timeRemaining < 60 ? "text-red-600" : "text-green-600"}`}
+                    >
                       {formatTime(timeRemaining)}
                     </span>
                   </div>
-                  <span className="text-sm text-gray-600 mt-1">Timer active</span>
+                  <span className="text-sm text-gray-600 mt-1">
+                    Timer active
+                  </span>
                 </div>
               )}
             </div>
@@ -267,11 +317,15 @@ export default function ShortWritingQuiz({ tasks, onBack }: ShortWritingQuizProp
               />
               <div className="px-4 py-3 border-t border-gray-200 bg-gray-50 rounded-b-lg">
                 <div className="text-center text-sm">
-                  <span className={`font-medium ${wordCount > currentTask.maxWords ? 'text-red-600' : 'text-gray-600'}`}>
+                  <span
+                    className={`font-medium ${wordCount > currentTask.maxWords ? "text-red-600" : "text-gray-600"}`}
+                  >
                     {wordCount} / {currentTask.maxWords} words
                   </span>
                   {wordCount > currentTask.maxWords && (
-                    <div className="text-red-600 font-medium mt-1">Word limit exceeded</div>
+                    <div className="text-red-600 font-medium mt-1">
+                      Word limit exceeded
+                    </div>
                   )}
                 </div>
               </div>

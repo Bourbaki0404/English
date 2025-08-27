@@ -353,7 +353,10 @@ export default function MobileEditorLayout() {
     return bestMatch;
   };
 
-  const findSelectedLineIndices = (selection: Selection, originalText: string): number[] => {
+  const findSelectedLineIndices = (
+    selection: Selection,
+    originalText: string,
+  ): number[] => {
     if (!showPreview || !previewContent || !selection.rangeCount) return [];
 
     try {
@@ -361,27 +364,33 @@ export default function MobileEditorLayout() {
       const selectedLines: number[] = [];
 
       // Find which content lines contain the selected text
-      const lines = (showPreview ? previewContent : selectedDocument?.content || '').split('\n');
+      const lines = (
+        showPreview ? previewContent : selectedDocument?.content || ""
+      ).split("\n");
       const cleanSelectedText = originalText.trim().toLowerCase();
 
       lines.forEach((line, index) => {
         const cleanLine = line
-          .replace(/^#+\s+/, '') // Remove headers
-          .replace(/\*\*(.*?)\*\*/g, '$1') // Remove bold
-          .replace(/\*(.*?)\*/g, '$1') // Remove italic
-          .replace(/`(.*?)`/g, '$1') // Remove inline code
-          .replace(/\[(.*?)\]\(.*?\)/g, '$1') // Remove links, keep text
-          .replace(/==(.*?)==/g, '$1') // Remove highlights
-          .trim().toLowerCase();
+          .replace(/^#+\s+/, "") // Remove headers
+          .replace(/\*\*(.*?)\*\*/g, "$1") // Remove bold
+          .replace(/\*(.*?)\*/g, "$1") // Remove italic
+          .replace(/`(.*?)`/g, "$1") // Remove inline code
+          .replace(/\[(.*?)\]\(.*?\)/g, "$1") // Remove links, keep text
+          .replace(/==(.*?)==/g, "$1") // Remove highlights
+          .trim()
+          .toLowerCase();
 
-        if (cleanLine.includes(cleanSelectedText) || cleanSelectedText.includes(cleanLine)) {
+        if (
+          cleanLine.includes(cleanSelectedText) ||
+          cleanSelectedText.includes(cleanLine)
+        ) {
           selectedLines.push(index);
         }
       });
 
       return selectedLines;
     } catch (error) {
-      console.warn('Error finding selected line indices:', error);
+      console.warn("Error finding selected line indices:", error);
       return [];
     }
   };
@@ -648,17 +657,18 @@ export default function MobileEditorLayout() {
         }
 
         // Check if this line should show unformatted text (when selected in preview mode)
-        const shouldShowUnformatted = showPreview && isTextSelected && selectedLineIndices.includes(index);
+        const shouldShowUnformatted =
+          showPreview && isTextSelected && selectedLineIndices.includes(index);
 
         if (shouldShowUnformatted) {
           // Show plain text without formatting
           const plainText = line
-            .replace(/^#+\s+/, '') // Remove headers
-            .replace(/\*\*(.*?)\*\*/g, '$1') // Remove bold
-            .replace(/\*(.*?)\*/g, '$1') // Remove italic
-            .replace(/`(.*?)`/g, '$1') // Remove inline code
-            .replace(/\[(.*?)\]\(.*?\)/g, '$1') // Remove links, keep text
-            .replace(/==(.*?)==/g, '$1'); // Remove highlights
+            .replace(/^#+\s+/, "") // Remove headers
+            .replace(/\*\*(.*?)\*\*/g, "$1") // Remove bold
+            .replace(/\*(.*?)\*/g, "$1") // Remove italic
+            .replace(/`(.*?)`/g, "$1") // Remove inline code
+            .replace(/\[(.*?)\]\(.*?\)/g, "$1") // Remove links, keep text
+            .replace(/==(.*?)==/g, "$1"); // Remove highlights
 
           return (
             <p
@@ -1389,12 +1399,12 @@ export default function MobileEditorLayout() {
                                   </div>
                                   <div className="text-xs text-gray-400">
                                     {quiz.createdAt.toLocaleString(undefined, {
-                                      year: 'numeric',
-                                      month: 'numeric',
-                                      day: 'numeric',
-                                      hour: 'numeric',
-                                      minute: '2-digit',
-                                      hour12: true
+                                      year: "numeric",
+                                      month: "numeric",
+                                      day: "numeric",
+                                      hour: "numeric",
+                                      minute: "2-digit",
+                                      hour12: true,
                                     })}
                                   </div>
                                 </div>
