@@ -831,7 +831,7 @@ export default function MobileEditorLayout() {
                     }
                   }, 10);
                 }}
-                onDoubleClick={() => isEditMode && setIsEditingContent(true)}
+                onDoubleClick={() => !isEditMode && setIsEditingContent(true)}
                 onDragOver={(e) => {
                   e.preventDefault();
                   e.dataTransfer.dropEffect = "copy";
@@ -1471,7 +1471,7 @@ export default function MobileEditorLayout() {
                   }}
                 >
                   <div className="flex items-center space-x-3">
-                    <span className="text-2xl">⚙️</span>
+                    <span className="text-2xl">���️</span>
                     <div>
                       <h3 className="font-semibold text-gray-800">Settings</h3>
                       <p className="text-sm text-gray-600">
