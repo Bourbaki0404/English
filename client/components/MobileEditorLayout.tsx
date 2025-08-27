@@ -972,7 +972,7 @@ export default function MobileEditorLayout() {
                               // Switch to the document first
                               setSelectedDocumentId(doc.id);
                               setSelectedText("");
-                              setSearchDrawerOpen(false);
+                              closeSearchDrawer();
 
                               // Wait for document to render, then scroll to position
                               setTimeout(() => {
