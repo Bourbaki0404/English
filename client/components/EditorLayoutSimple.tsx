@@ -860,7 +860,14 @@ export default function EditorLayoutSimple() {
                           {getItemCount(quiz)}
                         </div>
                         <div className="text-xs text-gray-400">
-                          {quiz.createdAt.toLocaleDateString()}
+                          {quiz.createdAt.toLocaleString(undefined, {
+                            year: 'numeric',
+                            month: 'numeric',
+                            day: 'numeric',
+                            hour: 'numeric',
+                            minute: '2-digit',
+                            hour12: true
+                          })}
                         </div>
                       </div>
                       <div className="opacity-0 group-hover:opacity-100 transition-opacity">
