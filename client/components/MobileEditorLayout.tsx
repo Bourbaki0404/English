@@ -77,8 +77,11 @@ export default function MobileEditorLayout() {
   const [documentsDrawerOpen, setDocumentsDrawerOpen] = useState(false);
   const [documentsDrawerClosing, setDocumentsDrawerClosing] = useState(false);
   const [quizDrawerOpen, setQuizDrawerOpen] = useState(false);
+  const [quizDrawerClosing, setQuizDrawerClosing] = useState(false);
   const [searchDrawerOpen, setSearchDrawerOpen] = useState(false);
+  const [searchDrawerClosing, setSearchDrawerClosing] = useState(false);
   const [moreDrawerOpen, setMoreDrawerOpen] = useState(false);
+  const [moreDrawerClosing, setMoreDrawerClosing] = useState(false);
   const [aiComposerOpen, setAiComposerOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<
