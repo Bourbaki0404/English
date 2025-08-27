@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Settings, User, Bot } from 'lucide-react';
+import { X, Settings, User, Bot, ChevronRight, ChevronLeft, Palette, HelpCircle } from 'lucide-react';
 import { Button } from './ui/button';
 
 interface SettingsModalProps {
@@ -20,7 +20,14 @@ interface AppSettings {
   };
 }
 
-type SettingsSection = 'general' | 'llm';
+type SettingsView = 'main' | 'general' | 'llm' | 'appearance' | 'about';
+
+interface SettingsOption {
+  id: SettingsView;
+  title: string;
+  icon: React.ReactNode;
+  description?: string;
+}
 
 const languageLevels = [
   { value: 'junior', label: 'Junior School' },
@@ -33,8 +40,35 @@ const languageLevels = [
   { value: 'advanced', label: 'Advanced' }
 ];
 
+const settingsOptions: SettingsOption[] = [
+  {
+    id: 'general',
+    title: 'General',
+    icon: <User className="w-5 h-5" />,
+    description: 'Language level and basic preferences'
+  },
+  {
+    id: 'llm',
+    title: 'AI Configuration',
+    icon: <Bot className="w-5 h-5" />,
+    description: 'API keys and AI model settings'
+  },
+  {
+    id: 'appearance',
+    title: 'Appearance',
+    icon: <Palette className="w-5 h-5" />,
+    description: 'Theme and display settings'
+  },
+  {
+    id: 'about',
+    title: 'About',
+    icon: <HelpCircle className="w-5 h-5" />,
+    description: 'App information and help'
+  }
+];
+
 export default function SettingsModal({ isOpen, onClose, settings, onSettingsChange }: SettingsModalProps) {
-  const [activeSection, setActiveSection] = useState<SettingsSection>('general');
+  const [currentView, setCurrentView] = useState<SettingsView>('main');
 
   if (!isOpen) return null;
 
@@ -49,10 +83,41 @@ export default function SettingsModal({ isOpen, onClose, settings, onSettingsCha
     onSettingsChange(newSettings);
   };
 
+  const getViewTitle = (view: SettingsView): string => {
+    const option = settingsOptions.find(opt => opt.id === view);
+    return option?.title || 'Settings';
+  };
+
+  const renderMainOptions = () => (
+    <div className="p-4">
+      <h2 className="text-lg font-semibold text-gray-800 mb-4">Options</h2>
+      <div className="space-y-2">
+        {settingsOptions.map((option) => (
+          <button
+            key={option.id}
+            onClick={() => setCurrentView(option.id)}
+            className="w-full flex items-center justify-between p-4 rounded-lg hover:bg-gray-50 transition-colors text-left border border-gray-100"
+          >
+            <div className="flex items-center space-x-3">
+              <div className="text-gray-600">
+                {option.icon}
+              </div>
+              <div>
+                <div className="font-medium text-gray-900">{option.title}</div>
+                {option.description && (
+                  <div className="text-sm text-gray-500">{option.description}</div>
+                )}
+              </div>
+            </div>
+            <ChevronRight className="w-5 h-5 text-gray-400" />
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+
   const renderGeneralSettings = () => (
-    <div className="p-6">
-      <h2 className="text-lg font-semibold text-gray-800 mb-6">General</h2>
-      
+    <div className="p-4">
       <div className="space-y-6">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -79,9 +144,7 @@ export default function SettingsModal({ isOpen, onClose, settings, onSettingsCha
   );
 
   const renderLLMSettings = () => (
-    <div className="p-6">
-      <h2 className="text-lg font-semibold text-gray-800 mb-6">Configure LLM</h2>
-      
+    <div className="p-4">
       <div className="space-y-6">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -115,6 +178,7 @@ export default function SettingsModal({ isOpen, onClose, settings, onSettingsCha
           >
             {settings.llm.provider === 'gemini' && (
               <>
+                <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
                 <option value="gemini-2.0-flash-exp">Gemini 2.0 Flash (Experimental)</option>
                 <option value="gemini-1.5-flash-latest">Gemini 1.5 Flash (Latest)</option>
                 <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
@@ -179,85 +243,131 @@ export default function SettingsModal({ isOpen, onClose, settings, onSettingsCha
     </div>
   );
 
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl h-[600px] flex overflow-hidden">
-        {/* Sidebar */}
-        <div className="w-64 bg-gray-50 border-r border-gray-200">
-          <div className="p-4 border-b border-gray-200">
-            <h1 className="font-semibold text-gray-800 flex items-center">
-              <Settings className="w-5 h-5 mr-2" />
-              Settings
-            </h1>
-          </div>
-          
-          <div className="p-2">
-            <div className="space-y-1">
-              <button
-                onClick={() => setActiveSection('general')}
-                className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${
-                  activeSection === 'general'
-                    ? 'bg-blue-100 text-blue-700 font-medium'
-                    : 'text-gray-700 hover:bg-gray-100'
-                }`}
-              >
-                <User className="w-4 h-4 inline mr-2" />
-                General
-              </button>
-              
-              <button
-                onClick={() => setActiveSection('llm')}
-                className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${
-                  activeSection === 'llm'
-                    ? 'bg-blue-100 text-blue-700 font-medium'
-                    : 'text-gray-700 hover:bg-gray-100'
-                }`}
-              >
-                <Bot className="w-4 h-4 inline mr-2" />
-                Configure LLM
-              </button>
-            </div>
-          </div>
+
+  const renderAppearanceSettings = () => (
+    <div className="p-4">
+      <div className="space-y-6">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Theme
+          </label>
+          <p className="text-sm text-gray-500 mb-3">
+            Choose your preferred theme.
+          </p>
+          <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <option>Light</option>
+            <option>Dark</option>
+            <option>Auto (System)</option>
+          </select>
         </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Font Size
+          </label>
+          <p className="text-sm text-gray-500 mb-3">
+            Adjust the reading font size.
+          </p>
+          <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <option>Small</option>
+            <option>Medium</option>
+            <option>Large</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  );
 
-        {/* Main Content */}
-        <div className="flex-1 flex flex-col">
-          {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b border-gray-200">
-            <div className="flex items-center space-x-2">
-              <h2 className="text-lg font-semibold text-gray-800">
-                {activeSection === 'general' ? 'General' : 'Configure LLM'}
-              </h2>
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onClose}
-              className="text-gray-500 hover:text-gray-700"
-            >
-              <X className="w-5 h-5" />
-            </Button>
+  const renderAboutSettings = () => (
+    <div className="p-4">
+      <div className="space-y-6">
+        <div className="text-center">
+          <div className="text-4xl mb-4">📚</div>
+          <h3 className="text-lg font-semibold text-gray-800 mb-2">English Learning App</h3>
+          <p className="text-sm text-gray-500 mb-4">Version 1.0.0</p>
+        </div>
+        <div className="space-y-4">
+          <div className="p-4 bg-blue-50 border border-blue-200 rounded-md">
+            <h4 className="text-sm font-medium text-blue-800 mb-2">Need Help?</h4>
+            <p className="text-sm text-blue-700">
+              Visit our help center for tutorials and support.
+            </p>
           </div>
-
-          {/* Content */}
-          <div className="flex-1 overflow-y-auto">
-            {activeSection === 'general' && renderGeneralSettings()}
-            {activeSection === 'llm' && renderLLMSettings()}
-          </div>
-
-          {/* Footer */}
-          <div className="p-4 border-t border-gray-200 bg-gray-50">
-            <div className="flex justify-end space-x-3">
-              <Button variant="outline" onClick={onClose}>
-                Cancel
-              </Button>
-              <Button onClick={onClose}>
-                Save Settings
-              </Button>
-            </div>
+          <div className="p-4 bg-green-50 border border-green-200 rounded-md">
+            <h4 className="text-sm font-medium text-green-800 mb-2">Feedback</h4>
+            <p className="text-sm text-green-700">
+              We'd love to hear your thoughts and suggestions!
+            </p>
           </div>
         </div>
       </div>
+    </div>
+  );
+
+  const renderCurrentView = () => {
+    switch (currentView) {
+      case 'main':
+        return renderMainOptions();
+      case 'general':
+        return renderGeneralSettings();
+      case 'llm':
+        return renderLLMSettings();
+      case 'appearance':
+        return renderAppearanceSettings();
+      case 'about':
+        return renderAboutSettings();
+      default:
+        return renderMainOptions();
+    }
+  };
+
+  return (
+    <div className="bg-white rounded-t-xl w-full max-w-sm mx-auto h-full flex flex-col overflow-hidden shadow-xl">
+      {/* Header */}
+      <div className="flex items-center justify-between p-4 border-b border-gray-200">
+        <div className="flex items-center">
+          {currentView !== 'main' && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setCurrentView('main')}
+              className="text-gray-500 hover:text-gray-700 mr-2 p-1"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </Button>
+          )}
+          <h1 className="text-lg font-semibold text-gray-800 flex items-center">
+            {currentView === 'main' && <Settings className="w-5 h-5 mr-2" />}
+            {currentView === 'main' ? 'Settings' : getViewTitle(currentView)}
+          </h1>
+        </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onClose}
+          className="text-gray-500 hover:text-gray-700"
+        >
+          <X className="w-5 h-5" />
+        </Button>
+      </div>
+
+      {/* Content */}
+      <div className="flex-1 overflow-y-auto">
+        {renderCurrentView()}
+      </div>
+
+      {/* Footer - Only show save/cancel on secondary views */}
+      {currentView !== 'main' && currentView !== 'about' && (
+        <div className="p-4 border-t border-gray-200 bg-gray-50">
+          <div className="flex space-x-3">
+            <Button variant="outline" onClick={() => setCurrentView('main')} className="flex-1">
+              Cancel
+            </Button>
+            <Button onClick={() => setCurrentView('main')} className="flex-1">
+              Save
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
