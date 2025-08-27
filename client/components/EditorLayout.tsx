@@ -322,11 +322,11 @@ export default function EditorLayout() {
             {selectedText ? (
               <div className="p-2 bg-blue-50 border border-blue-200 rounded">
                 <div className="font-medium text-blue-800 mb-1">
-                  Selected text:
+                  Selected text (original markdown):
                 </div>
                 <div className="text-blue-700 text-xs">
-                  "{selectedDisplayText.substring(0, 50)}
-                  {selectedDisplayText.length > 50 ? "..." : '"'}
+                  "{selectedText.substring(0, 50)}
+                  {selectedText.length > 50 ? "..." : '"'}
                 </div>
               </div>
             ) : (
