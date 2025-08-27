@@ -101,6 +101,7 @@ export default function EditorLayout() {
     new Set(["1", "4"]),
   );
   const [selectedText, setSelectedText] = useState("");
+  const [selectedDisplayText, setSelectedDisplayText] = useState("");
 
   const { quizzes } = useQuiz();
   const navigate = useNavigate();
