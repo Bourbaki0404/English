@@ -22,6 +22,7 @@ import { ErrorHandler } from "@/lib/error-handler";
 import AIComposer from "./AIComposer";
 import { getLLMService } from "../services/llmService";
 import { useQuiz } from "../contexts/QuizContext";
+import { formatQuizDate, formatDocumentDate } from "@/lib/date-utils";
 
 interface Document {
   id: string;
@@ -1079,14 +1080,7 @@ export default function MobileEditorLayout() {
                             {getDocumentDisplayName(doc)}
                           </div>
                           <div className="text-sm text-gray-500">
-                            {doc.createdAt.toLocaleString(undefined, {
-                              year: "numeric",
-                              month: "numeric",
-                              day: "numeric",
-                              hour: "numeric",
-                              minute: "2-digit",
-                              hour12: true,
-                            })}
+                            {formatDocumentDate(doc.createdAt)}
                           </div>
                         </div>
                       </div>
@@ -1405,14 +1399,7 @@ export default function MobileEditorLayout() {
                                     {getItemCount(quiz)}
                                   </div>
                                   <div className="text-xs text-gray-400">
-                                    {quiz.createdAt.toLocaleString(undefined, {
-                                      year: "numeric",
-                                      month: "numeric",
-                                      day: "numeric",
-                                      hour: "numeric",
-                                      minute: "2-digit",
-                                      hour12: true,
-                                    })}
+                                    {formatQuizDate(quiz.createdAt)}
                                   </div>
                                 </div>
                                 <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
