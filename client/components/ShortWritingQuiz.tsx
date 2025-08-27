@@ -129,12 +129,12 @@ export default function ShortWritingQuiz({ tasks, onBack }: ShortWritingQuizProp
         </div>
 
         {/* Completion Content */}
-        <div className="flex-1 p-6 overflow-y-auto">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-3xl font-bold text-gray-800 mb-8">You Did It! Writing Tasks Complete</h2>
+        <div className="flex-1 p-4 overflow-y-auto">
+          <div className="max-w-sm mx-auto">
+            <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">You Did It! Writing Tasks Complete</h2>
 
             {/* Statistics Cards */}
-            <div className="grid md:grid-cols-3 gap-4 mb-8">
+            <div className="grid grid-cols-1 gap-4 mb-6">
               <div className="bg-white rounded-lg p-6 shadow-sm">
                 <h3 className="text-sm font-medium text-gray-600 mb-2">Tasks Completed</h3>
                 <div className="text-3xl font-bold text-gray-800">{completedTasks}/{tasks.length}</div>
@@ -185,8 +185,8 @@ export default function ShortWritingQuiz({ tasks, onBack }: ShortWritingQuizProp
 
             {/* Keep Learning Section */}
             <div className="mb-8">
-              <h3 className="text-xl font-bold text-gray-800 mb-4">Keep Learning</h3>
-              <div className="grid md:grid-cols-2 gap-4">
+              <h3 className="text-lg font-bold text-gray-800 mb-4">Keep Learning</h3>
+              <div className="grid grid-cols-1 gap-4">
                 <div className="bg-white rounded-lg p-6 shadow-sm">
                   <div className="flex items-center space-x-4">
                     <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
@@ -219,7 +219,7 @@ export default function ShortWritingQuiz({ tasks, onBack }: ShortWritingQuizProp
 
             {/* Return Button */}
             <div className="text-center">
-              <Button onClick={onBack} className="px-8 py-3">
+              <Button onClick={onBack} className="w-full py-3 text-base">
                 Return to Editor
               </Button>
             </div>
@@ -258,16 +258,16 @@ export default function ShortWritingQuiz({ tasks, onBack }: ShortWritingQuizProp
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 p-6 overflow-y-auto">
-        <div className="max-w-4xl mx-auto">
+      <div className="flex-1 p-4 overflow-y-auto">
+        <div className="max-w-sm mx-auto">
           {/* Task Header */}
-          <div className="mb-6">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">{currentTask.title}</h2>
-            <div className="flex items-center space-x-6 text-sm text-gray-600">
-              <div className="flex items-center">
+          <div className="mb-4">
+            <h2 className="text-xl font-bold text-gray-800 mb-3">{currentTask.title}</h2>
+            <div className="flex flex-col space-y-2 text-sm text-gray-600">
+              <div className="flex items-center justify-center bg-gray-100 py-2 px-3 rounded">
                 <span className="font-medium">Max {currentTask.maxWords} words</span>
               </div>
-              <div className="flex items-center">
+              <div className="flex items-center justify-center bg-gray-100 py-2 px-3 rounded">
                 <Clock className="w-4 h-4 mr-1" />
                 <span className="font-medium">{currentTask.timeLimit} min limit</span>
               </div>
@@ -275,71 +275,74 @@ export default function ShortWritingQuiz({ tasks, onBack }: ShortWritingQuizProp
           </div>
 
           {/* Task Prompt */}
-          <div className="bg-white rounded-lg p-6 mb-6 shadow-sm">
-            <p className="text-lg text-gray-800 leading-relaxed">{currentTask.prompt}</p>
+          <div className="bg-white rounded-lg p-4 mb-4 shadow-sm">
+            <p className="text-base text-gray-800 leading-relaxed">{currentTask.prompt}</p>
           </div>
 
           {/* Timer and Start Button */}
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center space-x-4">
-              {!timerActive ? (
-                <div className="flex items-center space-x-4">
-                  <Button onClick={startTimer} className="bg-green-600 hover:bg-green-700">
-                    <Timer className="w-4 h-4 mr-2" />
-                    Start Timer (Optional)
-                  </Button>
-                  <span className="text-sm text-gray-500">You can write with or without the timer</span>
-                </div>
-              ) : (
-                <div className="flex items-center space-x-2 text-lg font-mono">
+          <div className="mb-4">
+            {!timerActive ? (
+              <div className="text-center space-y-2">
+                <Button onClick={startTimer} className="w-full bg-green-600 hover:bg-green-700 py-3 touch-manipulation">
+                  <Timer className="w-4 h-4 mr-2" />
+                  Start Timer (Optional)
+                </Button>
+                <span className="text-sm text-gray-500 block">You can write with or without the timer</span>
+              </div>
+            ) : (
+              <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-center">
+                <div className="flex items-center justify-center space-x-2 text-lg font-mono">
                   <Timer className="w-5 h-5 text-green-600" />
                   <span className={`font-bold ${timeRemaining < 60 ? 'text-red-600' : 'text-green-600'}`}>
                     {formatTime(timeRemaining)}
                   </span>
-                  <span className="text-sm text-gray-500 ml-4">Timer active</span>
                 </div>
-              )}
-            </div>
+                <span className="text-sm text-gray-600 mt-1">Timer active</span>
+              </div>
+            )}
           </div>
 
           {/* Writing Area */}
-          <div className="bg-white rounded-lg border border-gray-200 mb-6">
+          <div className="bg-white rounded-lg border border-gray-200 mb-4">
             <textarea
               value={response}
               onChange={(e) => setResponse(e.target.value)}
               placeholder="Start writing your response here... (Timer is optional - you can write anytime)"
-              className="w-full h-80 p-6 text-gray-800 placeholder-gray-400 resize-none border-none rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full h-48 p-4 text-gray-800 placeholder-gray-400 resize-none border-none rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
             />
-            <div className="px-6 py-3 border-t border-gray-200 bg-gray-50 rounded-b-lg">
-              <div className="flex justify-between items-center text-sm">
-                <span className={`${wordCount > currentTask.maxWords ? 'text-red-600' : 'text-gray-600'}`}>
+            <div className="px-4 py-3 border-t border-gray-200 bg-gray-50 rounded-b-lg">
+              <div className="text-center text-sm">
+                <span className={`font-medium ${wordCount > currentTask.maxWords ? 'text-red-600' : 'text-gray-600'}`}>
                   {wordCount} / {currentTask.maxWords} words
                 </span>
                 {wordCount > currentTask.maxWords && (
-                  <span className="text-red-600 font-medium">Word limit exceeded</span>
+                  <div className="text-red-600 font-medium mt-1">Word limit exceeded</div>
                 )}
               </div>
             </div>
           </div>
 
           {/* Navigation */}
-          <div className="flex justify-between">
+          <div className="flex justify-between gap-4">
             <Button
               onClick={prevTask}
               disabled={currentTaskIndex === 0}
               variant="outline"
+              className="flex-1 py-3 touch-manipulation"
             >
               Previous
             </Button>
             {currentTaskIndex === totalTasks - 1 ? (
               <Button
                 onClick={finishQuiz}
+                className="flex-1 py-3 touch-manipulation"
               >
                 Finish
               </Button>
             ) : (
               <Button
                 onClick={nextTask}
+                className="flex-1 py-3 touch-manipulation"
               >
                 Next
               </Button>
