@@ -77,20 +77,23 @@ class LLMService {
         body: JSON.stringify(requestBody),
       });
 
+      // Store response status before reading body
+      const responseStatus = response.status;
+      const responseStatusText = response.statusText;
+      const responseOk = response.ok;
+
       console.log(
         "Gemini API response status:",
-        response.status,
-        response.statusText,
+        responseStatus,
+        responseStatusText,
       );
 
-      // Clone response immediately before any reading to avoid "body already used" errors
-      const responseClone = response.clone();
       let data: any;
       let responseText: string;
 
       try {
-        // Always read as text first, then parse
-        responseText = await responseClone.text();
+        // Read response as text (single consumption)
+        responseText = await response.text();
         console.log("Response text length:", responseText.length);
 
         if (responseText.trim()) {
@@ -102,19 +105,19 @@ class LLMService {
             data = { error: responseText };
           }
         } else {
-          data = { error: `HTTP ${response.status}: ${response.statusText}` };
+          data = { error: `HTTP ${responseStatus}: ${responseStatusText}` };
         }
       } catch (readError) {
         console.error("Failed to read response:", readError);
         // Final fallback: create error from status only
         data = {
-          error: `Unable to read response (${response.status}): ${readError.message}`,
+          error: `Unable to read response (${responseStatus}): ${readError.message}`,
         };
         throw new Error(`Response read failed: ${readError.message}`);
       }
 
       // Handle error responses
-      if (!response.ok) {
+      if (!responseOk) {
         console.error("Error response data:", data);
 
         let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
