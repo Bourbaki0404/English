@@ -363,10 +363,12 @@ Return only the title, no quotes or additional text.`;
 
   return (
     <>
-      {/* Background overlay with fade-in */}
+      {/* Background overlay with fade-in/out */}
       <div
-        className="absolute inset-0 bg-black bg-opacity-30 z-40 transition-opacity duration-300"
-        onClick={onClose}
+        className={`absolute inset-0 bg-black z-40 transition-all duration-300 ${
+          isClosing ? 'bg-opacity-0' : 'bg-opacity-30'
+        }`}
+        onClick={handleClose}
       />
 
       {/* Right drawer taking 5/6 of screen width */}
