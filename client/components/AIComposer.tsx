@@ -441,6 +441,14 @@ Please acknowledge that you've received these documents and are ready to help me
         };
 
         messages = [contextMessage, ackMessage];
+
+        // Auto-collapse system messages
+        setCollapsedMessages(prev => {
+          const newSet = new Set(prev);
+          newSet.add(contextMessage.id);
+          newSet.add(ackMessage.id);
+          return newSet;
+        });
       }
     } else if (contextNeedsUpdate) {
       // Add context update message for existing conversation
