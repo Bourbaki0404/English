@@ -357,6 +357,45 @@ Return only the title, no quotes or additional text.`;
     );
   };
 
+  const resumeFromMessage = (messageId: string) => {
+    if (!currentSession) return;
+
+    const messageIndex = currentSession.messages.findIndex(
+      (msg) => msg.id === messageId,
+    );
+    if (messageIndex === -1) return;
+
+    const message = currentSession.messages[messageIndex];
+
+    // Only allow editing user messages
+    if (message.role !== "user") return;
+
+    // Set the input value to the message content for editing
+    setInputValue(message.content);
+
+    // Remove this message and all messages after it (like recall)
+    const updatedMessages = currentSession.messages.slice(0, messageIndex);
+    const updatedSession = {
+      ...currentSession,
+      messages: updatedMessages,
+      updatedAt: new Date(),
+    };
+
+    setCurrentSession(updatedSession);
+
+    // Update in chat history
+    setChatHistory((prev) =>
+      prev.map((session) =>
+        session.id === currentSession.id ? updatedSession : session,
+      ),
+    );
+
+    // Focus the input for immediate editing
+    setTimeout(() => {
+      inputRef.current?.focus();
+    }, 100);
+  };
+
   if (!isOpen) return null;
 
   return (
