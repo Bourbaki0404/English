@@ -365,8 +365,10 @@ Please acknowledge that you've received these documents and are ready to help me
   // Generate summary for collapsed system messages
   const getSystemMessageSummary = (message: Message): string => {
     if (message.content.includes("I'm sharing some documents")) {
-      const docCount = selectedContextDocuments.length;
-      return `📄 Shared ${docCount} document${docCount > 1 ? 's' : ''} for context`;
+      // Try to count documents from the message content
+      const docMatches = message.content.match(/## (.+?)(?=\n)/g);
+      const docCount = docMatches ? docMatches.length : selectedContextDocuments.length;
+      return `📄 Shared ${docCount} document${docCount !== 1 ? 's' : ''} for context`;
     }
     if (message.content.includes("[Context Update]")) {
       if (message.content.includes("New Documents Added")) {
