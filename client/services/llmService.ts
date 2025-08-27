@@ -83,46 +83,34 @@ class LLMService {
         response.statusText,
       );
 
-      // Use response cloning to safely handle body reading
+      // Clone response immediately before any reading to avoid "body already used" errors
+      const responseClone = response.clone();
       let data: any;
+      let responseText: string;
 
       try {
-        if (response.ok) {
-          // For successful responses, read as JSON directly
-          data = await response.json();
-          console.log("Successfully parsed response as JSON");
-        } else {
-          // For error responses, use clone to avoid stream conflicts
-          const responseClone = response.clone();
-          let responseText: string;
+        // Always read as text first, then parse
+        responseText = await responseClone.text();
+        console.log("Response text length:", responseText.length);
 
+        if (responseText.trim()) {
           try {
-            responseText = await responseClone.text();
-            console.log("Error response text length:", responseText.length);
-          } catch (textError) {
-            console.warn("Could not read error response as text:", textError);
-            // Ultimate fallback - use status info
-            data = { error: `HTTP ${response.status}: ${response.statusText}` };
-            throw new Error(`Response read failed: ${textError.message}`);
+            data = JSON.parse(responseText);
+            console.log("Successfully parsed response as JSON");
+          } catch (jsonError) {
+            console.log("Response is not JSON, treating as text");
+            data = { error: responseText };
           }
-
-          if (responseText.trim()) {
-            try {
-              data = JSON.parse(responseText);
-            } catch (jsonError) {
-              console.log("Error response is not JSON, treating as text");
-              data = { error: responseText };
-            }
-          } else {
-            data = { error: `HTTP ${response.status}: ${response.statusText}` };
-          }
+        } else {
+          data = { error: `HTTP ${response.status}: ${response.statusText}` };
         }
       } catch (readError) {
-        console.error("Complete response reading failure:", readError);
+        console.error("Failed to read response:", readError);
         // Final fallback: create error from status only
         data = {
           error: `Unable to read response (${response.status}): ${readError.message}`,
         };
+        throw new Error(`Response read failed: ${readError.message}`);
       }
 
       // Handle error responses
