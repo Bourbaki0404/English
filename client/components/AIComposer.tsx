@@ -368,20 +368,22 @@ Return only the title, no quotes or additional text.`;
     <>
       {/* Background overlay with fade-in/out */}
       <div
-        className={`fixed inset-0 bg-black z-40 transition-all duration-300 ${
+        className={`fixed inset-0 bg-black transition-all duration-300 ${
           isClosing ? 'bg-opacity-0' : 'bg-opacity-30'
         }`}
+        style={{ zIndex: 999 }}
         onClick={handleClose}
       />
 
       {/* Right drawer taking most of screen width */}
       <div
-        className="fixed top-0 right-0 bottom-0 w-11/12 bg-white z-50 flex flex-col shadow-2xl"
-        style={
-          isClosing
-            ? {animation: 'slide-out-right 0.3s ease-out'}
-            : {animation: 'slide-in-right 0.3s ease-out'}
-        }
+        className="fixed top-0 right-0 bottom-0 w-11/12 bg-white flex flex-col shadow-2xl"
+        style={{
+          zIndex: 1000,
+          animation: isClosing
+            ? 'slide-out-right 0.3s ease-out'
+            : 'slide-in-right 0.3s ease-out'
+        }}
       >
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-white">
