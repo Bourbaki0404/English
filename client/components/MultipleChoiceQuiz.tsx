@@ -109,12 +109,12 @@ export default function MultipleChoiceQuiz({ questions, onBack }: MultipleChoice
         </div>
 
         {/* Completion Content */}
-        <div className="flex-1 p-6 overflow-y-auto">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-3xl font-bold text-gray-800 mb-8">You Did It! Quiz Complete</h2>
+        <div className="flex-1 p-4 overflow-y-auto">
+          <div className="max-w-sm mx-auto">
+            <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">You Did It! Quiz Complete</h2>
 
             {/* Statistics Cards */}
-            <div className="grid md:grid-cols-3 gap-4 mb-8">
+            <div className="grid grid-cols-1 gap-4 mb-6">
               <div className="bg-white rounded-lg p-6 shadow-sm">
                 <h3 className="text-sm font-medium text-gray-600 mb-2">Score</h3>
                 <div className="text-3xl font-bold text-gray-800">{stats.score}/{stats.total}</div>
@@ -165,8 +165,8 @@ export default function MultipleChoiceQuiz({ questions, onBack }: MultipleChoice
 
             {/* Keep Learning Section */}
             <div className="mb-8">
-              <h3 className="text-xl font-bold text-gray-800 mb-4">Keep Learning</h3>
-              <div className="grid md:grid-cols-2 gap-4">
+              <h3 className="text-lg font-bold text-gray-800 mb-4">Keep Learning</h3>
+              <div className="grid grid-cols-1 gap-4">
                 <div className="bg-white rounded-lg p-6 shadow-sm">
                   <div className="flex items-center space-x-4">
                     <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
@@ -199,7 +199,7 @@ export default function MultipleChoiceQuiz({ questions, onBack }: MultipleChoice
 
             {/* Return Button */}
             <div className="text-center">
-              <Button onClick={onBack} className="px-8 py-3">
+              <Button onClick={onBack} className="w-full py-3 text-base">
                 Return to Editor
               </Button>
             </div>
@@ -238,17 +238,17 @@ export default function MultipleChoiceQuiz({ questions, onBack }: MultipleChoice
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 p-6 overflow-y-auto">
-        <div className="max-w-4xl mx-auto">
+      <div className="flex-1 p-4 overflow-y-auto">
+        <div className="max-w-sm mx-auto">
           {/* Question */}
-          <div className="bg-white rounded-lg p-8 mb-6 shadow-sm">
-            <div className="text-lg text-gray-800 leading-relaxed">
+          <div className="bg-white rounded-lg p-6 mb-4 shadow-sm">
+            <div className="text-base text-gray-800 leading-relaxed">
               <span className="font-medium">{currentQuestionIndex + 1}.</span> {currentQuestion.question}
             </div>
           </div>
 
           {/* Options */}
-          <div className="space-y-4 mb-6">
+          <div className="space-y-3 mb-6">
             {currentQuestion.options.map((option, index) => {
               const isSelected = selectedAnswer === index;
               const isCorrect = index === currentQuestion.correctAnswer;
@@ -273,8 +273,8 @@ export default function MultipleChoiceQuiz({ questions, onBack }: MultipleChoice
               return (
                 <div key={index}>
                   <div
-                    className={`rounded-lg p-4 border-2 transition-all ${
-                      !showFeedback ? 'cursor-pointer hover:shadow-md hover:border-gray-300' : ''
+                    className={`rounded-lg p-4 border-2 transition-all touch-manipulation ${
+                      !showFeedback ? 'cursor-pointer active:scale-95 hover:shadow-md hover:border-gray-300' : ''
                     } ${borderColor} ${bgColor}`}
                     onClick={() => handleAnswerSelect(index)}
                   >
@@ -305,11 +305,11 @@ export default function MultipleChoiceQuiz({ questions, onBack }: MultipleChoice
                         )}
                       </div>
                       <div className="flex-1">
-                        <div className="flex items-center mb-2">
-                          <span className="font-medium text-gray-700 mr-3">
+                        <div className="flex items-start mb-2">
+                          <span className="font-medium text-gray-700 mr-3 mt-0.5 text-sm">
                             {String.fromCharCode(65 + index)}.
                           </span>
-                          <span className={`${textColor} font-medium`}>
+                          <span className={`${textColor} font-medium text-sm leading-relaxed`}>
                             {typeof option === 'string' ? option : option.text}
                           </span>
                         </div>
@@ -350,19 +350,19 @@ export default function MultipleChoiceQuiz({ questions, onBack }: MultipleChoice
 
 
           {/* Navigation */}
-          <div className="flex justify-between">
+          <div className="flex justify-between gap-4">
             <Button
               onClick={prevQuestion}
               disabled={currentQuestionIndex === 0}
               variant="outline"
-              className="px-8"
+              className="flex-1 py-3 touch-manipulation"
             >
               Previous
             </Button>
             <Button
               onClick={nextQuestion}
               disabled={!showFeedback}
-              className="px-8"
+              className="flex-1 py-3 touch-manipulation"
             >
               {currentQuestionIndex === totalQuestions - 1 ? 'Finish' : 'Next'}
             </Button>
