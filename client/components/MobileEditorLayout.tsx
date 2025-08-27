@@ -495,7 +495,7 @@ export default function MobileEditorLayout() {
               if (isEditingTitle && titleCollisionWarning) {
                 cancelTitleEditing();
               }
-              setDocumentsDrawerOpen(true);
+              openDocumentsDrawer();
             }}
           >
             <ChevronLeft className="w-5 h-5 text-gray-600" />
@@ -723,7 +723,7 @@ export default function MobileEditorLayout() {
               <div className="text-center">
                 <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                 <p className="text-gray-500 mb-4">Select a document to start</p>
-                <Button onClick={() => setDocumentsDrawerOpen(true)}>
+                <Button onClick={openDocumentsDrawer}>
                   View Documents
                 </Button>
               </div>
