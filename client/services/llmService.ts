@@ -1,4 +1,5 @@
 import { AppSettings } from "../components/SettingsModal";
+import { ErrorHandler } from "@/lib/error-handler";
 
 interface MultipleChoiceOption {
   text: string;
@@ -106,7 +107,20 @@ class LLMService {
           errorDetails = `Failed to read response: ${readError.message}`;
         }
 
-        throw new Error(`API Error: ${errorMessage}\nDetails: ${errorDetails}`);
+        // Handle specific error cases for user-friendly messages
+        if (errorMessage.toLowerCase().includes("user location is not supported")) {
+          throw new Error("Service not available in your region. The AI service is currently not supported in your location. Consider using a VPN or contact support.");
+        }
+
+        if (errorMessage.toLowerCase().includes("api key")) {
+          throw new Error("Invalid API key. Please check your API key in settings and try again.");
+        }
+
+        if (errorMessage.toLowerCase().includes("quota") || errorMessage.toLowerCase().includes("rate limit")) {
+          throw new Error("Rate limit exceeded. You've reached the API usage limit. Please wait before trying again.");
+        }
+
+        throw new Error(`API Error: ${errorMessage}`);
       }
 
       const data = await response.json();
