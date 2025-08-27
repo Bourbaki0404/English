@@ -592,7 +592,7 @@ export default function EditorLayoutSimple() {
                     lineHeight: "1.6",
                     fontSize: "16px",
                   }}
-                  onMouseUp={!showPreview ? handleTextSelection : undefined}
+                  onMouseUp={handleTextSelection}
                   onDoubleClick={!showPreview ? handleDoubleClick : undefined}
                   onClick={!showPreview ? handleClick : undefined}
                   onDragOver={(e) => {
