@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { Button } from "./ui/button";
 import SettingsModal, { AppSettings } from "./SettingsModal";
+import { ErrorHandler } from "@/lib/error-handler";
 import AIComposer from "./AIComposer";
 import { getLLMService } from "../services/llmService";
 import { useQuiz } from "../contexts/QuizContext";
@@ -189,12 +190,12 @@ export default function MobileEditorLayout() {
 
   const handleQuizToolClick = async (toolId: string) => {
     if (!selectedText) {
-      alert("Please select some text first to generate a quiz!");
+      ErrorHandler.showWarning("No Text Selected", "Please select some text first to generate a quiz!");
       return;
     }
 
     if (!settings.llm.apiKey) {
-      alert("Please configure your LLM API key in settings first!");
+      ErrorHandler.showWarning("API Key Required", "Please configure your LLM API key in settings first!");
       setSettingsOpen(true);
       return;
     }
@@ -246,10 +247,7 @@ export default function MobileEditorLayout() {
         }
       }
     } catch (error) {
-      console.error("Error generating quiz:", error);
-      alert(
-        `Failed to generate quiz: ${error instanceof Error ? error.message : "Unknown error"}`,
-      );
+      ErrorHandler.handle(error, "Quiz Generation");
     } finally {
       setIsGeneratingQuiz(false);
       setGeneratingType("");
@@ -299,7 +297,7 @@ export default function MobileEditorLayout() {
 
   const handleDeleteDocument = (docId: string) => {
     if (documents.length <= 1) {
-      alert("You must have at least one document.");
+      ErrorHandler.showWarning("Cannot Delete Document", "You must have at least one document.");
       return;
     }
 
