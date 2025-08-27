@@ -161,6 +161,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
   const [quizzes, setQuizzes] = useState<Quiz[]>(mockQuizzes);
   const [selectedText, setSelectedText] = useState<string>("");
   const [currentQuiz, setCurrentQuiz] = useState<Quiz | null>(null);
+  const [currentDocumentId, setCurrentDocumentId] = useState<string>("3"); // Default to document "3"
 
   const createQuiz = (
     type: Quiz["type"],
