@@ -16,6 +16,8 @@ import {
   Edit,
   AtSign,
   ChevronDown,
+  ChevronUp,
+  Settings,
 } from "lucide-react";
 import { Button } from "./ui/button";
 import { AppSettings } from "./SettingsModal";
@@ -104,6 +106,7 @@ export default function AIComposer({
     documents: [],
     lastUpdate: new Date()
   });
+  const [collapsedMessages, setCollapsedMessages] = useState<Set<string>>(new Set());
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
