@@ -1,5 +1,5 @@
-import EditorLayout from "../components/EditorLayoutSimple";
+import MobileEditorLayout from "../components/MobileEditorLayout";
 
 export default function Index() {
-  return <EditorLayout />;
+  return <MobileEditorLayout />;
 }

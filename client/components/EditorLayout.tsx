@@ -1,37 +1,62 @@
-import React, { useState } from 'react';
-import { Button } from './ui/button';
-import { ChevronLeft, ChevronRight, FileText, Plus, Menu } from 'lucide-react';
-import { useQuiz } from '../contexts/QuizContext';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import { Button } from "./ui/button";
+import { ErrorHandler } from "@/lib/error-handler";
+import { ChevronLeft, ChevronRight, FileText, Plus, Menu } from "lucide-react";
+import { useQuiz } from "../contexts/QuizContext";
+import { useNavigate } from "react-router-dom";
 
 interface Document {
   id: string;
   name: string;
   content: string;
-  type: 'folder' | 'file';
+  type: "folder" | "file";
   children?: Document[];
 }
 
 const mockDocuments: Document[] = [
   {
-    id: '1',
-    name: 'remote-note',
-    type: 'folder',
-    content: '',
+    id: "1",
+    name: "remote-note",
+    type: "folder",
+    content: "",
     children: [
-      { id: '2', name: 'copilot-conversations', type: 'folder', content: '', children: [] },
-      { id: '3', name: 'copilot-custom-prompts', type: 'folder', content: '', children: [] },
-      { id: '4', name: 'English', type: 'folder', content: '', children: [
-        { id: '5', name: 'English 2', type: 'file', content: '' },
-        { id: '6', name: 'English 3', type: 'file', content: '' },
-        { id: '7', name: 'English 4', type: 'file', content: '# English 4\n\nThe ancient ruins attest to the skill of the builders. [to provide or serve as clear evidence of]\n\nI can attest to his honesty; he is a very trustworthy person. [to declare that something exists or is true, especially formally or as an official witness]' },
-      ]},
-      { id: '8', name: 'English 5 (not common)', type: 'file', content: '' },
-      { id: '9', name: 'hello', type: 'file', content: '' },
-      { id: '10', name: 'hey', type: 'file', content: '' },
-      { id: '11', name: 'Prompts', type: 'file', content: '' },
-    ]
-  }
+      {
+        id: "2",
+        name: "copilot-conversations",
+        type: "folder",
+        content: "",
+        children: [],
+      },
+      {
+        id: "3",
+        name: "copilot-custom-prompts",
+        type: "folder",
+        content: "",
+        children: [],
+      },
+      {
+        id: "4",
+        name: "English",
+        type: "folder",
+        content: "",
+        children: [
+          { id: "5", name: "English 2", type: "file", content: "" },
+          { id: "6", name: "English 3", type: "file", content: "" },
+          {
+            id: "7",
+            name: "English 4",
+            type: "file",
+            content:
+              "# English 4\n\nThe ancient ruins attest to the skill of the builders. [to provide or serve as clear evidence of]\n\nI can attest to his honesty; he is a very trustworthy person. [to declare that something exists or is true, especially formally or as an official witness]",
+          },
+        ],
+      },
+      { id: "8", name: "English 5 (not common)", type: "file", content: "" },
+      { id: "9", name: "hello", type: "file", content: "" },
+      { id: "10", name: "hey", type: "file", content: "" },
+      { id: "11", name: "Prompts", type: "file", content: "" },
+    ],
+  },
 ];
 
 interface QuizTool {
@@ -44,34 +69,39 @@ interface QuizTool {
 
 const quizTools: QuizTool[] = [
   {
-    id: 'flashcard',
-    title: 'Flash Card',
-    description: 'Create flashcards from selected text',
-    icon: '🎴',
-    color: 'bg-blue-100 border-blue-200 hover:bg-blue-150'
+    id: "flashcard",
+    title: "Flash Card",
+    description: "Create flashcards from selected text",
+    icon: "🎴",
+    color: "bg-blue-100 border-blue-200 hover:bg-blue-150",
   },
   {
-    id: 'multiple-choice',
-    title: 'Multiple Choice',
-    description: 'Generate multiple choice questions',
-    icon: '📝',
-    color: 'bg-green-100 border-green-200 hover:bg-green-150'
+    id: "multiple-choice",
+    title: "Multiple Choice",
+    description: "Generate multiple choice questions",
+    icon: "📝",
+    color: "bg-green-100 border-green-200 hover:bg-green-150",
   },
   {
-    id: 'short-writing',
-    title: 'Short Writing',
-    description: 'Create writing prompts and exercises',
-    icon: '✍️',
-    color: 'bg-purple-100 border-purple-200 hover:bg-purple-150'
-  }
+    id: "short-writing",
+    title: "Short Writing",
+    description: "Create writing prompts and exercises",
+    icon: "✍️",
+    color: "bg-purple-100 border-purple-200 hover:bg-purple-150",
+  },
 ];
 
 export default function EditorLayout() {
   const [leftSidebarOpen, setLeftSidebarOpen] = useState(true);
   const [rightSidebarOpen, setRightSidebarOpen] = useState(true);
-  const [selectedDocument, setSelectedDocument] = useState<Document | null>(mockDocuments[0].children![3].children![2]);
-  const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set(['1', '4']));
-  const [selectedText, setSelectedText] = useState('');
+  const [selectedDocument, setSelectedDocument] = useState<Document | null>(
+    mockDocuments[0].children![3].children![2],
+  );
+  const [expandedFolders, setExpandedFolders] = useState<Set<string>>(
+    new Set(["1", "4"]),
+  );
+  const [selectedText, setSelectedText] = useState("");
+  const [selectedDisplayText, setSelectedDisplayText] = useState("");
 
   const { quizzes } = useQuiz();
   const navigate = useNavigate();
@@ -88,33 +118,36 @@ export default function EditorLayout() {
 
   const handleQuizToolClick = (toolId: string) => {
     if (!selectedText) {
-      alert('Please select some text first to generate a quiz!');
+      ErrorHandler.showWarning(
+        "No Text Selected",
+        "Please select some text first to generate a quiz!",
+      );
       return;
     }
 
     switch (toolId) {
-      case 'flashcard':
-        navigate('/quiz/flashcard');
+      case "flashcard":
+        navigate("/quiz/flashcard");
         break;
-      case 'multiple-choice':
-        navigate('/quiz/multiple-choice');
+      case "multiple-choice":
+        navigate("/quiz/multiple-choice");
         break;
-      case 'short-writing':
-        navigate('/quiz/short-writing');
+      case "short-writing":
+        navigate("/quiz/short-writing");
         break;
     }
   };
 
   const handleQuizClick = (quiz: any) => {
     switch (quiz.type) {
-      case 'flashcard':
-        navigate('/quiz/flashcard');
+      case "flashcard":
+        navigate("/quiz/flashcard");
         break;
-      case 'multiple-choice':
-        navigate('/quiz/multiple-choice');
+      case "multiple-choice":
+        navigate("/quiz/multiple-choice");
         break;
-      case 'short-writing':
-        navigate('/quiz/short-writing');
+      case "short-writing":
+        navigate("/quiz/short-writing");
         break;
     }
   };
@@ -123,6 +156,7 @@ export default function EditorLayout() {
     const selection = window.getSelection()?.toString();
     if (selection) {
       setSelectedText(selection);
+      setSelectedDisplayText(selection);
     }
   };
 
@@ -131,22 +165,24 @@ export default function EditorLayout() {
       <div key={doc.id} className={`ml-${level * 4}`}>
         <div
           className={`flex items-center py-1 px-2 hover:bg-gray-100 cursor-pointer text-sm ${
-            selectedDocument?.id === doc.id ? 'bg-blue-50 text-blue-700' : 'text-gray-700'
+            selectedDocument?.id === doc.id
+              ? "bg-blue-50 text-blue-700"
+              : "text-gray-700"
           }`}
           onClick={() => {
-            if (doc.type === 'folder') {
+            if (doc.type === "folder") {
               toggleFolder(doc.id);
             } else {
               setSelectedDocument(doc);
             }
           }}
         >
-          {doc.type === 'folder' ? (
+          {doc.type === "folder" ? (
             <>
-              <ChevronRight 
+              <ChevronRight
                 className={`w-3 h-3 mr-1 transition-transform ${
-                  expandedFolders.has(doc.id) ? 'rotate-90' : ''
-                }`} 
+                  expandedFolders.has(doc.id) ? "rotate-90" : ""
+                }`}
               />
               <span>{doc.name}</span>
             </>
@@ -157,11 +193,13 @@ export default function EditorLayout() {
             </>
           )}
         </div>
-        {doc.type === 'folder' && expandedFolders.has(doc.id) && doc.children && (
-          <div className="ml-2">
-            {renderDocumentTree(doc.children, level + 1)}
-          </div>
-        )}
+        {doc.type === "folder" &&
+          expandedFolders.has(doc.id) &&
+          doc.children && (
+            <div className="ml-2">
+              {renderDocumentTree(doc.children, level + 1)}
+            </div>
+          )}
       </div>
     ));
   };
@@ -169,9 +207,11 @@ export default function EditorLayout() {
   return (
     <div className="h-screen flex bg-white">
       {/* Left Sidebar - Document Navigation */}
-      <div className={`transition-all duration-300 border-r border-gray-200 bg-gray-50 ${
-        leftSidebarOpen ? 'w-64' : 'w-0 overflow-hidden'
-      }`}>
+      <div
+        className={`transition-all duration-300 border-r border-gray-200 bg-gray-50 ${
+          leftSidebarOpen ? "w-64" : "w-0 overflow-hidden"
+        }`}
+      >
         <div className="p-4 border-b border-gray-200">
           <div className="flex items-center justify-between">
             <h2 className="font-semibold text-gray-800">Documents</h2>
@@ -192,7 +232,11 @@ export default function EditorLayout() {
         className="absolute top-4 left-2 z-10"
         onClick={() => setLeftSidebarOpen(!leftSidebarOpen)}
       >
-        {leftSidebarOpen ? <ChevronLeft className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+        {leftSidebarOpen ? (
+          <ChevronLeft className="w-4 h-4" />
+        ) : (
+          <Menu className="w-4 h-4" />
+        )}
       </Button>
 
       {/* Main Editor Area */}
@@ -201,7 +245,9 @@ export default function EditorLayout() {
         <div className="h-14 border-b border-gray-200 flex items-center justify-between px-6">
           <div className="flex items-center space-x-2">
             <span className="text-sm text-gray-500">
-              {selectedDocument ? selectedDocument.name : 'No document selected'}
+              {selectedDocument
+                ? selectedDocument.name
+                : "No document selected"}
             </span>
           </div>
           <div className="flex items-center space-x-2">
@@ -215,38 +261,49 @@ export default function EditorLayout() {
         <div className="flex-1 p-6 overflow-y-auto">
           {selectedDocument ? (
             <div className="max-w-4xl mx-auto">
-              <div 
+              <div
                 className="prose prose-lg max-w-none"
-                style={{ 
-                  fontFamily: 'system-ui, -apple-system, sans-serif',
-                  lineHeight: '1.6',
-                  fontSize: '16px'
+                style={{
+                  fontFamily: "system-ui, -apple-system, sans-serif",
+                  lineHeight: "1.6",
+                  fontSize: "16px",
                 }}
               >
                 {selectedDocument.content ? (
                   <div
                     dangerouslySetInnerHTML={{
-                      __html: selectedDocument.content.replace(/\n/g, '<br/>').replace(/\[([^\]]+)\]/g, '<span style="color: #8b5cf6; background: #f3f4f6; padding: 2px 4px; border-radius: 4px; font-size: 14px;">$1</span>')
+                      __html: selectedDocument.content
+                        .replace(/\n/g, "<br/>")
+                        .replace(
+                          /\[([^\]]+)\]/g,
+                          '<span style="color: #8b5cf6; background: #f3f4f6; padding: 2px 4px; border-radius: 4px; font-size: 14px;">$1</span>',
+                        ),
                     }}
                     onMouseUp={handleTextSelection}
                   />
                 ) : (
-                  <p className="text-gray-500">This document is empty. Start writing...</p>
+                  <p className="text-gray-500">
+                    This document is empty. Start writing...
+                  </p>
                 )}
               </div>
             </div>
           ) : (
             <div className="flex items-center justify-center h-full">
-              <p className="text-gray-500">Select a document to start editing</p>
+              <p className="text-gray-500">
+                Select a document to start editing
+              </p>
             </div>
           )}
         </div>
       </div>
 
       {/* Right Sidebar - Quiz Tools */}
-      <div className={`transition-all duration-300 border-l border-gray-200 bg-white ${
-        rightSidebarOpen ? 'w-80' : 'w-0 overflow-hidden'
-      }`}>
+      <div
+        className={`transition-all duration-300 border-l border-gray-200 bg-white ${
+          rightSidebarOpen ? "w-80" : "w-0 overflow-hidden"
+        }`}
+      >
         <div className="p-4 border-b border-gray-200">
           <div className="flex items-center justify-between">
             <h2 className="font-semibold text-gray-800">Quiz Tools</h2>
@@ -259,19 +316,24 @@ export default function EditorLayout() {
             </Button>
           </div>
         </div>
-        
+
         <div className="p-4 space-y-4">
           <div className="text-sm text-gray-600 mb-4">
             {selectedText ? (
               <div className="p-2 bg-blue-50 border border-blue-200 rounded">
-                <div className="font-medium text-blue-800 mb-1">Selected text:</div>
-                <div className="text-blue-700 text-xs">"{selectedText.substring(0, 50)}{selectedText.length > 50 ? '...' : '"'}</div>
+                <div className="font-medium text-blue-800 mb-1">
+                  Selected text (original markdown):
+                </div>
+                <div className="text-blue-700 text-xs">
+                  "{selectedText.substring(0, 50)}
+                  {selectedText.length > 50 ? "..." : '"'}
+                </div>
               </div>
             ) : (
-              'Select text in the editor to generate quizzes'
+              "Select text in the editor to generate quizzes"
             )}
           </div>
-          
+
           {quizTools.map((tool) => (
             <div
               key={tool.id}
@@ -281,7 +343,9 @@ export default function EditorLayout() {
               <div className="flex items-start space-x-3">
                 <span className="text-2xl">{tool.icon}</span>
                 <div className="flex-1">
-                  <h3 className="font-semibold text-gray-800 mb-1">{tool.title}</h3>
+                  <h3 className="font-semibold text-gray-800 mb-1">
+                    {tool.title}
+                  </h3>
                   <p className="text-sm text-gray-600">{tool.description}</p>
                 </div>
               </div>
@@ -298,16 +362,23 @@ export default function EditorLayout() {
                 className="p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
                 onClick={() => handleQuizClick(quiz)}
               >
-                <div className="text-sm font-medium text-gray-800">{quiz.title}</div>
+                <div className="text-sm font-medium text-gray-800">
+                  {quiz.title}
+                </div>
                 <div className="text-xs text-gray-500">
-                  {quiz.data.length} {quiz.type === 'flashcard' ? 'flashcards' :
-                   quiz.type === 'multiple-choice' ? 'questions' : 'tasks'}
+                  {quiz.data.length}{" "}
+                  {quiz.type === "flashcard"
+                    ? "flashcards"
+                    : quiz.type === "multiple-choice"
+                      ? "questions"
+                      : "tasks"}
                 </div>
               </div>
             ))}
             {quizzes.length === 0 && (
               <div className="text-sm text-gray-500 text-center py-4">
-                No quizzes yet. Select text and click a quiz tool to get started!
+                No quizzes yet. Select text and click a quiz tool to get
+                started!
               </div>
             )}
           </div>
