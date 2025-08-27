@@ -270,6 +270,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
         getLatestQuizByTypeForCurrentDocument,
         getAllQuizzes,
         deleteQuiz,
+        renameQuiz,
         setCurrentQuiz,
       }}
     >
