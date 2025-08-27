@@ -1460,6 +1460,18 @@ export default function MobileEditorLayout() {
                                     className="p-1 h-6 w-6"
                                     onClick={(e) => {
                                       e.stopPropagation();
+                                      handleRenameQuizStart(quiz);
+                                    }}
+                                    title="Rename quiz"
+                                  >
+                                    <Edit className="w-3 h-3 text-gray-500" />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="p-1 h-6 w-6"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
                                       setPreviewContent(quiz.sourceText);
                                       setPreviewTitle(quiz.title);
                                       setShowPreview(true);
