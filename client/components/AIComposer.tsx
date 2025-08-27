@@ -763,19 +763,31 @@ Return only the title, no quotes or additional text.`;
 
                     {/* Action Buttons */}
                     <div className="flex items-center space-x-1">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => toggleMessageView(message.id)}
-                        className="h-7 w-7 p-0 text-gray-500 hover:text-gray-700"
-                        title={isRawMode ? "Show formatted" : "Show raw text"}
-                      >
-                        {isRawMode ? (
-                          <span className="text-xs font-bold">F</span>
-                        ) : (
-                          <span className="text-xs font-bold">R</span>
-                        )}
-                      </Button>
+                      {message.role === "user" ? (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => resumeFromMessage(message.id)}
+                          className="h-7 w-7 p-0 text-gray-500 hover:text-gray-700"
+                          title="Edit and resume from this message"
+                        >
+                          <Edit className="w-3 h-3" />
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => toggleMessageView(message.id)}
+                          className="h-7 w-7 p-0 text-gray-500 hover:text-gray-700"
+                          title={isRawMode ? "Show formatted" : "Show raw text"}
+                        >
+                          {isRawMode ? (
+                            <span className="text-xs font-bold">F</span>
+                          ) : (
+                            <span className="text-xs font-bold">R</span>
+                          )}
+                        </Button>
+                      )}
                       <Button
                         variant="ghost"
                         size="sm"
