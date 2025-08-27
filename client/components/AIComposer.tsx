@@ -64,6 +64,8 @@ export default function AIComposer({
   isOpen,
   onClose,
   settings,
+  documents = [],
+  selectedDocument = null,
 }: AIComposerProps) {
   const [currentSession, setCurrentSession] = useState<ChatSession | null>(
     null,
