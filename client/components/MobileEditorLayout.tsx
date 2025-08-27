@@ -101,7 +101,7 @@ export default function MobileEditorLayout() {
       model: "gemini-2.0-flash",
     },
   });
-  const { createQuiz, getQuizzesByDocument, getAllQuizzes, setCurrentDocumentId } = useQuiz();
+  const { createQuiz, getQuizzesByDocument, getAllQuizzes, setCurrentDocumentId, renameQuiz } = useQuiz();
   const [isEditingContent, setIsEditingContent] = useState(false);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [tempTitle, setTempTitle] = useState("");
