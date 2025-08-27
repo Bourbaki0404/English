@@ -130,6 +130,11 @@ export default function EditorLayoutSimple() {
     }
   }, [selectedDocument?.content]);
 
+  // Sync selectedDocumentId to QuizContext
+  useEffect(() => {
+    setCurrentDocumentId(selectedDocumentId);
+  }, [selectedDocumentId, setCurrentDocumentId]);
+
   const handleQuizToolClick = async (toolId: string) => {
     if (!selectedText) {
       ErrorHandler.showWarning(
