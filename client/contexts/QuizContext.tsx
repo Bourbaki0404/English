@@ -207,6 +207,11 @@ export function QuizProvider({ children }: { children: ReactNode }) {
     return typeQuizzes.length > 0 ? typeQuizzes[typeQuizzes.length - 1] : null;
   };
 
+  const getLatestQuizByTypeForCurrentDocument = (type: Quiz["type"]) => {
+    const documentTypeQuizzes = getQuizzesByDocumentAndType(currentDocumentId, type);
+    return documentTypeQuizzes.length > 0 ? documentTypeQuizzes[0] : null; // Already sorted by createdAt desc
+  };
+
   const getAllQuizzes = () => {
     return quizzes.sort(
       (a, b) => b.createdAt.getTime() - a.createdAt.getTime(),
