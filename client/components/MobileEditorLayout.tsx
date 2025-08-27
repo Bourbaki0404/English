@@ -75,13 +75,8 @@ export default function MobileEditorLayout() {
   const [selectedDocumentId, setSelectedDocumentId] = useState<string>("3");
   const [selectedText, setSelectedText] = useState("");
   const [selectedDisplayText, setSelectedDisplayText] = useState("");
-  const [selectionRange, setSelectionRange] = useState<{
-    startContainer: Node | null;
-    endContainer: Node | null;
-    startOffset: number;
-    endOffset: number;
-  } | null>(null);
-  const [tempUnformattedContent, setTempUnformattedContent] = useState<string | null>(null);
+  const [isTextSelected, setIsTextSelected] = useState(false);
+  const [selectedLineIndices, setSelectedLineIndices] = useState<number[]>([]);
   // 简单的抽屉状态管理
   const [documentsDrawerOpen, setDocumentsDrawerOpen] = useState(false);
   const [quizDrawerOpen, setQuizDrawerOpen] = useState(false);
@@ -358,85 +353,37 @@ export default function MobileEditorLayout() {
     return bestMatch;
   };
 
-  const applyTemporaryFormattingRemoval = (selection: Selection, originalText: string) => {
-    if (!selection.rangeCount || !showPreview) return;
+  const findSelectedLineIndices = (selection: Selection, originalText: string): number[] => {
+    if (!showPreview || !previewContent || !selection.rangeCount) return [];
 
     try {
       const range = selection.getRangeAt(0);
-      const selectedElements = getSelectedElements(range);
+      const selectedLines: number[] = [];
 
-      // Store original content before modification
-      if (tempUnformattedContent === null) {
-        const originalContent = selectedElements.map(el => el.innerHTML).join('');
-        setTempUnformattedContent(originalContent);
-      }
+      // Find which content lines contain the selected text
+      const lines = (showPreview ? previewContent : selectedDocument?.content || '').split('\n');
+      const cleanSelectedText = originalText.trim().toLowerCase();
 
-      // Remove formatting from selected elements
-      selectedElements.forEach(element => {
-        if (element.nodeType === Node.ELEMENT_NODE) {
-          const htmlElement = element as HTMLElement;
-          // Create a clean text version without HTML tags
-          const textContent = htmlElement.textContent || '';
-          // Replace the HTML content with plain text
-          htmlElement.innerHTML = textContent;
-          // Add a class to identify temporarily modified elements
-          htmlElement.classList.add('temp-unformatted');
-        }
-      });
-    } catch (error) {
-      console.warn('Error applying temporary formatting removal:', error);
-    }
-  };
+      lines.forEach((line, index) => {
+        const cleanLine = line
+          .replace(/^#+\s+/, '') // Remove headers
+          .replace(/\*\*(.*?)\*\*/g, '$1') // Remove bold
+          .replace(/\*(.*?)\*/g, '$1') // Remove italic
+          .replace(/`(.*?)`/g, '$1') // Remove inline code
+          .replace(/\[(.*?)\]\(.*?\)/g, '$1') // Remove links, keep text
+          .replace(/==(.*?)==/g, '$1') // Remove highlights
+          .trim().toLowerCase();
 
-  const clearTemporaryFormattingRemoval = () => {
-    if (tempUnformattedContent === null) return;
-
-    try {
-      // Find all temporarily modified elements and restore them
-      const modifiedElements = document.querySelectorAll('.temp-unformatted');
-      modifiedElements.forEach((element, index) => {
-        element.classList.remove('temp-unformatted');
-        // Restore original formatting by re-rendering the content
-        if (showPreview && previewContent) {
-          // Trigger a re-render to restore original formatting
-          // This will be handled by the component re-render
+        if (cleanLine.includes(cleanSelectedText) || cleanSelectedText.includes(cleanLine)) {
+          selectedLines.push(index);
         }
       });
 
-      setTempUnformattedContent(null);
-
-      // Force re-render of preview content to restore formatting
-      if (showPreview) {
-        // The component will re-render automatically due to state change
-      }
+      return selectedLines;
     } catch (error) {
-      console.warn('Error clearing temporary formatting removal:', error);
+      console.warn('Error finding selected line indices:', error);
+      return [];
     }
-  };
-
-  const getSelectedElements = (range: Range): HTMLElement[] => {
-    const elements: HTMLElement[] = [];
-    const walker = document.createTreeWalker(
-      range.commonAncestorContainer,
-      NodeFilter.SHOW_ELEMENT,
-      {
-        acceptNode: (node) => {
-          if (range.intersectsNode(node)) {
-            return NodeFilter.FILTER_ACCEPT;
-          }
-          return NodeFilter.FILTER_REJECT;
-        }
-      }
-    );
-
-    let node;
-    while (node = walker.nextNode()) {
-      if (node.nodeType === Node.ELEMENT_NODE) {
-        elements.push(node as HTMLElement);
-      }
-    }
-
-    return elements;
   };
 
   const handleTextSelection = () => {
@@ -444,16 +391,8 @@ export default function MobileEditorLayout() {
     if (selection && selection.toString()) {
       const selectedRenderedText = selection.toString();
 
-      // Store selection range for temporary formatting removal
-      if (selection.rangeCount > 0) {
-        const range = selection.getRangeAt(0);
-        setSelectionRange({
-          startContainer: range.startContainer,
-          endContainer: range.endContainer,
-          startOffset: range.startOffset,
-          endOffset: range.endOffset,
-        });
-      }
+      // Track selection for temporary formatting removal in preview mode
+      setIsTextSelected(true);
 
       // Always store the rendered text for display
       setSelectedDisplayText(selectedRenderedText);
@@ -477,8 +416,9 @@ export default function MobileEditorLayout() {
         console.log("Mapped to original text:", originalText);
         setSelectedText(originalText);
 
-        // Apply temporary formatting removal in preview mode
-        applyTemporaryFormattingRemoval(selection, originalText);
+        // Find which lines should show unformatted text
+        const lineIndices = findSelectedLineIndices(selection, originalText);
+        setSelectedLineIndices(lineIndices);
       } else {
         // Normal mode - try to map from the current document content
         if (selectedDocument) {
@@ -494,8 +434,8 @@ export default function MobileEditorLayout() {
       }
     } else {
       // Clear selection and restore formatting
-      clearTemporaryFormattingRemoval();
-      setSelectionRange(null);
+      setIsTextSelected(false);
+      setSelectedLineIndices([]);
       setSelectedText("");
       setSelectedDisplayText("");
     }
@@ -707,7 +647,31 @@ export default function MobileEditorLayout() {
           return <div key={index} className="mb-4"></div>;
         }
 
-        // Handle mobile-optimized markdown formatting
+        // Check if this line should show unformatted text (when selected in preview mode)
+        const shouldShowUnformatted = showPreview && isTextSelected && selectedLineIndices.includes(index);
+
+        if (shouldShowUnformatted) {
+          // Show plain text without formatting
+          const plainText = line
+            .replace(/^#+\s+/, '') // Remove headers
+            .replace(/\*\*(.*?)\*\*/g, '$1') // Remove bold
+            .replace(/\*(.*?)\*/g, '$1') // Remove italic
+            .replace(/`(.*?)`/g, '$1') // Remove inline code
+            .replace(/\[(.*?)\]\(.*?\)/g, '$1') // Remove links, keep text
+            .replace(/==(.*?)==/g, '$1'); // Remove highlights
+
+          return (
+            <p
+              key={index}
+              id={`content-line-${index}`}
+              className="mb-4 leading-relaxed text-gray-600 text-base bg-gray-50 px-2 py-1 rounded transition-all duration-200"
+            >
+              {plainText}
+            </p>
+          );
+        }
+
+        // Handle mobile-optimized markdown formatting (normal mode)
         const processedLine = line
           .replace(
             /\*\*(.*?)\*\*/g,
