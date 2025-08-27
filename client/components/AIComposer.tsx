@@ -901,9 +901,93 @@ Please use the information from the provided document(s) to give a comprehensive
         {/* Input Area */}
         <div className="border-t border-gray-200 p-4 bg-gray-50">
           <div className="relative bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+            {/* Top toolbar with context button */}
+            <div className="flex items-center justify-between px-4 py-2 border-b border-gray-100">
+              <div className="flex items-center gap-2">
+                <div className="relative context-selector-container">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowContextSelector(!showContextSelector)}
+                    className="h-7 px-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 text-xs"
+                    title="Add Context"
+                  >
+                    <AtSign className="w-4 h-4 mr-1" />
+                    Add Context
+                  </Button>
+
+                  {/* Context Selector Dropdown */}
+                  {showContextSelector && (
+                    <div className="absolute top-full left-0 mt-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+                      <div className="p-3 border-b border-gray-100">
+                        <div className="text-sm font-medium text-gray-900">
+                          Add Context
+                        </div>
+                        <div className="text-xs text-gray-500 mt-1">
+                          Select documents to include in your prompt
+                        </div>
+                      </div>
+                      <div className="max-h-40 overflow-y-auto">
+                        {documents.map((doc) => {
+                          const isSelected = selectedContextDocuments.some(
+                            (d) => d.id === doc.id,
+                          );
+                          return (
+                            <button
+                              key={doc.id}
+                              onClick={() => {
+                                if (isSelected) {
+                                  setSelectedContextDocuments((prev) =>
+                                    prev.filter((d) => d.id !== doc.id),
+                                  );
+                                } else {
+                                  setSelectedContextDocuments((prev) => [
+                                    ...prev,
+                                    doc,
+                                  ]);
+                                }
+                              }}
+                              className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 flex items-center gap-2 ${
+                                isSelected
+                                  ? "bg-blue-50 text-blue-800"
+                                  : "text-gray-700"
+                              }`}
+                            >
+                              <FileText className="w-4 h-4 flex-shrink-0" />
+                              <div className="flex-1 min-w-0">
+                                <div className="truncate font-medium">
+                                  {doc.title}
+                                </div>
+                                <div className="text-xs text-gray-500 truncate">
+                                  {doc.content.substring(0, 50)}...
+                                </div>
+                              </div>
+                              {isSelected && (
+                                <Check className="w-4 h-4 text-blue-600" />
+                              )}
+                            </button>
+                          );
+                        })}
+                        {documents.length === 0 && (
+                          <div className="p-3 text-sm text-gray-500 text-center">
+                            No documents available
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+              {selectedContextDocuments.length > 0 && (
+                <div className="text-xs text-gray-500">
+                  {selectedContextDocuments.length} document(s) selected
+                </div>
+              )}
+            </div>
+
             {/* Context indicator */}
             {selectedContextDocuments.length > 0 && (
-              <div className="flex flex-wrap gap-1 p-2 pb-0">
+              <div className="flex flex-wrap gap-1 p-2 border-b border-gray-100">
                 {selectedContextDocuments.map((doc) => (
                   <div
                     key={doc.id}
@@ -927,80 +1011,6 @@ Please use the information from the provided document(s) to give a comprehensive
             )}
 
             <div className="flex items-start gap-2 p-4">
-              {/* Context Button */}
-              <div className="relative context-selector-container">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowContextSelector(!showContextSelector)}
-                  className="h-8 w-8 p-0 text-gray-500 hover:text-gray-700 hover:bg-gray-100"
-                  title="Add Context"
-                >
-                  <AtSign className="w-4 h-4" />
-                </Button>
-
-                {/* Context Selector Dropdown */}
-                {showContextSelector && (
-                  <div className="absolute bottom-full left-0 mb-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
-                    <div className="p-3 border-b border-gray-100">
-                      <div className="text-sm font-medium text-gray-900">
-                        Add Context
-                      </div>
-                      <div className="text-xs text-gray-500 mt-1">
-                        Select documents to include in your prompt
-                      </div>
-                    </div>
-                    <div className="max-h-40 overflow-y-auto">
-                      {documents.map((doc) => {
-                        const isSelected = selectedContextDocuments.some(
-                          (d) => d.id === doc.id,
-                        );
-                        return (
-                          <button
-                            key={doc.id}
-                            onClick={() => {
-                              if (isSelected) {
-                                setSelectedContextDocuments((prev) =>
-                                  prev.filter((d) => d.id !== doc.id),
-                                );
-                              } else {
-                                setSelectedContextDocuments((prev) => [
-                                  ...prev,
-                                  doc,
-                                ]);
-                              }
-                            }}
-                            className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 flex items-center gap-2 ${
-                              isSelected
-                                ? "bg-blue-50 text-blue-800"
-                                : "text-gray-700"
-                            }`}
-                          >
-                            <FileText className="w-4 h-4 flex-shrink-0" />
-                            <div className="flex-1 min-w-0">
-                              <div className="truncate font-medium">
-                                {doc.title}
-                              </div>
-                              <div className="text-xs text-gray-500 truncate">
-                                {doc.content.substring(0, 50)}...
-                              </div>
-                            </div>
-                            {isSelected && (
-                              <Check className="w-4 h-4 text-blue-600" />
-                            )}
-                          </button>
-                        );
-                      })}
-                      {documents.length === 0 && (
-                        <div className="p-3 text-sm text-gray-500 text-center">
-                          No documents available
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
-
               {/* Textarea */}
               <textarea
                 ref={inputRef}
