@@ -219,7 +219,8 @@ Return only the title, no quotes or additional text.`;
 
     try {
       const llmService = getLLMService(settings);
-      const response = await llmService.chatWithAI(inputValue.trim());
+      // Pass conversation history for multi-turn conversation
+      const response = await llmService.chatWithAI(inputValue.trim(), updatedSession.messages);
 
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
